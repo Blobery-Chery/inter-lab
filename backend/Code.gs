@@ -845,7 +845,9 @@ function login_(req) {
       e2.retryAfter = next.lockedUntil - now;
       throw e2;
     }
-    throw apiError_('bad_login', 'Неверный логин или пароль. Осталось попыток: ' + (VLAB.MAX_FAILS - next.fails) + '.');
+    var e3 = apiError_('bad_login', 'Неверный логин или пароль. Осталось попыток: ' + (VLAB.MAX_FAILS - next.fails) + '.');
+    e3.attemptsLeft = VLAB.MAX_FAILS - next.fails;
+    throw e3;
   }
   return { ok: true, token: makeToken(storedLogin, now, VLAB.TOKEN_TTL_MS, secret, hmacHex_, b64url_), expiresAt: now + VLAB.TOKEN_TTL_MS };
 }
@@ -880,6 +882,7 @@ function doPost(e) {
   } catch (err) {
     var out = { ok: false, error: err.code || 'server', message: err.code ? err.message : 'Ошибка сервера: ' + err.message };
     if (err.retryAfter) out.retryAfter = err.retryAfter;
+    if (err.attemptsLeft !== undefined) out.attemptsLeft = err.attemptsLeft;
     return json_(out);
   }
 }
