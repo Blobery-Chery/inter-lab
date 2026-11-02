@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Virtual lab: benzoic acid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #e9eff3; --surface: #ffffff; --surface-2: #f4f7f9; --ink: #1f252c; --muted: #5b6672; --line: #d2dbe2;
+  --carbon: #4a525c; --oxygen: #d7263d; --iodine: #5b3e96; --iodine-soft: #ece6f7;
+  --action: #1f5faf; --action-soft: #dde9f8; --on-action: #ffffff;
+  --ok: #1e8a5a; --ok-soft: #dcf2e7; --bad: #a8480a; --bad-soft: #fbe9dc;
+  --glass: rgba(255,255,255,0.7); --glass-line: #7f8d99; --heat: #e0662e; --ice: rgba(110,170,225,0.22); --ice-line: rgba(80,140,200,0.55);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11161b; --surface: #1a2129; --surface-2: #212a33; --ink: #e5ebf0; --muted: #9aa6b2; --line: #2e3945;
+    --carbon: #a9b3be; --oxygen: #ff5d71; --iodine: #a88ee3; --iodine-soft: #2b2340;
+    --action: #6ea7ff; --action-soft: #1d2d45; --on-action: #0f1a2b;
+    --ok: #4cc38a; --ok-soft: #173327; --bad: #f0a04b; --bad-soft: #3a2a18;
+    --glass: rgba(255,255,255,0.06); --glass-line: #8b98a5; --ice: rgba(110,170,225,0.16);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11161b; --surface: #1a2129; --surface-2: #212a33; --ink: #e5ebf0; --muted: #9aa6b2; --line: #2e3945;
+  --carbon: #a9b3be; --oxygen: #ff5d71; --iodine: #a88ee3; --iodine-soft: #2b2340;
+  --action: #6ea7ff; --action-soft: #1d2d45; --on-action: #0f1a2b;
+  --ok: #4cc38a; --ok-soft: #173327; --bad: #f0a04b; --bad-soft: #3a2a18;
+  --glass: rgba(255,255,255,0.06); --glass-line: #8b98a5; --ice: rgba(110,170,225,0.16);
+}
+:root { box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); background: var(--bg); }
+*, *::before, *::after { box-sizing: inherit; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-text-size-adjust: 100%; }
+sub, sup { font-size: 0.72em; line-height: 0; }
+sub { vertical-align: -0.28em; }
+sup { vertical-align: 0.5em; }
+button, input { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--action); outline-offset: 2px; }
+.nw { white-space: nowrap; }
+.mono { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; }
+.wrap { max-width: 720px; margin: 0 auto; padding: 0 14px 56px; }
+
+.top { display: flex; align-items: center; gap: 12px; padding: 16px 0 10px; }
+.logo { flex: none; width: 34px; height: 40px; }
+.titles { flex: 1; min-width: 0; }
+.titles h1 { font-family: "Unbounded", "IBM Plex Sans", system-ui, sans-serif; font-weight: 700; font-size: 18px; line-height: 1.2; margin: 0; }
+.titles p { margin: 3px 0 0; color: var(--muted); font-size: 13.5px; }
+.lang { flex: none; display: inline-flex; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); padding: 2px; }
+.lang button { border: 0; background: none; padding: 5px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
+.lang button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+.stack > * + * { margin-top: 12px; }
+.field { display: block; margin: 0 0 4px; font-weight: 600; font-size: 15px; }
+.input { width: 100%; border: 1.5px solid var(--line); border-radius: 10px; padding: 11px 12px; background: var(--surface); font-size: 16px; }
+.muted { color: var(--muted); }
+.small { font-size: 14px; }
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.seg button { border: 1.5px solid var(--line); background: var(--surface); border-radius: 12px; padding: 10px 12px; text-align: left; cursor: pointer; }
+.seg button b { display: block; font-size: 15px; }
+.seg button span { display: block; font-size: 13px; color: var(--muted); }
+.seg button[aria-pressed="true"] { border-color: var(--action); box-shadow: inset 0 0 0 1px var(--action); background: var(--action-soft); }
+.variant { font-size: 15px; background: var(--iodine-soft); border-radius: 10px; padding: 10px 12px; }
+.variant b { color: var(--iodine); }
+.btn { border: 0; border-radius: 11px; padding: 13px 16px; font-weight: 600; font-size: 16px; cursor: pointer; background: var(--action); color: var(--on-action); }
+.btn.ghost { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+.btn:disabled { opacity: .4; cursor: default; }
+.btn.full { width: 100%; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+/* status bar */
+.status { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: center; font-size: 14px; color: var(--muted); margin: 0 0 8px; }
+.status b { color: var(--ink); font-weight: 600; }
+.status .viol b { color: var(--bad); }
+.ppe { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.tog { border: 1.5px dashed var(--line); background: var(--surface); border-radius: 999px; padding: 6px 12px; font-size: 14px; cursor: pointer; font-weight: 500; }
+.tog[aria-pressed="true"] { border-style: solid; border-color: var(--ok); background: var(--ok-soft); color: var(--ink); }
+.tog[aria-pressed="true"]::before { content: "✓ "; color: var(--ok); font-weight: 700; }
+
+.bench { display: grid; grid-template-columns: 180px 1fr; gap: 14px; align-items: start; }
+@media (max-width: 440px) { .bench { grid-template-columns: 138px 1fr; gap: 10px; } }
+.bench svg { width: 100%; height: auto; display: block; }
+.caption { font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
+.reads { font-size: 13.5px; line-height: 1.4; margin: 0 0 8px; padding: 0; list-style: none; }
+.reads li { display: flex; justify-content: space-between; gap: 8px; border-bottom: 1px dashed var(--line); padding: 3px 0; }
+.reads li span:last-child { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 13px; }
+.legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; font-size: 13.5px; line-height: 1.35; }
+.legend li { display: flex; gap: 8px; align-items: flex-start; }
+.legend .sw { flex: none; width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--glass-line); margin-top: 2px; }
+
+.msgs { display: flex; flex-direction: column; gap: 6px; }
+.msg { border-radius: 10px; padding: 9px 12px; font-size: 15px; border-left: 4px solid var(--action); background: var(--action-soft); }
+.msg.warn { border-left-color: var(--bad); background: var(--bad-soft); }
+.msg.good { border-left-color: var(--ok); background: var(--ok-soft); }
+.msg.hint { border-left-color: var(--iodine); background: var(--iodine-soft); }
+.msg .t { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 12.5px; color: var(--muted); margin-right: 6px; }
+
+.grp h3 { font-size: 13.5px; color: var(--muted); font-weight: 500; margin: 0 0 6px; }
+.grp + .grp { margin-top: 12px; }
+.acts { display: flex; flex-wrap: wrap; gap: 7px; }
+.act { border: 1.5px solid var(--line); background: var(--surface); border-radius: 10px; padding: 8px 12px; font-size: 15px; cursor: pointer; line-height: 1.3; text-align: left; }
+.act.r { border-color: color-mix(in srgb, var(--oxygen) 45%, var(--line)); }
+.act.o { border-color: color-mix(in srgb, var(--action) 45%, var(--line)); }
+.act.p { border-color: color-mix(in srgb, var(--ok) 55%, var(--line)); }
+.act small { display: block; font-size: 12px; color: var(--muted); }
+.act:disabled { opacity: .38; cursor: default; }
+.act:not(:disabled):hover { background: var(--surface-2); }
+.chooser { border: 2px solid var(--action); border-radius: 14px; padding: 14px 16px; background: var(--surface); }
+.chooser h3 { margin: 0 0 10px; font-size: 16.5px; }
+.opt { display: flex; gap: 10px; align-items: flex-start; border: 1.5px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; font-size: 15.5px; }
+.opt input { margin-top: 4px; accent-color: var(--action); width: 18px; height: 18px; flex: none; }
+.opt:has(input:checked) { border-color: var(--action); background: var(--action-soft); }
+.sub { font-size: 14px; font-weight: 600; margin: 10px 0 6px; color: var(--muted); }
+
+.aside { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.aside li { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 14.5px; background: var(--surface-2); border-radius: 10px; padding: 8px 10px; }
+.aside li .btn { padding: 7px 10px; font-size: 13.5px; flex: none; }
+details.nb summary { cursor: pointer; font-weight: 600; font-size: 15px; }
+.log { list-style: none; margin: 10px 0 0; padding: 0; font-size: 14px; display: flex; flex-direction: column; gap: 6px; max-height: 360px; overflow-y: auto; }
+.log li { border-bottom: 1px dashed var(--line); padding-bottom: 5px; }
+.log .t { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 12.5px; color: var(--muted); margin-right: 6px; }
+.log .w { color: var(--bad); }
+
+/* report */
+.rep h2 { font-family: "Unbounded", "IBM Plex Sans", system-ui, sans-serif; font-size: 20px; margin: 0 0 4px; }
+.kv { list-style: none; padding: 0; margin: 10px 0 0; font-size: 15px; }
+.kv li { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px dashed var(--line); }
+.kv li span:last-child { font-weight: 600; text-align: right; }
+.calc { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: end; margin-top: 10px; }
+.calc .btn { padding: 11px 14px; }
+.verdict { font-size: 14.5px; margin-top: 6px; }
+.verdict.ok { color: var(--ok); font-weight: 600; }
+.verdict.no { color: var(--bad); font-weight: 600; }
+.tblwrap { overflow-x: auto; margin-top: 8px; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 460px; }
+th, td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+th { background: var(--surface-2); }
+.big { font-family: "Unbounded", "IBM Plex Sans", system-ui, sans-serif; font-size: 26px; font-weight: 700; line-height: 1.1; }
+
+/* mistakes review */
+.wr h2 { font-family: "Unbounded", "IBM Plex Sans", system-ui, sans-serif; font-size: 19px; margin: 0 0 4px; }
+.wr .sum { color: var(--muted); font-size: 14.5px; margin: 0 0 12px; }
+.lossbar { display: flex; height: 16px; border-radius: 8px; overflow: hidden; background: var(--line); margin: 6px 0 8px; }
+.lossbar i { display: block; height: 100%; }
+.losslist { list-style: none; margin: 0 0 14px; padding: 0; font-size: 14px; display: flex; flex-direction: column; gap: 4px; }
+.losslist li { display: flex; gap: 8px; align-items: center; }
+.losslist .sw { flex: none; width: 12px; height: 12px; border-radius: 3px; }
+.losslist .pc { margin-left: auto; font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 13px; }
+.mist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.mist li { border-radius: 10px; padding: 10px 12px; font-size: 14.5px; border-left: 4px solid var(--bad); background: var(--bad-soft); }
+.mist li.safety { border-left-color: var(--oxygen); background: color-mix(in srgb, var(--oxygen) 10%, var(--surface)); }
+.mist li.minor { border-left-color: var(--line); background: var(--surface-2); }
+.mist li b { display: block; font-size: 15px; }
+.mist .tag { display: inline-block; font-size: 11.5px; font-weight: 600; border-radius: 99px; padding: 0 7px; margin-right: 6px; background: var(--surface); border: 1px solid var(--line); vertical-align: 1px; }
+.mist .when { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 12.5px; color: var(--muted); }
+.mist p { margin: 4px 0 0; }
+.clean { border-left: 4px solid var(--ok); background: var(--ok-soft); border-radius: 10px; padding: 10px 12px; font-size: 15px; }
+
+/* send code */
+.send h2 { font-size: 17px; margin: 0 0 6px; }
+.codebox { width: 100%; min-height: 96px; border: 1.5px dashed var(--action); border-radius: 10px; padding: 10px; font: 500 12.5px/1.45 "IBM Plex Mono", ui-monospace, Menlo, monospace; background: var(--surface-2); color: var(--ink); resize: none; word-break: break-all; margin-top: 8px; }
+.copied { font-size: 14px; margin-top: 6px; min-height: 20px; }
+.copied.ok { color: var(--ok); font-weight: 600; }
+.copied.no { color: var(--bad); }
+
+/* scene anim */
+.anim .liq { animation: rise .55s ease-out both; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.heatw { animation: flick 1.2s ease-in-out infinite alternate; }
+@keyframes flick { from { opacity: .5; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .anim .liq, .heatw { animation: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <svg class="logo" viewBox="0 0 34 40" aria-hidden="true">
+      <path d="M12 3 L12 15 L3 33 Q1.5 37 6 37 L28 37 Q32.5 37 31 33 L22 15 L22 3" fill="none" stroke="var(--carbon)" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M7.2 26 L26.8 26 L30 32.6 Q31 35 28 35 L6 35 Q3 35 4 32.6 Z" fill="#7b2d8f"/>
+      <circle cx="14" cy="31" r="1.6" fill="#fff"/><circle cx="20" cy="29" r="1.2" fill="#fff"/>
+      <line x1="9" y1="3" x2="25" y2="3" stroke="var(--carbon)" stroke-width="2.4" stroke-linecap="round"/>
+    </svg>
+    <div class="titles"><h1 data-t="title"></h1><p data-t="subtitle"></p></div>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="ru">RU</button>
+    </div>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var store = {
+    get: function (k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } },
+    set: function (k, v) { try { window.localStorage.setItem(k, v); } catch (e) {} },
+    del: function (k) { try { window.localStorage.removeItem(k); } catch (e) {} }
+  };
+  function getJSON(k, d) { try { var v = JSON.parse(store.get(k) || "null"); return v == null ? d : v; } catch (e) { return d; } }
+  var lang = store.get("vl-lang") === "ru" ? "ru" : "en";
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var SUBMAP = { "₀":"0","₁":"1","₂":"2","₃":"3","₄":"4","₅":"5","₆":"6","₇":"7","₈":"8","₉":"9" };
+  function fmt(s) {
+    return String(s)
+      .replace(/[₀-₉]+/g, function (m) { return "<sub>" + m.split("").map(function (c) { return SUBMAP[c]; }).join("") + "</sub>"; })
+      .replace(/[⁺⁻]+/g, function (m) { return "<sup>" + m.split("").map(function (c) { return c === "⁺" ? "+" : "−"; }).join("") + "</sup>"; });
+  }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  function num(x, d) { var s = x.toFixed(d); return lang === "ru" ? s.replace(".", ",") : s; }
+  function clockStr(min) { var h = Math.floor(min / 60), m = Math.round(min % 60); return (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m; }
+
+  /* =============== texts =============== */
+  var T = {
+    en: {
+      title: "Virtual lab: benzoic acid", subtitle: "Run the synthesis yourself — every choice changes the result.",
+      s_intro: "No one tells you what to do next. Plan the steps yourself, watch the flask, measure, and write the report at the end.",
+      s_name: "Your name and group", s_name_ph: "e.g. Aigerim S., group 301", s_route: "Choose the route",
+      rA_t: "Route A: toluene + KMnO₄", rA_s: "side-chain oxidation", rB_t: "Route B: Cannizzaro", rB_s: "benzaldehyde + conc. KOH",
+      s_var: "Your individual variant:", var_A: "toluene {v} mL", var_B: "benzaldehyde {v} mL", s_var_note: "The variant depends on your name, so your numbers differ from your neighbour's.",
+      s_start: "Enter the lab", s_resume: "Continue the run in progress", s_prev: "Your finished runs",
+      bar_route: "Route {r}", bar_time: "Time", bar_viol: "Safety issues", ppe_g: "Goggles", ppe_gl: "Gloves", ppe_c: "Lab coat", hood: "Fume hood",
+      g_r: "Reagents", g_e: "Operations", g_p: "Product",
+      r_kmno4: "KMnO₄ 5%", r_kmno4_d: "20 mL", r_koh: "Conc. KOH 50%", r_koh_d: "5 mL", r_hcl1: "Conc. HCl", r_hcl1_d: "1 mL", r_hcl02: "Conc. HCl", r_hcl02_d: "0.2 mL (a few drops)",
+      r_nahso3: "NaHSO₃", r_nahso3_d: "0.5 g", r_ether: "Diethyl ether", r_ether_d: "15 mL", r_water: "Distilled water", r_water_d: "10 mL",
+      e_cond_on: "Attach reflux condenser", e_cond_off: "Remove condenser", e_reflux: "Heat under reflux", e_reflux_d: "30 min",
+      e_shake: "Shake on warm water bath", e_shake_d: "10 min", e_room: "Let cool to room T", e_room_d: "10 min", e_ice: "Ice bath", e_ice_d: "10 min",
+      e_ph: "Test with pH paper", e_sep: "Pour into separating funnel", e_vent: "Shake and vent the funnel", e_drain: "Separate the layers…", e_filter: "Vacuum filtration…",
+      p_recryst: "Recrystallize…", p_dry: "Dry the product", p_dry_d: "30 min", p_weigh: "Weigh", p_mp: "Melting point",
+      hint: "Hint", finish: "Finish and write the report", reset: "Start over", reset2: "Tap again to discard this run",
+      k_rbf: "round-bottom flask", k_sep: "separating funnel", k_beaker: "beaker", k_prod: "product on a watch glass",
+      f_cond: "reflux condenser", f_heat: "heating", f_bath: "warm water bath", f_ice: "ice bath",
+      rd_T: "Temperature", rd_V: "Volume", rd_pH: "pH (last test)", rd_none: "—",
+      empty: "The working vessel is empty.", prod_here: "Your solid is on the watch glass (see below).",
+      aside: "Set aside", takeback: "Take back", notebook: "Lab notebook", nb_empty: "No entries yet.",
+      ch_filter: "Vacuum filtration: what do you keep?", keep_filtrate: "Keep the filtrate (the liquid)", keep_solid: "Keep the solid on the filter",
+      wash: "Wash the solid with", w_cold: "a little cold water", w_hot: "hot water", w_none: "no wash", go_filter: "Filter", cancel: "Cancel",
+      ch_drain: "Which layer stays in your working beaker?", keep_lower: "Lower layer (aqueous)", keep_upper: "Upper layer (ether)", go_drain: "Separate",
+      ch_rec: "Recrystallization from water", rec_amount: "How much hot water?", rec_min: "The minimum — just enough to dissolve at the boil", rec_exc: "Plenty — about three times more",
+      rec_hf: "Filter the hot solution before cooling (removes insoluble matter)", go_rec: "Recrystallize",
+      a_aq: "lower aqueous layer", a_org: "upper ether layer", a_filtrate: "filtrate", a_cake: "filter cake", a_cake_mn: "filter cake with brown MnO₂", a_prev: "previous contents",
+      a_liq: "liquid", a_sol: "solid",
+      ph_purple: "purple solution", ph_ppurple: "pale purple solution", ph_clear: "colourless solution", ph_milky: "cloudy emulsion", ph_mno2: "brown MnO₂",
+      ph_tol: "oily toluene drops on top", ph_ald: "oily benzaldehyde layer on top", ph_ether: "ether layer on top", ph_white: "white precipitate", ph_empty: "empty",
+      m_added: "Added {x}.", m_nothing: "Nothing to test here.", m_full: "The vessel is too full for that.", m_novessel: "There's nothing in the working vessel.",
+      m_cond_on: "Reflux condenser attached, cooling water on.", m_cond_off: "Condenser removed.",
+      m_reflux: "Heated under reflux for 30 min.", m_shake: "Shaken on a warm water bath for 10 min.", m_room: "Left to cool to room temperature.", m_ice: "Cooled in an ice bath.",
+      m_dilute: "The base is too dilute — the Cannizzaro reaction barely moves.",
+      m_nohe: "Nothing reacts: there's no oxidant or base in the flask.",
+      m_ph: "pH paper: pH ≈ {p}.", m_sep: "Poured into a separating funnel.", m_sep_solid: "Solids in a separating funnel clog the stopcock — filter them off first.",
+      m_vent: "Shaken, vented, left to settle: two layers.", m_noether: "There's no organic solvent — nothing to extract with.", m_onelayer: "Only one layer — nothing to separate.",
+      m_lower: "Kept the lower aqueous layer; the ether layer is set aside.", m_upper: "Kept the upper ether layer; the aqueous layer is set aside.",
+      m_filt_none: "Nothing stays on the filter — there's no solid.", m_filt_liq: "Filtered. The solid is set aside; you keep the clear filtrate.",
+      m_filt_lost: "Part of your benzoic acid stayed on the filter with the other solid.", m_filt_sol: "Filtered. Your solid stays on the filter; the filtrate is set aside.",
+      m_filt_warm: "The liquid was still warm, so more benzoic acid stayed dissolved in the filtrate.",
+      m_hotwash: "Hot water dissolves benzoic acid — part of the product went through the filter.",
+      m_rec: "Recrystallized: dissolved in hot water, cooled slowly and on ice, filtered.", m_rec_exc: "With so much water, more product stays in the mother liquor.",
+      m_rec_mn: "The brown MnO₂ stayed with the crystals — it's insoluble, and only a hot filtration removes it.", m_rec_hf: "Hot filtration removed the insoluble matter.",
+      m_dry: "Dried to constant mass.", m_weigh: "Balance: {m} g.", m_weigh_wet: "Balance: {m} g — but the product is still wet, so this mass is too high.",
+      m_mp: "Melting range: {a}–{b} °C.", m_mp_wet: "The wet sample bubbles and melts early and unclearly: {a}–{b} °C.", m_residue: "A residue does not melt: an insoluble impurity (MnO₂ or KCl).",
+      m_bis_ald: "Bisulfite adds to benzaldehyde and ties it up as an adduct — that part is lost.", m_bis_ok: "The excess permanganate is reduced: the purple colour disappears.", m_bis_more: "Still purple — the permanganate isn't all destroyed yet.",
+      m_hot: "The mixture gets hot from the neutralization.", m_redis: "The precipitate dissolves again: the base turns benzoic acid back into soluble benzoate.",
+      m_take: "Took back: {x}. The previous contents are set aside.", m_merge: "Added to the solid you already have.",
+      m_tol_evap: "Without a condenser part of the toluene boiled away.", m_ether_evap: "The ether boiled off.",
+      m_kmno4_bnoh: "KMnO₄ also oxidizes the benzyl alcohol to benzoate.",
+      v_ppe: "Handled reagents without full PPE (goggles, gloves, lab coat).", v_hood_hcl: "Conc. HCl used outside the fume hood.",
+      v_hood_ether: "Diethyl ether used outside the fume hood.", v_hood_ald: "Benzaldehyde handled outside the fume hood.",
+      v_cl2: "Chlorine released: HCl met KMnO₄ or hot MnO₂.", v_nocond: "A flammable liquid was heated without a reflux condenser.",
+      v_etherheat: "Ether next to heat: it boiled off — a fire risk.", v_etherwarm: "Warm mixture shaken with ether: pressure built up in the funnel.",
+      h_ppe: "Put on goggles, gloves and a lab coat first.", h_a_kmno4: "Add KMnO₄ solution in portions.", h_a_cond: "Attach a reflux condenser before heating.",
+      h_a_reflux: "Heat under reflux.", h_a_more: "The purple is gone but toluene is left: add more KMnO₄ and reflux again.",
+      h_a_bis: "Oxidation is complete. Destroy the excess KMnO₄ with NaHSO₃ until the purple disappears.", h_a_filter: "Filter off the brown MnO₂ while hot and keep the filtrate.",
+      h_b_koh: "Add conc. KOH.", h_b_shake: "Shake on a warm water bath until the oily layer disappears.", h_b_cool: "Cool the mixture before you add ether.",
+      h_b_sep: "Pour the mixture into a separating funnel.", h_b_ether: "Add diethyl ether (in the fume hood).", h_b_vent: "Shake and vent the funnel.",
+      h_b_drain: "Separate the layers and keep the lower aqueous one.", h_b_again: "Extract the aqueous layer once more: pour it back into the funnel, add fresh ether, shake, keep the lower layer.",
+      h_take: "Your benzoate or benzoic acid is in a portion you set aside — take it back.", h_acid: "Acidify with conc. HCl to pH ≈ 2 (fume hood) and check with pH paper.",
+      h_ice: "Cool in an ice bath to complete the crystallization.", h_collect: "Filter, keep the solid and wash it with a little cold water.",
+      h_rec: "Recrystallize from the minimum of hot water.", h_rec_hf: "Recrystallize with a hot filtration to remove the brown MnO₂.",
+      h_dry: "Dry the product.", h_weigh: "Weigh the dry product.", h_mp: "Measure the melting point.", h_done: "You're done — write the report.", h_stuck: "Think about what's in the flask and what it needs next.",
+      rep_t: "Laboratory report", rep_who: "Student", rep_route: "Route", rep_start: "Starting material", rep_n: "Amount of starting material",
+      rep_q1: "Theoretical yield of benzoic acid, g", rep_q2: "Percent yield, %", rep_check: "Check", rep_ok: "Correct.", rep_no: "Not quite — recheck your calculation.",
+      rep_need: "Weigh the dry product first to calculate the yield.", rep_mass: "Isolated mass", rep_mp: "Melting range", rep_notmeas: "not measured",
+      rep_viol: "Safety issues", rep_none: "none", rep_hints: "Hints used", rep_time: "Lab time", rep_verdict: "Conclusion",
+      c_pure: "Sharp melting at 122–123 °C: pure benzoic acid.", c_impure: "Low, broad melting range: the product is impure — recrystallize again.", c_wet: "The product was not dry.", c_nomp: "Identity and purity not confirmed (no melting point).",
+      c_insol: "An insoluble residue (MnO₂ or KCl) is present.",
+      rep_cmp: "Comparison of routes", th_route: "Route", th_start: "Starting material", th_agent: "Redox agent", th_by: "By-product(s)", th_mass: "Mass, g", th_yield: "Yield, %", th_mp: "m.p., °C",
+      rowA_start: "Toluene", rowA_agent: "KMnO₄", rowA_by: "MnO₂", rowB_start: "Benzaldehyde", rowB_agent: "self, base-mediated", rowB_by: "Benzyl alcohol",
+      rep_show: "Show this report to your teacher.", rep_back: "Back to the bench", rep_other: "Run the other route", rep_new: "New run",
+      name_none: "(no name)", u_g: "g", u_ml: "mL",
+      wr_t: "What went wrong", wr_sum: "{n} issue(s) found: {s} safety, {o} technique.", wr_clean: "No mistakes found — a clean run.",
+      wr_where: "Where did your benzoic acid go?", wr_note: "Share of the theoretical amount.",
+      lb_prod: "In your product", lb_unr: "Starting material never converted", lb_sol: "Left in solutions (dissolved or as benzoate)",
+      lb_solid: "Left as a solid in a set-aside portion or the flask", lb_other: "Lost in washing, recrystallization, evaporation, side reactions",
+      snd_t: "Send your result to the teacher", snd_p: "Copy this code and send it to your teacher, for example in the group chat. It contains your report and the list of mistakes.",
+      snd_copy: "Copy code", snd_ok: "Copied — now paste it into the chat.", snd_manual: "Couldn't copy automatically. The code is selected — copy it by hand.",
+      snd_note: "If you go back and change something, send the new code — your teacher keeps the latest one.", snd_name: "Enter your name and group so your teacher knows whose result this is:",
+      tag_safety: "safety", tag_yield: "yield", tag_purity: "purity", tag_minor: "minor", at: "at", times: "×{n}", fixed: "You corrected this later."
+    },
+    ru: {
+      title: "Виртуальная лаборатория: бензойная кислота", subtitle: "Проведите синтез сами — каждое решение меняет результат.",
+      s_intro: "Никто не подсказывает следующий шаг. Спланируйте его сами, следите за колбой, измеряйте и в конце напишите отчёт.",
+      s_name: "Фамилия, имя и группа", s_name_ph: "например, Айгерим С., группа 301", s_route: "Выберите путь синтеза",
+      rA_t: "Путь A: толуол + KMnO₄", rA_s: "окисление боковой цепи", rB_t: "Путь B: Канниццаро", rB_s: "бензальдегид + конц. KOH",
+      s_var: "Ваш индивидуальный вариант:", var_A: "толуол {v} мл", var_B: "бензальдегид {v} мл", s_var_note: "Вариант зависит от имени, поэтому цифры у соседа будут другими.",
+      s_start: "Войти в лабораторию", s_resume: "Продолжить начатый опыт", s_prev: "Завершённые опыты",
+      bar_route: "Путь {r}", bar_time: "Время", bar_viol: "Нарушения ТБ", ppe_g: "Очки", ppe_gl: "Перчатки", ppe_c: "Халат", hood: "Вытяжной шкаф",
+      g_r: "Реактивы", g_e: "Операции", g_p: "Продукт",
+      r_kmno4: "KMnO₄ 5%", r_kmno4_d: "20 мл", r_koh: "Конц. KOH 50%", r_koh_d: "5 мл", r_hcl1: "Конц. HCl", r_hcl1_d: "1 мл", r_hcl02: "Конц. HCl", r_hcl02_d: "0,2 мл (несколько капель)",
+      r_nahso3: "NaHSO₃", r_nahso3_d: "0,5 г", r_ether: "Диэтиловый эфир", r_ether_d: "15 мл", r_water: "Дистиллированная вода", r_water_d: "10 мл",
+      e_cond_on: "Присоединить обратный холодильник", e_cond_off: "Снять холодильник", e_reflux: "Кипятить с обратным холодильником", e_reflux_d: "30 мин",
+      e_shake: "Встряхивать на тёплой водяной бане", e_shake_d: "10 мин", e_room: "Остудить до комнатной T", e_room_d: "10 мин", e_ice: "Ледяная баня", e_ice_d: "10 мин",
+      e_ph: "Проверить индикаторной бумагой", e_sep: "Перелить в делительную воронку", e_vent: "Встряхнуть воронку, стравить давление", e_drain: "Разделить слои…", e_filter: "Фильтрование под вакуумом…",
+      p_recryst: "Перекристаллизовать…", p_dry: "Высушить продукт", p_dry_d: "30 мин", p_weigh: "Взвесить", p_mp: "Температура плавления",
+      hint: "Подсказка", finish: "Завершить и написать отчёт", reset: "Начать заново", reset2: "Нажмите ещё раз, чтобы сбросить опыт",
+      k_rbf: "круглодонная колба", k_sep: "делительная воронка", k_beaker: "стакан", k_prod: "продукт на часовом стекле",
+      f_cond: "обратный холодильник", f_heat: "нагрев", f_bath: "тёплая водяная баня", f_ice: "ледяная баня",
+      rd_T: "Температура", rd_V: "Объём", rd_pH: "pH (последний замер)", rd_none: "—",
+      empty: "Рабочий сосуд пуст.", prod_here: "Ваш осадок на часовом стекле (см. ниже).",
+      aside: "Отставлено", takeback: "Вернуть", notebook: "Лабораторный журнал", nb_empty: "Записей пока нет.",
+      ch_filter: "Фильтрование под вакуумом: что оставить?", keep_filtrate: "Оставить фильтрат (жидкость)", keep_solid: "Оставить осадок на фильтре",
+      wash: "Промыть осадок", w_cold: "небольшим количеством холодной воды", w_hot: "горячей водой", w_none: "не промывать", go_filter: "Фильтровать", cancel: "Отмена",
+      ch_drain: "Какой слой остаётся в рабочем стакане?", keep_lower: "Нижний слой (водный)", keep_upper: "Верхний слой (эфирный)", go_drain: "Разделить",
+      ch_rec: "Перекристаллизация из воды", rec_amount: "Сколько горячей воды?", rec_min: "Минимум — ровно столько, чтобы растворить при кипении", rec_exc: "С избытком — примерно втрое больше",
+      rec_hf: "Отфильтровать горячий раствор перед охлаждением (убирает нерастворимое)", go_rec: "Перекристаллизовать",
+      a_aq: "нижний водный слой", a_org: "верхний эфирный слой", a_filtrate: "фильтрат", a_cake: "осадок с фильтра", a_cake_mn: "осадок с фильтра с бурым MnO₂", a_prev: "прежнее содержимое",
+      a_liq: "жидкость", a_sol: "твёрдое",
+      ph_purple: "фиолетовый раствор", ph_ppurple: "бледно-фиолетовый раствор", ph_clear: "бесцветный раствор", ph_milky: "мутная эмульсия", ph_mno2: "бурый MnO₂",
+      ph_tol: "маслянистые капли толуола сверху", ph_ald: "маслянистый слой бензальдегида сверху", ph_ether: "эфирный слой сверху", ph_white: "белый осадок", ph_empty: "пусто",
+      m_added: "Добавлено: {x}.", m_nothing: "Здесь нечего проверять.", m_full: "Сосуд слишком полон для этого.", m_novessel: "В рабочем сосуде ничего нет.",
+      m_cond_on: "Обратный холодильник присоединён, вода включена.", m_cond_off: "Холодильник снят.",
+      m_reflux: "Кипячение с обратным холодильником 30 мин.", m_shake: "Встряхивание на тёплой водяной бане 10 мин.", m_room: "Остужено до комнатной температуры.", m_ice: "Охлаждено на ледяной бане.",
+      m_dilute: "Щёлочь слишком разбавлена — реакция Канниццаро почти не идёт.",
+      m_nohe: "Ничего не реагирует: в колбе нет ни окислителя, ни щёлочи.",
+      m_ph: "Индикаторная бумага: pH ≈ {p}.", m_sep: "Перелито в делительную воронку.", m_sep_solid: "Осадок в делительной воронке забьёт кран — сначала отфильтруйте его.",
+      m_vent: "Встряхнули, стравили давление, дали отстояться: два слоя.", m_noether: "Нет органического растворителя — экстрагировать нечем.", m_onelayer: "Слой один — разделять нечего.",
+      m_lower: "Оставлен нижний водный слой; эфирный слой отставлен.", m_upper: "Оставлен верхний эфирный слой; водный слой отставлен.",
+      m_filt_none: "На фильтре ничего не остаётся — осадка нет.", m_filt_liq: "Отфильтровано. Осадок отставлен, у вас прозрачный фильтрат.",
+      m_filt_lost: "Часть бензойной кислоты осталась на фильтре вместе с другим осадком.", m_filt_sol: "Отфильтровано. Ваш осадок на фильтре, фильтрат отставлен.",
+      m_filt_warm: "Жидкость была ещё тёплой, поэтому больше бензойной кислоты осталось в фильтрате.",
+      m_hotwash: "Горячая вода растворяет бензойную кислоту — часть продукта ушла через фильтр.",
+      m_rec: "Перекристаллизовано: растворено в горячей воде, медленно охлаждено и на льду, отфильтровано.", m_rec_exc: "При таком количестве воды больше продукта осталось в маточном растворе.",
+      m_rec_mn: "Бурый MnO₂ остался с кристаллами — он нерастворим, убрать его можно только горячим фильтрованием.", m_rec_hf: "Горячее фильтрование убрало нерастворимые примеси.",
+      m_dry: "Высушено до постоянной массы.", m_weigh: "Весы: {m} г.", m_weigh_wet: "Весы: {m} г — но продукт ещё влажный, масса завышена.",
+      m_mp: "Интервал плавления: {a}–{b} °C.", m_mp_wet: "Влажный образец пузырится и плавится рано и нечётко: {a}–{b} °C.", m_residue: "Остаток не плавится: нерастворимая примесь (MnO₂ или KCl).",
+      m_bis_ald: "Бисульфит присоединяется к бензальдегиду и связывает его — эта часть потеряна.", m_bis_ok: "Избыток перманганата восстановлен: фиолетовая окраска исчезла.", m_bis_more: "Всё ещё фиолетовый — перманганат уничтожен не полностью.",
+      m_hot: "Смесь разогревается от нейтрализации.", m_redis: "Осадок снова растворяется: щёлочь превращает бензойную кислоту обратно в растворимый бензоат.",
+      m_take: "Возвращено: {x}. Прежнее содержимое отставлено.", m_merge: "Добавлено к уже имеющемуся осадку.",
+      m_tol_evap: "Без холодильника часть толуола выкипела.", m_ether_evap: "Эфир выкипел.",
+      m_kmno4_bnoh: "KMnO₄ окисляет и бензиловый спирт — до бензоата.",
+      v_ppe: "Работа с реактивами без полной защиты (очки, перчатки, халат).", v_hood_hcl: "Конц. HCl вне вытяжного шкафа.",
+      v_hood_ether: "Диэтиловый эфир вне вытяжного шкафа.", v_hood_ald: "Бензальдегид вне вытяжного шкафа.",
+      v_cl2: "Выделился хлор: HCl встретилась с KMnO₄ или горячим MnO₂.", v_nocond: "Горючая жидкость нагревалась без обратного холодильника.",
+      v_etherheat: "Эфир рядом с нагревом: он выкипел — риск пожара.", v_etherwarm: "Тёплую смесь встряхивали с эфиром: в воронке росло давление.",
+      h_ppe: "Сначала наденьте очки, перчатки и халат.", h_a_kmno4: "Добавьте раствор KMnO₄ порциями.", h_a_cond: "Перед нагревом присоедините обратный холодильник.",
+      h_a_reflux: "Кипятите с обратным холодильником.", h_a_more: "Окраска исчезла, но толуол остался: добавьте ещё KMnO₄ и снова кипятите.",
+      h_a_bis: "Окисление закончено. Уничтожьте избыток KMnO₄ бисульфитом, пока не исчезнет окраска.", h_a_filter: "Отфильтруйте бурый MnO₂ горячим и оставьте фильтрат.",
+      h_b_koh: "Добавьте конц. KOH.", h_b_shake: "Встряхивайте на тёплой бане, пока не исчезнет маслянистый слой.", h_b_cool: "Охладите смесь перед добавлением эфира.",
+      h_b_sep: "Перелейте смесь в делительную воронку.", h_b_ether: "Добавьте диэтиловый эфир (в вытяжном шкафу).", h_b_vent: "Встряхните воронку и стравите давление.",
+      h_b_drain: "Разделите слои и оставьте нижний, водный.", h_b_again: "Проэкстрагируйте водный слой ещё раз: верните его в воронку, добавьте свежий эфир, встряхните, оставьте нижний слой.",
+      h_take: "Бензоат или бензойная кислота — в отставленной порции. Верните её.", h_acid: "Подкислите конц. HCl до pH ≈ 2 (вытяжной шкаф) и проверьте индикаторной бумагой.",
+      h_ice: "Охладите на ледяной бане, чтобы кристаллизация завершилась.", h_collect: "Отфильтруйте, оставьте осадок и промойте небольшим количеством холодной воды.",
+      h_rec: "Перекристаллизуйте из минимума горячей воды.", h_rec_hf: "Перекристаллизуйте с горячим фильтрованием, чтобы убрать бурый MnO₂.",
+      h_dry: "Высушите продукт.", h_weigh: "Взвесьте сухой продукт.", h_mp: "Измерьте температуру плавления.", h_done: "Всё готово — пишите отчёт.", h_stuck: "Подумайте, что сейчас в колбе и что ей нужно дальше.",
+      rep_t: "Отчёт о лабораторной работе", rep_who: "Студент", rep_route: "Путь", rep_start: "Исходное вещество", rep_n: "Количество исходного вещества",
+      rep_q1: "Теоретический выход бензойной кислоты, г", rep_q2: "Практический выход, %", rep_check: "Проверить", rep_ok: "Верно.", rep_no: "Не совсем — пересчитайте.",
+      rep_need: "Чтобы рассчитать выход, сначала взвесьте сухой продукт.", rep_mass: "Масса продукта", rep_mp: "Интервал плавления", rep_notmeas: "не измерено",
+      rep_viol: "Нарушения ТБ", rep_none: "нет", rep_hints: "Подсказок использовано", rep_time: "Время в лаборатории", rep_verdict: "Вывод",
+      c_pure: "Чёткое плавление при 122–123 °C: чистая бензойная кислота.", c_impure: "Низкий растянутый интервал плавления: продукт загрязнён — нужна повторная перекристаллизация.", c_wet: "Продукт не был высушен.", c_nomp: "Подлинность и чистота не подтверждены (т. пл. не измерена).",
+      c_insol: "Есть нерастворимый остаток (MnO₂ или KCl).",
+      rep_cmp: "Сравнение путей синтеза", th_route: "Путь", th_start: "Исходное вещество", th_agent: "Окислитель", th_by: "Побочные продукты", th_mass: "Масса, г", th_yield: "Выход, %", th_mp: "Т. пл., °C",
+      rowA_start: "Толуол", rowA_agent: "KMnO₄", rowA_by: "MnO₂", rowB_start: "Бензальдегид", rowB_agent: "сам (в щёлочи)", rowB_by: "Бензиловый спирт",
+      rep_show: "Покажите этот отчёт преподавателю.", rep_back: "Вернуться к столу", rep_other: "Провести другой путь", rep_new: "Новый опыт",
+      name_none: "(без имени)", u_g: "г", u_ml: "мл",
+      wr_t: "Что было сделано не так", wr_sum: "Найдено замечаний: {n} (ТБ — {s}, техника — {o}).", wr_clean: "Ошибок не найдено — чистая работа.",
+      wr_where: "Куда делась бензойная кислота?", wr_note: "Доля от теоретического количества.",
+      lb_prod: "В вашем продукте", lb_unr: "Исходное вещество не прореагировало", lb_sol: "Осталась в растворах (растворена или в виде бензоата)",
+      lb_solid: "Осталась осадком в отставленной порции или колбе", lb_other: "Потери при промывке, перекристаллизации, испарении, побочных реакциях",
+      snd_t: "Отправьте результат преподавателю", snd_p: "Скопируйте этот код и отправьте преподавателю, например в чат группы. В нём ваш отчёт и список ошибок.",
+      snd_copy: "Скопировать код", snd_ok: "Скопировано — вставьте код в чат.", snd_manual: "Автоматически скопировать не получилось. Код выделен — скопируйте его вручную.",
+      snd_note: "Если вернётесь к опыту и что-то измените, отправьте новый код — у преподавателя сохранится последний.", snd_name: "Укажите фамилию, имя и группу, чтобы преподаватель понял, чей это результат:",
+      tag_safety: "ТБ", tag_yield: "выход", tag_purity: "чистота", tag_minor: "мелочь", at: "в", times: "×{n}", fixed: "Позже вы это исправили."
+    }
+  };
+  function tr(k, vars) {
+    var s = (T[lang] && T[lang][k]) || T.en[k] || k;
+    if (vars) Object.keys(vars).forEach(function (v) {
+      var val = vars[v];
+      if (typeof val === "string" && val.charAt(0) === "@") val = tr(val.slice(1));
+      s = s.split("{" + v + "}").join(val);
+    });
+    return s;
+  }
+
+  /* =============== chemistry constants =============== */
+  var M = { tol: 92.14, ald: 106.12, ba: 122.12, mno2: 86.94, kcl: 74.55, bnoh: 108.14, kmno4: 158.03 };
+  var DENS = { tol: 0.867, ald: 1.044, bnoh: 1.044 };
+  var P = { kmno4: 6.45, kmno4V: 20, koh: 67.3, kohV: 5, hcl1: 12.0, hcl02: 2.4, nahso3: 4.8, ether: 15, water: 10 };
+  var SOL = [[0, 1.7], [20, 2.9], [40, 5.5], [60, 11.5], [80, 27], [100, 56]];
+  function sol(t) { t = Math.max(0, Math.min(100, t)); for (var i = 1; i < SOL.length; i++) if (t <= SOL[i][0]) { var a = SOL[i - 1], b = SOL[i]; return a[1] + (b[1] - a[1]) * (t - a[0]) / (b[0] - a[0]); } return 56; }
+  function dissolvable(t, vml) { return sol(t) * vml / M.ba; }
+  function mL(sp, mmol) { return mmol * M[sp] / DENS[sp] / 1000; }
+
+  var VOLS_A = [1.00, 1.05, 1.10, 1.15, 1.20, 1.25, 1.30, 1.35, 1.40, 1.45, 1.50];
+  var VOLS_B = [2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0];
+  function hash(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return Math.abs(h); }
+  function variantFor(name, route) {
+    var idx = name.trim() ? hash(name.trim().toLowerCase() + route) % 11 : (parseInt(store.get("vl-rnd") || "-1", 10));
+    if (idx < 0 || isNaN(idx)) { idx = Math.floor(Math.random() * 11); store.set("vl-rnd", String(idx)); }
+    var v = route === "A" ? VOLS_A[idx] : VOLS_B[idx];
+    var n = route === "A" ? v * DENS.tol / M.tol * 1000 : v * DENS.ald / M.ald * 1000;
+    return { vol: v, n: n };
+  }
+
+  /* =============== state =============== */
+  var SP = ["tol", "ald", "kmno4", "mno2", "bz", "bzh", "koh", "hcl", "kcl", "bnoh", "hso3", "water", "ether"];
+  function emptyVessel(kind) { var v = { kind: kind || "rbf", T: 20, cond: false, shaken: false, emul: false }; SP.forEach(function (k) { v[k] = 0; }); return v; }
+  var lab = getJSON("vl-state", null);
+  var setup = { name: store.get("vl-name") || "", route: store.get("vl-route") === "B" ? "B" : "A" };
+  var results = getJSON("vl-results", { A: null, B: null });
+  var ui = { chooser: null, resetArmed: false, anim: false, screen: lab ? (lab.finished ? "report" : "lab") : "setup" };
+
+  function save() { if (lab) store.set("vl-state", JSON.stringify(lab)); else store.del("vl-state"); }
+  function newLab() {
+    var va = variantFor(setup.name, setup.route);
+    var v = emptyVessel("rbf");
+    if (setup.route === "A") v.tol = va.n; else v.ald = va.n;
+    lab = { route: setup.route, name: setup.name.trim(), vol: va.vol, n0: va.n, v: v, prod: null, aside: [], log: [], viol: {}, clock: 0,
+      ppe: { g: false, gl: false, c: false }, hood: false, hints: 0, mass: null, massWet: false, mp: null, lastPH: null, extractions: 0, finished: false, calc: {} };
+    save();
+  }
+
+  /* =============== log & messages =============== */
+  var last = [];
+  function say(k, vars, type) { last.push({ k: k, v: vars || null, type: type || "info" }); }
+  function obsList(v) {
+    if (!v) return [];
+    var out = [], aqV = v.water, thrT = 0.03 * lab.n0;
+    if (aqV > 0) {
+      var c = v.kmno4 / aqV;
+      if (c > 0.004) out.push("ph_purple"); else if (c > 0.0006) out.push("ph_ppurple");
+      else if (v.emul) out.push("ph_milky"); else out.push("ph_clear");
+    }
+    if (v.mno2 > 0.05) out.push("ph_mno2");
+    if (v.tol > thrT && v.ether < 1) out.push("ph_tol");
+    if (v.ald > 0.05 * lab.n0 && v.ether < 1) out.push("ph_ald");
+    if (v.ether > 0.5) out.push("ph_ether");
+    if (solidBA(v) > 0.15) out.push("ph_white");
+    if (!out.length) out.push("ph_empty");
+    return out;
+  }
+  function commit(actionKey, actionVars, withObs, still) {
+    var entry = { t: lab.clock, a: actionKey ? { k: actionKey, v: actionVars || null } : null, m: last.slice(), o: withObs && lab.v ? obsList(lab.v) : null };
+    lab.log.push(entry);
+    lab.lastMsgs = entry;
+    last = [];
+    ui.anim = !still;
+    save();
+    render();
+  }
+  function violate(key) { lab.viol[key] = (lab.viol[key] || 0) + 1; say(key, null, "warn"); }
+  function ppeOk() { return lab.ppe.g && lab.ppe.gl && lab.ppe.c; }
+  function checkPPE() { if (!ppeOk()) violate("v_ppe"); }
+
+  /* =============== chemistry helpers =============== */
+  function solidBA(v) { return Math.max(0, v.bzh - dissolvable(v.T, Math.max(v.water, 0.5))); }
+  function volume(v) { return v.water + v.ether + mL("tol", v.tol) + mL("ald", v.ald) + mL("bnoh", v.bnoh); }
+  function heatUp(v, dT) { v.T = Math.min(95, v.T + dT); }
+  function neutralize(v, h) {
+    var d = Math.min(v.koh, h); v.koh -= d; h -= d; var heat = d;
+    var e = Math.min(v.bz, h); v.bz -= e; v.bzh += e; v.kcl += e + d; h -= e;
+    v.hcl += h;
+    if (heat > 0.5 && v.water > 0) { var dT = heat * 57 / (v.water * 4.18); heatUp(v, dT); if (dT > 6) say("m_hot"); }
+  }
+  function addBase(v, b) {
+    var d = Math.min(v.hcl, b); v.hcl -= d; b -= d;
+    var e = Math.min(v.bzh, b); if (e > 0.1 && solidBA(v) > 0.1) say("m_redis"); v.bzh -= e; v.bz += e; b -= e;
+    v.koh += b;
+  }
+  function chlorineCheck(v) {
+    if (v.hcl > 0.05 && v.kmno4 > 0.02) {
+      var r = Math.min(v.kmno4, v.hcl / 8); v.kmno4 -= r; v.hcl -= 8 * r; violate("v_cl2");
+    }
+    if (v.hcl > 0.05 && v.mno2 > 0.05 && v.T > 55) {
+      var s = Math.min(v.mno2, v.hcl / 4); v.mno2 -= s; v.hcl -= 4 * s; violate("v_cl2");
+    }
+  }
+  function oxidize(v, frac) {
+    frac = frac == null ? 1 : frac;
+    if (v.hso3 > 0 && v.kmno4 > 0) { var q = Math.min(v.kmno4, v.hso3 / 1.5); v.kmno4 -= q; v.mno2 += q; v.hso3 -= 1.5 * q; }
+    var x = Math.min(v.tol, v.kmno4 / 2) * frac;
+    v.tol -= x; v.kmno4 -= 2 * x; v.mno2 += 2 * x; addBase(v, x); v.bz += x;
+    var y = Math.min(v.ald, v.kmno4 * 1.5) * frac;
+    if (y > 0) { v.ald -= y; v.kmno4 -= y / 1.5; v.mno2 += y / 1.5; v.bz += y; var kk = Math.min(v.koh, y / 3); v.koh -= kk; }
+    var z = Math.min(v.bnoh, v.kmno4 * 0.75) * frac;
+    if (z > 0.05) { v.bnoh -= z; v.kmno4 -= z / 0.75; v.mno2 += z / 0.75; v.bz += z; say("m_kmno4_bnoh"); }
+  }
+  function cannizzaro(v) {
+    if (v.ald <= 0 || v.koh <= 0) return false;
+    var conc = v.koh / Math.max(v.water, 0.5), f = conc > 5 ? 0.55 : conc > 2 ? 0.2 : 0.03;
+    if (f < 0.1) say("m_dilute", null, "warn");
+    var r = Math.min(v.ald * f, v.koh * 2);
+    v.ald -= r; v.bz += r / 2; v.bnoh += r / 2; v.koh -= r / 2;
+    v.emul = v.ald > 0.05 * lab.n0;
+    return true;
+  }
+  function pH(v) {
+    var V = Math.max(v.water, 0.5) / 1000;
+    if (v.koh > 0.01) return Math.min(14, 14 + Math.log10(v.koh / 1000 / V));
+    if (v.hcl > 0.01) return Math.max(0, -Math.log10(v.hcl / 1000 / V));
+    var aq = Math.min(v.bzh, dissolvable(v.T, v.water));
+    if (v.bz > 0.01 && v.bzh > 0.01) return 4.2 + Math.log10(v.bz / v.bzh);
+    if (v.bz > 0.01) return 8.2;
+    if (aq > 0.001) return 0.5 * (4.2 - Math.log10(aq / 1000 / V));
+    return 7;
+  }
+
+  /* =============== actions =============== */
+  function need(v) { if (!v) { say("m_novessel", null, "warn"); commit(null, null, false); return false; } return true; }
+
+  var ACT = {
+    kmno4: function (v) {
+      if (!need(v)) return; if (volume(v) + P.kmno4V > 240) { say("m_full", null, "warn"); return commit(null, null, true); }
+      checkPPE(); v.kmno4 += P.kmno4; v.water += P.kmno4V; v.T = Math.max(20, v.T - 5);
+      chlorineCheck(v); lab.clock += 2; lab.lastPH = null; commit("m_added", { x: tr("r_kmno4") + " (" + tr("r_kmno4_d") + ")" }, true);
+    },
+    koh: function (v) {
+      if (!need(v)) return; checkPPE(); if (v.ald > 0.05 && !lab.hood) violate("v_hood_ald"); addBase(v, P.koh); v.water += P.kohV; lab.clock += 2; lab.lastPH = null;
+      commit("m_added", { x: tr("r_koh") + " (" + tr("r_koh_d") + ")" }, true);
+    },
+    hcl1: function (v) { addHCl(v, P.hcl1, 1, "r_hcl1_d"); },
+    hcl02: function (v) { addHCl(v, P.hcl02, 0.2, "r_hcl02_d"); },
+    nahso3: function (v) {
+      if (!need(v)) return; checkPPE();
+      var b = P.nahso3;
+      if (v.ald > 0.01) { var a = Math.min(v.ald, b); v.ald -= a; b -= a; say("m_bis_ald", null, "warn"); }
+      var had = v.kmno4 > 0.02, q = Math.min(v.kmno4, b / 1.5); v.kmno4 -= q; v.mno2 += q; b -= 1.5 * q; v.hso3 += b;
+      if (had) say(v.kmno4 > 0.02 ? "m_bis_more" : "m_bis_ok");
+      lab.clock += 2; commit("m_added", { x: tr("r_nahso3") + " (" + tr("r_nahso3_d") + ")" }, true);
+    },
+    ether: function (v) {
+      if (!need(v)) return; if (volume(v) + P.ether > 240) { say("m_full", null, "warn"); return commit(null, null, true); }
+      checkPPE(); if (!lab.hood) violate("v_hood_ether");
+      if (v.T > 34) { violate("v_etherheat"); say("m_ether_evap", null, "warn"); v.T = Math.max(20, v.T - 8); }
+      else { v.ether += P.ether; v.shaken = false; }
+      lab.clock += 2; commit("m_added", { x: tr("r_ether") + " (" + tr("r_ether_d") + ")" }, true);
+    },
+    water: function (v) {
+      if (!need(v)) return; if (volume(v) + P.water > 240) { say("m_full", null, "warn"); return commit(null, null, true); }
+      v.water += P.water; v.T = v.T + (20 - v.T) * 0.15; lab.clock += 1; lab.lastPH = null;
+      commit("m_added", { x: tr("r_water") + " (" + tr("r_water_d") + ")" }, true);
+    },
+    cond: function (v) {
+      if (!need(v)) return; v.cond = !v.cond; lab.clock += 1; say(v.cond ? "m_cond_on" : "m_cond_off"); commit(null, null, false);
+    },
+    reflux: function (v) {
+      if (!need(v)) return;
+      if (v.ether > 0.5) { violate("v_etherheat"); v.ether = 0; say("m_ether_evap", null, "warn"); }
+      if (!v.cond) {
+        if (v.tol > 0.01 || v.ald > 0.01 || v.bnoh > 0.01) violate("v_nocond");
+        if (v.tol > 0.01) { v.tol *= 0.6; say("m_tol_evap", null, "warn"); }
+        v.ald *= 0.9; v.water *= 0.85;
+      } else { v.tol *= 0.985; }
+      var reacted = v.kmno4 > 0.02;
+      oxidize(v, 1);
+      if (!reacted) { if (!cannizzaro(v)) { if (!(v.tol > 0 || v.ald > 0)) {} else say("m_nohe"); } }
+      v.T = 98; v.heat = "reflux"; v.emul = false; lab.clock += 30; lab.lastPH = null;
+      commit("m_reflux", null, true);
+    },
+    shake: function (v) {
+      if (!need(v)) return;
+      if (v.ether > 0.5) { violate("v_etherheat"); v.ether *= 0.3; say("m_ether_evap", null, "warn"); }
+      if (v.kmno4 > 0.02) oxidize(v, 0.15);
+      var did = cannizzaro(v);
+      if (!did && v.kmno4 <= 0.02 && (v.tol > 0.01 || v.ald > 0.01)) say("m_nohe");
+      v.T = 50; v.heat = "bath"; lab.clock += 10; lab.lastPH = null;
+      commit("m_shake", null, true);
+    },
+    room: function (v) { if (!need(v)) return; v.T = 20; v.heat = null; lab.clock += 10; commit("m_room", null, true); },
+    ice: function (v) { if (!need(v)) return; v.T = 2; v.heat = "ice"; lab.clock += 10; commit("m_ice", null, true); },
+    ph: function (v) {
+      if (!need(v)) return; if (v.water < 0.5) { say("m_nothing"); return commit(null, null, false); }
+      var p = Math.round(pH(v) * 2) / 2; lab.lastPH = p; lab.clock += 1; say("m_ph", { p: num(p, 1) }); commit(null, null, false, true);
+    },
+    sep: function (v) {
+      if (!need(v)) return; if (v.kind === "sep") return;
+      v.kind = "sep"; v.cond = false; if (v.mno2 > 0.1 || solidBA(v) > 0.3) say("m_sep_solid", null, "warn");
+      lab.clock += 3; commit("m_sep", null, true);
+    },
+    vent: function (v) {
+      if (!need(v) || v.kind !== "sep") return;
+      if (v.ether < 0.5) { say("m_noether", null, "warn"); return commit(null, null, false); }
+      checkPPE(); if (!lab.hood) violate("v_hood_ether");
+      if (v.T > 30) { violate("v_etherwarm"); v.ether *= 0.5; }
+      v.shaken = true; v.emul = false; lab.clock += 5; commit("m_vent", null, true);
+    }
+  };
+  function addHCl(v, mmol, ml, dkey) {
+    if (!need(v)) return; if (volume(v) + ml > 245) { say("m_full", null, "warn"); return commit(null, null, true); }
+    checkPPE(); if (!lab.hood) violate("v_hood_hcl");
+    v.water += ml; var before = solidBA(v);
+    neutralize(v, mmol); chlorineCheck(v);
+    lab.clock += 1; lab.lastPH = null;
+    commit("m_added", { x: tr("r_hcl1") + " (" + tr(dkey) + ")" }, true);
+  }
+  function drain(which) {
+    var v = lab.v; if (!v || v.kind !== "sep") return;
+    if (v.ether < 0.5) { say("m_onelayer", null, "warn"); return commit(null, null, false); }
+    var f = v.shaken ? { bnoh: 0.93, ald: 0.98, tol: 0.99, bzh: 0.9 } : { bnoh: 0.3, ald: 0.5, tol: 0.6, bzh: 0.3 };
+    var aq = emptyVessel("beaker"), org = emptyVessel("beaker");
+    ["water", "koh", "hcl", "kcl", "bz", "kmno4", "hso3", "mno2"].forEach(function (k) { aq[k] = v[k]; });
+    ["bnoh", "ald", "tol", "bzh"].forEach(function (k) { org[k] = v[k] * f[k]; aq[k] = v[k] * (1 - f[k]); });
+    org.ether = v.ether; aq.T = org.T = v.T;
+    if (which === "lower") { lab.v = aq; lab.aside.push({ type: "liq", label: "a_org", data: org, t: lab.clock }); say("m_lower"); if (v.shaken) lab.extractions++; }
+    else { lab.v = org; lab.aside.push({ type: "liq", label: "a_aq", data: aq, t: lab.clock }); say("m_upper", null, "warn"); }
+    lab.clock += 5; commit(null, null, true);
+  }
+  function filtrate(keep, wash) {
+    var v = lab.v; if (!v) return;
+    var baS = solidBA(v), mn = v.mno2;
+    if (baS < 0.02 && mn < 0.02) { say("m_filt_none"); lab.clock += 5; return commit(null, null, true); }
+    var liq = JSON.parse(JSON.stringify(v)); liq.kind = "beaker"; liq.bzh = v.bzh - baS; liq.mno2 = 0; liq.cond = false; liq.heat = null; liq.T = Math.max(20, v.T - 30);
+    var solid = { ba: baS, mno2: mn * M.mno2, kcl: 0, org: 0, wet: true, rec: 0 };
+    if (keep === "filtrate") {
+      lab.v = liq;
+      lab.aside.push({ type: "sol", label: mn > 0.02 ? "a_cake_mn" : "a_cake", data: solid, t: lab.clock });
+      say("m_filt_liq"); if (baS > 0.15 && mn > 0.02) say("m_filt_lost", null, "warn");
+    } else {
+      if (v.T > 30 && v.bzh > 0) say("m_filt_warm", null, "warn");
+      solid.kcl = v.kcl * (wash === "none" ? 0.04 : 0.004) * M.kcl;
+      solid.org = (v.tol * M.tol + v.ald * M.ald + v.bnoh * M.bnoh) * (v.ether > 0.5 ? 0.02 : 0.15);
+      if (wash === "cold") solid.ba = Math.max(0, solid.ba - dissolvable(2, 10));
+      if (wash === "hot") { solid.ba = Math.max(0, solid.ba - dissolvable(85, 10)); say("m_hotwash", null, "warn"); }
+      if (!lab.prod) lab.prod = solid; else { mergeSolid(lab.prod, solid); say("m_merge"); }
+      liq.tol *= 0.85; liq.ald *= 0.85; liq.bnoh *= 0.85;
+      lab.aside.push({ type: "liq", label: "a_filtrate", data: liq, t: lab.clock });
+      lab.v = null;
+      say("m_filt_sol");
+    }
+    lab.clock += 10; commit(null, null, true);
+  }
+  function mergeSolid(a, b) { a.ba += b.ba; a.mno2 += b.mno2; a.kcl += b.kcl; a.org += b.org; a.wet = true; }
+  function takeBack(i) {
+    var it = lab.aside[i]; if (!it) return;
+    lab.aside.splice(i, 1);
+    if (it.type === "liq") {
+      if (lab.v) lab.aside.push({ type: "liq", label: "a_prev", data: lab.v, t: lab.clock });
+      lab.v = it.data;
+    } else {
+      if (!lab.prod) lab.prod = it.data; else mergeSolid(lab.prod, it.data);
+    }
+    say("m_take", { x: "@" + it.label }); lab.clock += 1; commit(null, null, true);
+  }
+  function recryst(amount, hf) {
+    var p = lab.prod; if (!p) return;
+    var mg = p.ba * M.ba, vmin = Math.max(5, mg / 1000 / 56 * 1000 * 1.15), vol = amount === "exc" ? vmin * 3 : vmin;
+    if (hf) { p.mno2 = 0; p.ba *= 0.95; say("m_rec_hf"); } else if (p.mno2 > 1) say("m_rec_mn", null, "warn");
+    p.kcl *= 0.02; p.org *= 0.15;
+    p.ba = Math.max(0, p.ba - dissolvable(2, vol)); p.ba *= 0.96; p.wet = true; p.rec++;
+    say("m_rec"); if (amount === "exc") say("m_rec_exc", null, "warn");
+    lab.clock += 45; lab.mass = null; lab.mp = null; commit(null, null, false);
+  }
+  var PACT = {
+    dry: function (p) { p.wet = false; lab.clock += 30; say("m_dry"); commit(null, null, false); },
+    weigh: function (p) {
+      var g = (p.ba * M.ba + p.mno2 + p.kcl + p.org) / 1000; if (p.wet) g *= 1.35;
+      lab.mass = Math.round(g * 1000) / 1000; lab.massWet = p.wet; lab.clock += 2;
+      say(p.wet ? "m_weigh_wet" : "m_weigh", { m: num(lab.mass, 3) }, p.wet ? "warn" : "good"); commit(null, null, false, true);
+    },
+    mp: function (p) {
+      var baMg = p.ba * M.ba, w = p.org / Math.max(1, baMg + p.org), a, b;
+      if (p.wet) { a = 113; b = 119; say("m_mp_wet", { a: a, b: b }, "warn"); }
+      else {
+        a = Math.max(95, 122 - 300 * w); b = Math.max(a + 1, 123 - 110 * w);
+        a = Math.round(a * 2) / 2; b = Math.round(b * 2) / 2;
+        say("m_mp", { a: num(a, a % 1 ? 1 : 0), b: num(b, b % 1 ? 1 : 0) }, w < 0.004 ? "good" : "warn");
+      }
+      if (p.mno2 > 1 || p.kcl > 8) say("m_residue", null, "warn");
+      lab.mp = [a, b, p.wet, p.mno2 > 1 || p.kcl > 8]; lab.clock += 10; commit(null, null, false, true);
+    }
+  };
+
+  /* =============== hints =============== */
+  function hintKey() {
+    if (!ppeOk()) return "h_ppe";
+    var v = lab.v, p = lab.prod;
+    if (p && (!v || (v.bz < 0.3 && solidBA(v) < 0.3))) {
+      if (!p.rec) return p.mno2 > 1 ? "h_rec_hf" : "h_rec";
+      if (p.mno2 > 1) return "h_rec_hf";
+      if (p.wet) return "h_dry";
+      if (lab.mass == null || lab.massWet) return "h_weigh";
+      if (!lab.mp) return "h_mp";
+      return "h_done";
+    }
+    if (!v) { return lab.aside.some(function (a) { return a.type === "liq" && (a.data.bz > 0.3 || a.data.bzh > 0.3); }) ? "h_take" : "h_stuck"; }
+    var hasProductLine = v.bz > 0.3 || v.bzh > 0.3 || v.tol > 0.03 * lab.n0 || v.ald > 0.05 * lab.n0;
+    if (!hasProductLine && lab.aside.some(function (a) { return a.type === "liq" && (a.data.bz > 0.3 || a.data.bzh > 0.3); })) return "h_take";
+    if (lab.route === "A") {
+      var tolLeft = v.tol > 0.03 * lab.n0;
+      if (tolLeft && v.kmno4 < 0.05 && v.mno2 < 0.05) return "h_a_kmno4";
+      if (tolLeft && v.kmno4 >= 0.05 && !v.cond) return "h_a_cond";
+      if (tolLeft && v.kmno4 >= 0.05) return "h_a_reflux";
+      if (tolLeft) return "h_a_more";
+      if (v.kmno4 > 0.02) return "h_a_bis";
+      if (v.mno2 > 0.05) return "h_a_filter";
+    } else {
+      var aldLeft = v.ald > 0.05 * lab.n0;
+      if (aldLeft && v.koh < 1) return "h_b_koh";
+      if (aldLeft) return "h_b_shake";
+      if (v.bnoh > 0.3 && v.bz > 0.3) {
+        if (v.T > 30) return "h_b_cool";
+        if (lab.extractions > 0 && v.kind !== "sep") return "h_b_again";
+        if (v.kind !== "sep") return "h_b_sep";
+        if (v.ether < 0.5) return lab.extractions ? "h_b_again" : "h_b_ether";
+        if (!v.shaken) return "h_b_vent";
+        return "h_b_drain";
+      }
+      if (v.kind === "sep" && v.ether > 0.5 && v.bz > 0.3) return v.shaken ? "h_b_drain" : "h_b_vent";
+    }
+    if (v.bz > 0.3 || v.koh > 0.5) return "h_acid";
+    var s = solidBA(v);
+    if (v.bzh > 0.3 && v.T > 10) return "h_ice";
+    if (s > 0.2) return "h_collect";
+    return "h_stuck";
+  }
+
+  /* =============== drawing =============== */
+  var LIQ = { pale: "rgba(200,219,234,0.92)", ald: "#ecd27e", milky: "rgba(236,232,220,0.97)", eth: "rgba(236,246,253,0.96)", brown: "#6f4a2c", koh: "rgba(190,210,230,0.95)" };
+  function defs() {
+    return "<defs>" +
+      '<pattern id="vz-brown" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="2" cy="3" r="1.5" fill="#6f4a2c"/><circle cx="6.5" cy="7" r="1.2" fill="#6f4a2c"/></pattern>' +
+      '<pattern id="vz-brownppt" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#6f4a2c"/><circle cx="2" cy="2" r="1" fill="#8a6443"/></pattern>' +
+      '<pattern id="vz-whiteppt" width="8" height="6" patternUnits="userSpaceOnUse"><rect width="8" height="6" fill="#e9eef2"/><path d="M1 5 L3 1 L5 5 Z" fill="#fff" stroke="#6f7c88" stroke-width=".6"/><path d="M5 5.5 L6.5 2.5 L8 5.5 Z" fill="#fff" stroke="#6f7c88" stroke-width=".6"/></pattern>' +
+      "</defs>";
+  }
+  function purpleFor(v) {
+    var c = v.kmno4 / Math.max(v.water, 0.5);
+    if (c > 0.02) return "#6f2584"; if (c > 0.004) return "#8f4ca3"; if (c > 0.0006) return "#c9a6d4"; return null;
+  }
+  function layersSvg(v, bottom, maxPx) {
+    var aqV = v.water, orgV = v.ether + mL("tol", v.tol) + mL("ald", v.ald) + (v.ether > 0.5 ? mL("bnoh", v.bnoh) : 0);
+    var tot = aqV + orgV, s = tot > 0 ? Math.min(0.62, maxPx / tot) : 0.6, y = bottom, out = "";
+    var mnH = v.mno2 > 0.05 ? Math.min(16, 3 + v.mno2 * 0.4) : 0, baS = solidBA(v), baH = baS > 0.12 ? Math.min(22, 3 + baS * 1.2) : 0;
+    var hot = v.T >= 60;
+    if (mnH && !hot) { y -= mnH; out += '<rect class="liq" x="0" y="' + y + '" width="220" height="' + (mnH + 14) + '" fill="url(#vz-brownppt)"/>'; }
+    if (baH) { y -= baH; out += '<rect class="liq" x="0" y="' + y + '" width="220" height="' + (baH + (mnH && !hot ? 0 : 14)) + '" fill="url(#vz-whiteppt)"/>'; }
+    if (aqV > 0) {
+      var h = Math.max(7, aqV * s); y -= h;
+      var col = purpleFor(v) || (v.emul ? LIQ.milky : v.koh > 1 && v.bz < 0.3 ? LIQ.koh : LIQ.pale);
+      out += '<g class="liq"><rect x="0" y="' + y + '" width="220" height="' + h + '" fill="' + col + '"/>' + (hot && mnH ? '<rect x="0" y="' + y + '" width="220" height="' + h + '" fill="url(#vz-brown)"/>' : "") +
+        '<line x1="0" y1="' + y + '" x2="220" y2="' + y + '" stroke="rgba(0,0,0,.18)"/></g>';
+    }
+    if (orgV > 0.15) {
+      var ho = Math.max(5, orgV * s); y -= ho;
+      var oc = mL("ald", v.ald) > 0.5 * orgV ? LIQ.ald : LIQ.eth;
+      out += '<g class="liq"><rect x="0" y="' + y + '" width="220" height="' + ho + '" fill="' + oc + '"/><line x1="0" y1="' + y + '" x2="220" y2="' + y + '" stroke="rgba(0,0,0,.2)"/></g>';
+    }
+    return out;
+  }
+  function heatSvg(y) {
+    return [80, 110, 140].map(function (x) { return '<path class="heatw" d="M' + x + " " + (y + 14) + ' q -6 -6 0 -12 q 6 -6 0 -12" fill="none" stroke="var(--heat)" stroke-width="3" stroke-linecap="round"/>'; }).join("");
+  }
+  function vesselSvg(v) {
+    var s = '<svg viewBox="0 0 220 250" aria-hidden="true" class="' + (ui.anim && !reduceMotion ? "anim" : "") + '">' + defs();
+    var line = 'fill="none" stroke="var(--glass-line)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"';
+    var cold = v.T < 8, bath = v.heat === "bath" && v.T > 35, hot = v.heat === "reflux" && v.T > 80;
+    if (v.kind === "rbf") {
+      var body = "M95,52 L95,101.8 A62,62 0 1 0 125,101.8 L125,52";
+      if (cold) s += '<rect x="26" y="150" width="168" height="96" rx="12" fill="var(--ice)" stroke="var(--ice-line)" stroke-width="1.5"/>';
+      if (bath) s += '<rect x="26" y="165" width="168" height="81" rx="12" fill="rgba(224,102,46,0.13)" stroke="rgba(224,102,46,0.45)" stroke-width="1.5"/>';
+      s += '<clipPath id="vc"><path d="' + body + ' Z"/></clipPath><path d="' + body + ' Z" fill="var(--glass)"/><g clip-path="url(#vc)">' + layersSvg(v, 224, 125) + "</g><path d=\"" + body + '" ' + line + "/>";
+      if (v.cond) s += '<rect x="102" y="4" width="16" height="48" fill="var(--glass)" stroke="var(--glass-line)" stroke-width="2.5"/><rect x="96" y="10" width="28" height="34" rx="4" fill="rgba(110,170,225,0.18)" stroke="var(--glass-line)" stroke-width="1.5"/>' +
+        '<line x1="124" y1="16" x2="136" y2="16" stroke="var(--glass-line)" stroke-width="2"/><line x1="96" y1="38" x2="84" y2="38" stroke="var(--glass-line)" stroke-width="2"/>';
+      if (hot) s += heatSvg(228);
+    } else if (v.kind === "sep") {
+      var sb = "M102,50 C60,64 50,98 58,122 L104,192 L116,192 L162,122 C170,98 160,64 118,50 Z";
+      s += '<clipPath id="vc"><path d="' + sb + '"/></clipPath><path d="' + sb + '" fill="var(--glass)"/><g clip-path="url(#vc)">' + layersSvg(v, 192, 120) + "</g>" +
+        '<path d="' + sb + '" ' + line + '/><path d="M102,50 L102,34 M118,50 L118,34" ' + line + '/><rect x="99" y="26" width="22" height="9" rx="2" fill="var(--carbon)"/>' +
+        '<path d="M104,192 L104,238 M116,192 L116,238" ' + line + '/><rect x="94" y="204" width="32" height="7" rx="2" fill="var(--carbon)"/>';
+    } else {
+      var bb = "M50,70 L50,222 Q50,230 58,230 L162,230 Q170,230 170,222 L170,70";
+      if (cold) s += '<rect x="22" y="150" width="176" height="96" rx="12" fill="var(--ice)" stroke="var(--ice-line)" stroke-width="1.5"/>';
+      if (bath) s += '<rect x="22" y="165" width="176" height="81" rx="12" fill="rgba(224,102,46,0.13)" stroke="rgba(224,102,46,0.45)" stroke-width="1.5"/>';
+      s += '<clipPath id="vc"><path d="' + bb + ' Z"/></clipPath><path d="' + bb + ' Z" fill="var(--glass)"/><g clip-path="url(#vc)">' + layersSvg(v, 230, 150) + "</g>" +
+        '<path d="' + bb + '" ' + line + '/><path d="M50,70 L44,64" ' + line + "/>";
+      if (hot) s += heatSvg(228);
+    }
+    return s + "</svg>";
+  }
+  function productSvg(p) {
+    var mg = p.ba * M.ba + p.mno2 + p.kcl + p.org, h = Math.max(8, Math.min(46, 8 + mg / 40));
+    var tint = p.mno2 > 30 ? "#8b6a4f" : p.mno2 > 1 ? "#c9b39f" : p.org > 0.02 * mg ? "#f1e7c4" : "#ffffff";
+    var s = '<svg viewBox="0 0 220 150" aria-hidden="true" class="' + (ui.anim && !reduceMotion ? "anim" : "") + '"><defs><pattern id="vz-x" width="10" height="8" patternUnits="userSpaceOnUse"><rect width="10" height="8" fill="' + tint + '"/><path d="M1 7 L3.5 1 L6 7 Z" fill="' + tint + '" stroke="#9aa6b2" stroke-width=".6"/><path d="M6 7.5 L8 3 L10 7.5 Z" fill="' + tint + '" stroke="#9aa6b2" stroke-width=".6"/></pattern></defs>';
+    s += '<ellipse cx="110" cy="112" rx="96" ry="18" fill="var(--glass)" stroke="var(--glass-line)" stroke-width="2.5"/>';
+    s += '<path class="liq" d="M' + (110 - 30 - h) + ",112 Q110," + (112 - h * 2.2) + " " + (110 + 30 + h) + ',112 Z" fill="url(#vz-x)" stroke="#9aa6b2" stroke-width="1"/>';
+    if (p.wet) s += '<g fill="rgba(110,170,225,0.55)"><circle cx="92" cy="104" r="3"/><circle cx="128" cy="100" r="2.4"/><circle cx="112" cy="' + (108 - h) + '" r="2"/></g>';
+    return s + "</svg>";
+  }
+  function swatchHtml(bg) { return '<span class="sw" style="background:' + bg + '"></span>'; }
+  function legendHtml(v) {
+    var items = [], pc = purpleFor(v);
+    if (v.ether > 0.5 || mL("tol", v.tol) > 0.15 || mL("ald", v.ald) > 0.15) {
+      var ald = mL("ald", v.ald) > 0.5 * (v.ether + mL("tol", v.tol) + mL("ald", v.ald));
+      items.push([ald ? LIQ.ald : LIQ.eth, v.ether > 0.5 ? tr("ph_ether") : ald ? tr("ph_ald") : tr("ph_tol")]);
+    }
+    if (v.water > 0) items.push([pc || (v.emul ? LIQ.milky : LIQ.pale), tr(pc ? (pc === "#c9a6d4" ? "ph_ppurple" : "ph_purple") : v.emul ? "ph_milky" : "ph_clear")]);
+    if (solidBA(v) > 0.12) items.push(["#ffffff", tr("ph_white")]);
+    if (v.mno2 > 0.05) items.push([LIQ.brown, tr("ph_mno2")]);
+    if (!items.length) items.push(["transparent", tr("ph_empty")]);
+    return '<ul class="legend">' + items.map(function (it) { return "<li>" + swatchHtml(it[0]) + "<span>" + fmt(it[1]) + "</span></li>"; }).join("") + "</ul>";
+  }
+  function capHtml(v) {
+    var parts = [tr("k_" + v.kind)];
+    if (v.cond) parts.push(tr("f_cond"));
+    if (v.heat === "reflux" && v.T > 80) parts.push(tr("f_heat"));
+    if (v.heat === "bath" && v.T > 35) parts.push(tr("f_bath"));
+    if (v.T < 8) parts.push(tr("f_ice"));
+    return parts.join(", ");
+  }
+
+  /* =============== screens =============== */
+  function renderSetup() {
+    var va = variantFor(setup.name, setup.route);
+    var h = '<div class="stack"><div class="card stack"><p style="margin:0">' + tr("s_intro") + "</p>" +
+      '<div><label class="field" for="nm">' + tr("s_name") + '</label><input class="input" id="nm" type="text" autocomplete="name" placeholder="' + esc(tr("s_name_ph")) + '" value="' + esc(setup.name) + '"></div>' +
+      '<div><p class="field">' + tr("s_route") + '</p><div class="seg">' + ["A", "B"].map(function (r) {
+        return '<button type="button" data-route="' + r + '" aria-pressed="' + (setup.route === r) + '"><b>' + fmt(tr("r" + r + "_t")) + "</b><span>" + fmt(tr("r" + r + "_s")) + "</span></button>";
+      }).join("") + "</div></div>" +
+      '<div class="variant" id="varbox">' + tr("s_var") + " <b>" + tr("var_" + setup.route, { v: num(va.vol, setup.route === "A" ? 2 : 1) }) + '</b><br><span class="small muted">' + tr("s_var_note") + "</span></div>" +
+      '<button type="button" class="btn full" data-go="start">' + tr("s_start") + "</button>" +
+      (lab && !lab.finished ? '<button type="button" class="btn ghost full" data-go="resume">' + tr("s_resume") + "</button>" : "") + "</div>";
+    if (results.A || results.B) h += '<div class="card"><p class="field">' + tr("s_prev") + "</p>" + cmpTable() + "</div>";
+    return h + "</div>";
+  }
+  function renderLab() {
+    var v = lab.v, p = lab.prod, vc = Object.keys(lab.viol).reduce(function (a, k) { return a + lab.viol[k]; }, 0);
+    var h = '<div class="status"><span><b>' + fmt(tr("r" + lab.route + "_t")) + '</b></span><span>' + tr("var_" + lab.route, { v: num(lab.vol, lab.route === "A" ? 2 : 1) }) + "</span><span>" + tr("bar_time") + ' <b class="mono">' + clockStr(lab.clock) + '</b></span><span class="viol">' + tr("bar_viol") + " <b>" + vc + "</b></span></div>";
+    h += '<div class="ppe">' + [["g", "ppe_g"], ["gl", "ppe_gl"], ["c", "ppe_c"]].map(function (x) { return '<button type="button" class="tog" data-ppe="' + x[0] + '" aria-pressed="' + !!lab.ppe[x[0]] + '">' + tr(x[1]) + "</button>"; }).join("") +
+      '<button type="button" class="tog" data-hood="1" aria-pressed="' + !!lab.hood + '">' + tr("hood") + "</button></div>";
+    h += '<div class="stack"><div class="card" id="benchCard">';
+    if (v) {
+      h += '<div class="bench"><div>' + vesselSvg(v) + '</div><div><div class="caption">' + capHtml(v) + '</div><ul class="reads"><li><span>' + tr("rd_T") + "</span><span>" + Math.round(v.T) + " °C</span></li><li><span>" + tr("rd_V") + "</span><span>" + Math.round(volume(v)) + " " + tr("u_ml") + "</span></li><li><span>" + tr("rd_pH") + "</span><span>" + (lab.lastPH == null ? tr("rd_none") : num(lab.lastPH, 1)) + "</span></li></ul>" + legendHtml(v) + "</div></div>";
+    } else {
+      h += '<p class="muted" style="margin:0">' + tr("empty") + (p ? " " + tr("prod_here") : "") + "</p>";
+    }
+    h += "</div>";
+    if (p) {
+      h += '<div class="card"><div class="bench"><div>' + productSvg(p) + '</div><div><div class="caption">' + tr("k_prod") + '</div><ul class="reads"><li><span>' + tr("rep_mass") + "</span><span>" + (lab.mass == null ? tr("rd_none") : num(lab.mass, 3) + " " + tr("u_g")) + "</span></li><li><span>" + tr("rep_mp") + "</span><span>" + (lab.mp ? num(lab.mp[0], lab.mp[0] % 1 ? 1 : 0) + "–" + num(lab.mp[1], lab.mp[1] % 1 ? 1 : 0) + " °C" : tr("rd_none")) + "</span></li></ul></div></div></div>";
+    }
+    if (lab.lastMsgs) h += '<div class="msgs" id="msgs" aria-live="polite">' + msgsHtml(lab.lastMsgs, true) + "</div>";
+    if (ui.chooser) h += chooserHtml(); else h += actionsHtml(v, p);
+    if (lab.aside.length) {
+      h += '<div class="card"><p class="field">' + tr("aside") + '</p><ul class="aside">' + lab.aside.map(function (it, i) {
+        return "<li><span>" + fmt(tr(it.label)) + ' <span class="muted small">(' + tr(it.type === "liq" ? "a_liq" : "a_sol") + ", " + clockStr(it.t) + ')</span></span><button type="button" class="btn ghost" data-take="' + i + '">' + tr("takeback") + "</button></li>";
+      }).join("") + "</ul></div>";
+    }
+    h += '<div class="card"><details class="nb"><summary>' + tr("notebook") + " (" + lab.log.length + ")</summary>" + logHtml() + "</details></div>";
+    h += '<div class="row2"><button type="button" class="btn ghost" data-go="reset">' + (ui.resetArmed ? tr("reset2") : tr("reset")) + '</button><button type="button" class="btn" data-go="finish">' + tr("finish") + "</button></div></div>";
+    return h;
+  }
+  function msgsHtml(e, withTime) {
+    var out = "";
+    if (e.a) out += '<div class="msg">' + (withTime ? '<span class="t">' + clockStr(e.t) + "</span>" : "") + fmt(tr(e.a.k, e.a.v)) + (e.o ? " " + fmt(obsSentence(e.o)) : "") + "</div>";
+    else if (e.o && !e.m.length) out += '<div class="msg">' + fmt(obsSentence(e.o)) + "</div>";
+    e.m.forEach(function (m) { out += '<div class="msg ' + (m.type === "info" ? "" : m.type) + '">' + fmt(tr(m.k, m.v)) + "</div>"; });
+    if (!e.a && e.o && e.m.length) out += '<div class="msg">' + fmt(obsSentence(e.o)) + "</div>";
+    return out;
+  }
+  function obsSentence(list) { var s = list.map(function (k) { return tr(k); }).join(", "); return s.charAt(0).toUpperCase() + s.slice(1) + "."; }
+  function logHtml() {
+    if (!lab.log.length) return '<p class="muted small">' + tr("nb_empty") + "</p>";
+    return '<ul class="log">' + lab.log.slice().reverse().map(function (e) {
+      var parts = [];
+      if (e.a) parts.push(fmt(tr(e.a.k, e.a.v)));
+      e.m.forEach(function (m) { parts.push('<span class="' + (m.type === "warn" ? "w" : "") + '">' + fmt(tr(m.k, m.v)) + "</span>"); });
+      if (e.o) parts.push('<span class="muted">' + fmt(obsSentence(e.o)) + "</span>");
+      return '<li><span class="t">' + clockStr(e.t) + "</span>" + parts.join(" ") + "</li>";
+    }).join("") + "</ul>";
+  }
+  function btn(id, cls, key, dkey, dis) {
+    return '<button type="button" class="act ' + cls + '" data-a="' + id + '"' + (dis ? " disabled" : "") + ">" + fmt(tr(key)) + (dkey ? "<small>" + fmt(tr(dkey)) + "</small>" : "") + "</button>";
+  }
+  function actionsHtml(v, p) {
+    var nv = !v;
+    var h = '<div class="card" id="actCard"><div class="grp"><h3>' + tr("g_r") + '</h3><div class="acts">' +
+      btn("kmno4", "r", "r_kmno4", "r_kmno4_d", nv) + btn("koh", "r", "r_koh", "r_koh_d", nv) + btn("hcl1", "r", "r_hcl1", "r_hcl1_d", nv) + btn("hcl02", "r", "r_hcl02", "r_hcl02_d", nv) +
+      btn("nahso3", "r", "r_nahso3", "r_nahso3_d", nv) + btn("ether", "r", "r_ether", "r_ether_d", nv) + btn("water", "r", "r_water", "r_water_d", nv) + "</div></div>";
+    h += '<div class="grp"><h3>' + tr("g_e") + '</h3><div class="acts">' +
+      btn("cond", "o", v && v.cond ? "e_cond_off" : "e_cond_on", null, nv || v.kind !== "rbf") + btn("reflux", "o", "e_reflux", "e_reflux_d", nv || v.kind !== "rbf") +
+      btn("shake", "o", "e_shake", "e_shake_d", nv || v.kind === "sep") + btn("room", "o", "e_room", "e_room_d", nv) + btn("ice", "o", "e_ice", "e_ice_d", nv) + btn("ph", "o", "e_ph", null, nv) +
+      btn("sep", "o", "e_sep", null, nv || v.kind === "sep") + btn("vent", "o", "e_vent", null, nv || v.kind !== "sep") + btn("drain", "o", "e_drain", null, nv || v.kind !== "sep") +
+      btn("filter", "o", "e_filter", null, nv) + "</div></div>";
+    h += '<div class="grp"><h3>' + tr("g_p") + '</h3><div class="acts">' + btn("recryst", "p", "p_recryst", null, !p) + btn("dry", "p", "p_dry", "p_dry_d", !p || !p.wet) +
+      btn("weigh", "p", "p_weigh", null, !p) + btn("mp", "p", "p_mp", null, !p) + "</div></div>";
+    h += '<div class="grp"><button type="button" class="act" data-a="hint" style="border-color:var(--iodine)">' + tr("hint") + "</button></div></div>";
+    return h;
+  }
+  function chooserHtml() {
+    var c = ui.chooser, h = '<div class="chooser" id="chooser">';
+    if (c === "filter") {
+      h += "<h3>" + tr("ch_filter") + "</h3>" + radio("keep", "filtrate", tr("keep_filtrate"), true) + radio("keep", "solid", tr("keep_solid")) +
+        '<p class="sub">' + tr("wash") + "</p>" + radio("wash", "cold", tr("w_cold"), true) + radio("wash", "hot", tr("w_hot")) + radio("wash", "none", tr("w_none")) +
+        '<div class="row2"><button type="button" class="btn ghost" data-c="cancel">' + tr("cancel") + '</button><button type="button" class="btn" data-c="filter">' + tr("go_filter") + "</button></div>";
+    } else if (c === "drain") {
+      h += "<h3>" + tr("ch_drain") + "</h3>" + radio("layer", "lower", tr("keep_lower"), true) + radio("layer", "upper", tr("keep_upper")) +
+        '<div class="row2"><button type="button" class="btn ghost" data-c="cancel">' + tr("cancel") + '</button><button type="button" class="btn" data-c="drain">' + tr("go_drain") + "</button></div>";
+    } else {
+      h += "<h3>" + tr("ch_rec") + '</h3><p class="sub" style="margin-top:0">' + tr("rec_amount") + "</p>" + radio("amt", "min", tr("rec_min"), true) + radio("amt", "exc", tr("rec_exc")) +
+        '<label class="opt"><input type="checkbox" name="hf"><span>' + tr("rec_hf") + "</span></label>" +
+        '<div class="row2"><button type="button" class="btn ghost" data-c="cancel">' + tr("cancel") + '</button><button type="button" class="btn" data-c="recryst">' + tr("go_rec") + "</button></div>";
+    }
+    return h + "</div>";
+  }
+  function radio(name, val, label, checked) { return '<label class="opt"><input type="radio" name="' + name + '" value="' + val + '"' + (checked ? " checked" : "") + "><span>" + fmt(label) + "</span></label>"; }
+
+  /* =============== report =============== */
+  function thYield() { return (lab.route === "A" ? lab.n0 : lab.n0 / 2) * M.ba / 1000; }
+  function parseNum(s) { return parseFloat(String(s).replace(",", ".").replace(/[^0-9.\-]/g, "")); }
+  function conclusion() {
+    if (!lab.mp) return tr("c_nomp");
+    var out = [];
+    if (lab.mp[2]) out.push(tr("c_wet"));
+    else out.push(lab.mp[0] >= 121.5 ? tr("c_pure") : tr("c_impure"));
+    if (lab.mp[3]) out.push(tr("c_insol"));
+    return out.join(" ");
+  }
+  function cmpTable() {
+    function row(r) {
+      var x = results[r];
+      return "<tr><td>" + fmt(tr("r" + r + "_t")) + "</td><td>" + tr("row" + r + "_start") + "</td><td>" + fmt(tr("row" + r + "_agent")) + "</td><td>" + fmt(tr("row" + r + "_by")) + "</td><td>" +
+        (x && x.mass != null ? num(x.mass, 3) : "—") + "</td><td>" + (x && x.pct != null ? num(x.pct, 1) : "—") + "</td><td>" + (x && x.mp ? num(x.mp[0], x.mp[0] % 1 ? 1 : 0) + "–" + num(x.mp[1], x.mp[1] % 1 ? 1 : 0) : "—") + "</td></tr>";
+    }
+    return '<div class="tblwrap"><table><thead><tr><th>' + tr("th_route") + "</th><th>" + tr("th_start") + "</th><th>" + tr("th_agent") + "</th><th>" + tr("th_by") + "</th><th>" + tr("th_mass") + "</th><th>" + tr("th_yield") + "</th><th>" + tr("th_mp") + "</th></tr></thead><tbody>" + row("A") + row("B") + "</tbody></table></div>";
+  }
+  function renderReport() {
+    var th = thYield(), c = lab.calc, vlist = Object.keys(lab.viol);
+    var startName = lab.route === "A" ? tr("var_A", { v: num(lab.vol, 2) }) : tr("var_B", { v: num(lab.vol, 1) });
+    var h = '<div class="stack"><div class="card rep"><h2>' + tr("rep_t") + '</h2><ul class="kv">' +
+      "<li><span>" + tr("rep_who") + "</span><span>" + (lab.name ? esc(lab.name) : tr("name_none")) + "</span></li>" +
+      "<li><span>" + tr("rep_route") + "</span><span>" + fmt(tr("r" + lab.route + "_t")) + "</span></li>" +
+      "<li><span>" + tr("rep_start") + "</span><span>" + startName + "</span></li>" +
+      "<li><span>" + tr("rep_mass") + "</span><span>" + (lab.mass == null ? tr("rep_notmeas") : num(lab.mass, 3) + " " + tr("u_g") + (lab.massWet ? " *" : "")) + "</span></li>" +
+      "<li><span>" + tr("rep_mp") + "</span><span>" + (lab.mp ? num(lab.mp[0], lab.mp[0] % 1 ? 1 : 0) + "–" + num(lab.mp[1], lab.mp[1] % 1 ? 1 : 0) + " °C" : tr("rep_notmeas")) + "</span></li>" +
+      "<li><span>" + tr("rep_time") + '</span><span class="mono">' + clockStr(lab.clock) + "</span></li>" +
+      "<li><span>" + tr("rep_hints") + "</span><span>" + lab.hints + "</span></li></ul>";
+    h += '<div class="calc"><div><label class="field" for="q1">' + tr("rep_q1") + '</label><input class="input" id="q1" inputmode="decimal" value="' + esc(c.q1 || "") + '"></div><button type="button" class="btn" data-r="q1">' + tr("rep_check") + "</button></div>" +
+      (c.q1ok != null ? '<div class="verdict ' + (c.q1ok ? "ok" : "no") + '">' + tr(c.q1ok ? "rep_ok" : "rep_no") + "</div>" : "");
+    if (lab.mass == null) h += '<p class="small muted" style="margin:10px 0 0">' + tr("rep_need") + "</p>";
+    else h += '<div class="calc"><div><label class="field" for="q2">' + tr("rep_q2") + '</label><input class="input" id="q2" inputmode="decimal" value="' + esc(c.q2 || "") + '"></div><button type="button" class="btn" data-r="q2">' + tr("rep_check") + "</button></div>" +
+      (c.q2ok != null ? '<div class="verdict ' + (c.q2ok ? "ok" : "no") + '">' + tr(c.q2ok ? "rep_ok" : "rep_no") + "</div>" : "");
+    if (c.q1ok && (c.q2ok || lab.mass == null)) {
+      h += '<ul class="kv"><li><span>' + tr("rep_q1") + "</span><span>" + num(th, 3) + "</span></li>" + (lab.mass != null ? "<li><span>" + tr("rep_q2") + "</span><span>" + num(lab.mass / th * 100, 1) + "</span></li>" : "") + "</ul>";
+    }
+    h += '<p class="field" style="margin-top:14px">' + tr("rep_verdict") + '</p><p style="margin:0">' + conclusion() + "</p>";
+    h += '<p class="small muted" style="margin:14px 0 0">' + tr("rep_show") + "</p></div>";
+    h += sendHtml();
+    h += wrongHtml();
+    h += '<div class="card"><p class="field">' + tr("rep_cmp") + "</p>" + cmpTable() + "</div>";
+    h += '<div class="card"><details class="nb"><summary>' + tr("notebook") + " (" + lab.log.length + ")</summary>" + logHtml() + "</details></div>";
+    h += '<div class="row2"><button type="button" class="btn ghost" data-go="back">' + tr("rep_back") + '</button><button type="button" class="btn" data-go="other">' + tr("rep_other") + "</button></div></div>";
+    return h;
+  }
+  var WR = {
+    v_ppe: { sev: "safety", fix: { en: "Put on goggles, gloves and a lab coat before touching any reagent.", ru: "Надевайте очки, перчатки и халат до того, как брать любой реактив." } },
+    v_hood_hcl: { sev: "safety", fix: { en: "Conc. HCl gives off corrosive fumes — add it only in the fume hood.", ru: "Конц. HCl выделяет едкие пары — добавляйте её только в вытяжном шкафу." } },
+    v_hood_ether: { sev: "safety", fix: { en: "Ether vapour is flammable and narcotic — work with it in the fume hood.", ru: "Пары эфира горючи и обладают наркотическим действием — работайте в вытяжном шкафу." } },
+    v_hood_ald: { sev: "safety", fix: { en: "Benzaldehyde irritates the eyes and airways — open and pour it in the fume hood.", ru: "Бензальдегид раздражает глаза и дыхательные пути — открывайте и наливайте его в вытяжном шкафу." } },
+    v_cl2: { sev: "safety", fix: { en: "KMnO₄ and hot MnO₂ oxidize HCl to toxic Cl₂. Destroy the excess KMnO₄ with NaHSO₃ and filter off MnO₂ before you acidify.", ru: "KMnO₄ и горячий MnO₂ окисляют HCl до ядовитого Cl₂. Уничтожьте избыток KMnO₄ бисульфитом и отфильтруйте MnO₂ до подкисления." } },
+    v_nocond: { sev: "safety", fix: { en: "Without a reflux condenser the liquid boils away (lower yield) and its vapour can catch fire. Attach the condenser before heating.", ru: "Без обратного холодильника жидкость выкипает (выход ниже), а её пары могут загореться. Присоедините холодильник до нагрева." } },
+    v_etherheat: { sev: "safety", fix: { en: "Ether boils at 35 °C. Never add it to a warm mixture or keep it near heat — cool first.", ru: "Эфир кипит при 35 °C. Не добавляйте его в тёплую смесь и не держите рядом с нагревом — сначала охладите." } },
+    v_etherwarm: { sev: "safety", fix: { en: "Shake ether only with a cooled mixture and vent the funnel often.", ru: "Встряхивайте эфир только с охлаждённой смесью и чаще стравливайте давление." } },
+    m_filt_lost: { sev: "yield", title: { en: "Acidified before removing MnO₂", ru: "Подкисление до удаления MnO₂" }, fix: { en: "The benzoic acid precipitated and was filtered off together with the MnO₂. Filter MnO₂ first, then acidify the filtrate.", ru: "Бензойная кислота выпала и ушла на фильтр вместе с MnO₂. Сначала отфильтруйте MnO₂, потом подкисляйте фильтрат." } },
+    m_hotwash: { sev: "yield", title: { en: "Washed the product with hot water", ru: "Промывка продукта горячей водой" }, fix: { en: "Benzoic acid dissolves in hot water. Wash with a little ice-cold water.", ru: "Бензойная кислота растворяется в горячей воде. Промывайте небольшим количеством ледяной воды." } },
+    m_filt_warm: { sev: "yield", title: { en: "Filtered the product while warm", ru: "Продукт отфильтрован тёплым" }, fix: { en: "Warm water keeps more benzoic acid dissolved. Cool in an ice bath first.", ru: "В тёплой воде остаётся больше растворённой бензойной кислоты. Сначала охладите на льду." } },
+    m_rec_exc: { sev: "yield", title: { en: "Too much water for recrystallization", ru: "Слишком много воды при перекристаллизации" }, fix: { en: "Use the minimum of hot water: whatever stays dissolved after cooling is lost.", ru: "Берите минимум горячей воды: всё, что останется растворённым после охлаждения, теряется." } },
+    m_rec_mn: { sev: "purity", title: { en: "MnO₂ carried into the product", ru: "MnO₂ попал в продукт" }, fix: { en: "Insoluble MnO₂ isn't removed by recrystallization alone. Filter the hot solution before cooling — or better, remove MnO₂ completely before acidifying.", ru: "Нерастворимый MnO₂ одной перекристаллизацией не убрать. Фильтруйте горячий раствор перед охлаждением — а лучше полностью удалите MnO₂ до подкисления." } },
+    m_upper: { sev: "yield", title: { en: "Kept the wrong layer", ru: "Оставлен не тот слой" }, fix: { en: "Potassium benzoate is a salt and stays in the lower aqueous layer; the upper ether layer holds benzyl alcohol.", ru: "Бензоат калия — соль, он остаётся в нижнем водном слое; в верхнем эфирном — бензиловый спирт." } },
+    m_bis_ald: { sev: "yield", title: { en: "NaHSO₃ added to benzaldehyde", ru: "NaHSO₃ добавлен к бензальдегиду" }, fix: { en: "Bisulfite ties up aldehydes as adducts. It belongs only to Route A, to destroy excess KMnO₄.", ru: "Бисульфит связывает альдегиды в аддукты. Он нужен только в пути A — для уничтожения избытка KMnO₄." } },
+    m_kmno4_bnoh: { sev: "yield", title: { en: "KMnO₄ used in the Cannizzaro route", ru: "KMnO₄ в пути Канниццаро" }, fix: { en: "Route B needs no oxidant: KMnO₄ destroyed the benzyl alcohol and left MnO₂ to remove.", ru: "В пути B окислитель не нужен: KMnO₄ уничтожил бензиловый спирт и оставил MnO₂, который ещё надо убирать." } },
+    m_dilute: { sev: "yield", title: { en: "Base too dilute", ru: "Слишком разбавленная щёлочь" }, fix: { en: "The Cannizzaro reaction needs concentrated KOH (≈50%). Don't add water before the reaction is over.", ru: "Реакции Канниццаро нужна концентрированная KOH (≈50%). Не добавляйте воду, пока реакция не закончилась." } },
+    m_redis: { sev: "yield", title: { en: "Added base after acidifying", ru: "Щёлочь добавлена после подкисления" }, fix: { en: "Base turns benzoic acid back into soluble benzoate. Once acidified, keep it acidic.", ru: "Щёлочь превращает бензойную кислоту обратно в растворимый бензоат. После подкисления среда должна оставаться кислой." } },
+    m_sep_solid: { sev: "minor", title: { en: "Solids poured into the separating funnel", ru: "Осадок в делительной воронке" }, fix: { en: "Solids clog the stopcock — filter them off first.", ru: "Осадок забивает кран — сначала отфильтруйте его." } },
+    m_weigh_wet: { sev: "yield", title: { en: "Weighed a wet product", ru: "Взвешен влажный продукт" }, fix: { en: "Water adds mass and inflates the yield. Dry to constant mass before weighing.", ru: "Вода добавляет массу и завышает выход. Сушите до постоянной массы перед взвешиванием." } },
+    m_mp_wet: { sev: "purity", title: { en: "Melting point of a wet sample", ru: "Т. пл. влажного образца" }, fix: { en: "Moisture lowers and blurs the melting range. Dry the sample first.", ru: "Влага понижает и размывает интервал плавления. Сначала высушите образец." } },
+    m_nohe: { sev: "minor", title: { en: "Heated or shook with nothing to react", ru: "Нагрев или встряхивание без реагента" }, fix: { en: "Check that the oxidant or base is in the flask before heating — this only cost time.", ru: "Перед нагревом проверьте, что окислитель или щёлочь уже в колбе, — иначе это потеря времени." } },
+    s_tol_left: { sev: "yield", title: { en: "Oxidation incomplete", ru: "Окисление не завершено" }, fix: { en: "{p}% of the toluene never reacted. Add KMnO₄ in portions until the purple colour persists after heating.", ru: "{p}% толуола так и не прореагировало. Добавляйте KMnO₄ порциями, пока окраска не перестанет исчезать при нагревании." } },
+    s_ald_left: { sev: "yield", title: { en: "Cannizzaro reaction incomplete", ru: "Реакция Канниццаро не завершена" }, fix: { en: "{p}% of the benzaldehyde never reacted. Shake on the warm bath until the oily layer disappears.", ru: "{p}% бензальдегида не прореагировало. Встряхивайте на тёплой бане, пока не исчезнет маслянистый слой." } },
+    s_ext0: { sev: "purity", title: { en: "No extraction with ether", ru: "Не было экстракции эфиром" }, fix: { en: "Benzyl alcohol stayed in the mixture and contaminates the product. Extract twice with ether before acidifying.", ru: "Бензиловый спирт остался в смеси и загрязняет продукт. Экстрагируйте эфиром дважды до подкисления." } },
+    s_ext1: { sev: "purity", title: { en: "Only one extraction", ru: "Только одна экстракция" }, fix: { en: "One portion of ether leaves some benzyl alcohol behind. Extract twice.", ru: "Одна порция эфира оставляет часть бензилового спирта. Экстрагируйте дважды." } },
+    s_bz_left: { sev: "yield", title: { en: "Not enough HCl", ru: "Недостаточно HCl" }, fix: { en: "{p}% of the product stayed in solution as benzoate. Acidify to pH ≈ 2 and check with indicator paper.", ru: "{p}% продукта осталось в растворе в виде бензоата. Подкисляйте до pH ≈ 2 и проверяйте индикаторной бумагой." } },
+    s_noph: { sev: "minor", title: { en: "pH never checked", ru: "pH не проверялся" }, fix: { en: "Without indicator paper you can't know the acidification is complete.", ru: "Без индикаторной бумаги не узнать, закончено ли подкисление." } },
+    s_solid_left: { sev: "yield", title: { en: "Product left behind", ru: "Продукт остался невыделенным" }, fix: { en: "{p}% of the benzoic acid stayed as a solid in a set-aside portion or in the flask. Collect all of it on the filter.", ru: "{p}% бензойной кислоты осталось осадком в отставленной порции или в колбе. Соберите всё на фильтр." } },
+    s_norec: { sev: "purity", title: { en: "No recrystallization", ru: "Не было перекристаллизации" }, fix: { en: "The crude product carries impurities. Recrystallize from the minimum of hot water before weighing.", ru: "Сырой продукт содержит примеси. Перекристаллизуйте из минимума горячей воды перед взвешиванием." } },
+    s_impure: { sev: "purity", title: { en: "Product impure (m.p. {a}–{b} °C)", ru: "Продукт загрязнён (т. пл. {a}–{b} °C)" }, fix: { en: "Organic impurities lower and broaden the melting range. Recrystallize again.", ru: "Органические примеси понижают и растягивают интервал плавления. Перекристаллизуйте ещё раз." } },
+    s_wet_final: { sev: "yield", title: { en: "The reported mass is of a wet product", ru: "В отчёте масса влажного продукта" }, fix: { en: "Your yield is overestimated. Dry, then weigh again.", ru: "Выход завышен. Высушите и взвесьте заново." } },
+    s_noweigh: { sev: "minor", title: { en: "Product not weighed", ru: "Продукт не взвешен" }, fix: { en: "Without the mass there is no yield.", ru: "Без массы нельзя рассчитать выход." } },
+    s_nomp: { sev: "minor", title: { en: "Melting point not measured", ru: "Т. пл. не измерена" }, fix: { en: "Without the m.p. you can't confirm identity and purity.", ru: "Без т. пл. нельзя подтвердить подлинность и чистоту." } },
+    s_noprod: { sev: "yield", title: { en: "No product isolated", ru: "Продукт не выделен" }, fix: { en: "The run ended before the benzoic acid was collected on the filter.", ru: "Опыт закончился раньше, чем бензойная кислота была собрана на фильтре." } }
+  };
+  function liquids() { var a = lab.aside.filter(function (x) { return x.type === "liq"; }).map(function (x) { return x.data; }); if (lab.v) a.push(lab.v); return a; }
+  function lossBreakdown() {
+    var th = lab.route === "A" ? lab.n0 : lab.n0 / 2, L = liquids();
+    var prod = lab.prod ? lab.prod.ba : 0, unr = 0, solu = 0, sol = 0;
+    L.forEach(function (v) {
+      unr += lab.route === "A" ? v.tol : v.ald / 2;
+      var s = solidBA(v); sol += s; solu += v.bz + (v.bzh - s);
+    });
+    lab.aside.forEach(function (x) { if (x.type === "sol") sol += x.data.ba; });
+    var tot = Math.max(th, prod + unr + solu + sol), other = Math.max(0, tot - prod - unr - solu - sol);
+    return { th: th, tot: tot, parts: [["lb_prod", prod, "var(--ok)"], ["lb_unr", unr, "#8a96a3"], ["lb_sol", solu, "#5b8fd0"], ["lb_solid", sol, "#d9a33a"], ["lb_other", other, "var(--bad)"]] };
+  }
+  function analyze() {
+    var items = [], seen = {}, firstT = {}, counts = {};
+    lab.log.forEach(function (e) { e.m.forEach(function (m) { if (!(m.k in firstT)) firstT[m.k] = e.t; counts[m.k] = (counts[m.k] || 0) + 1; }); });
+    function add(k, vars, extra) { if (seen[k]) return; seen[k] = 1; items.push({ k: k, vars: vars || null, t: firstT[k], n: counts[k] || 0, extra: extra || null }); }
+    Object.keys(lab.viol).forEach(function (k) { if (WR[k]) add(k); });
+    Object.keys(firstT).sort(function (a, b) { return firstT[a] - firstT[b]; }).forEach(function (k) {
+      if (!WR[k] || WR[k].sev === "safety") return;
+      if (k === "m_weigh_wet" && !lab.massWet) return add(k, null, "fixed");
+      if (k === "m_mp_wet" && lab.mp && !lab.mp[2]) return add(k, null, "fixed");
+      add(k);
+    });
+    var lb = lossBreakdown(), th = lb.th, L = liquids(), p = lab.prod;
+    var unr = lb.parts[1][1], bz = 0, solid = lb.parts[3][1];
+    L.forEach(function (v) { bz += v.bz; });
+    function pc(x) { return String(Math.round(x / th * 100)); }
+    if (lab.route === "A" && unr / th > 0.05) add("s_tol_left", { p: pc(unr) });
+    if (lab.route === "B" && unr / th > 0.05) add("s_ald_left", { p: pc(unr) });
+    if (bz / th > 0.05) add("s_bz_left", { p: pc(bz) });
+    var reachedAcid = lab.log.some(function (e) { return e.a && e.a.k === "m_added" && /HCl/.test(String(e.a.v && e.a.v.x)); });
+    if (reachedAcid && !firstT.m_ph) add("s_noph");
+    if (lab.route === "B" && (reachedAcid || p)) { if (lab.extractions === 0) add("s_ext0"); else if (lab.extractions === 1) add("s_ext1"); }
+    if (solid / th > 0.05) add("s_solid_left", { p: pc(solid) });
+    if (!p) add("s_noprod");
+    else {
+      if (p.mno2 > 1) add("m_rec_mn");
+      if (!p.rec) add("s_norec");
+      if (lab.mass == null) add("s_noweigh"); else if (lab.massWet) add("s_wet_final");
+      if (!lab.mp) add("s_nomp");
+      else if (!lab.mp[2] && lab.mp[0] < 121.5) add("s_impure", { a: num(lab.mp[0], lab.mp[0] % 1 ? 1 : 0), b: num(lab.mp[1], lab.mp[1] % 1 ? 1 : 0) });
+    }
+    var order = { safety: 0, yield: 1, purity: 2, minor: 3 };
+    items.sort(function (a, b) { return order[WR[a.k].sev] - order[WR[b.k].sev]; });
+    return { items: items, lb: lb };
+  }
+  function wrongHtml() {
+    var r = analyze(), its = r.items, lb = r.lb;
+    var nS = its.filter(function (i) { return WR[i.k].sev === "safety"; }).length;
+    var h = '<div class="card wr"><h2>' + tr("wr_t") + "</h2>";
+    h += its.length ? '<p class="sum">' + tr("wr_sum", { n: its.length, s: nS, o: its.length - nS }) + "</p>" : '<div class="clean" style="margin:6px 0 14px">' + tr("wr_clean") + "</div>";
+    h += '<p class="field" style="margin:0">' + tr("wr_where") + '</p><div class="lossbar" aria-hidden="true">' + lb.parts.map(function (x) {
+      var w = x[1] / lb.tot * 100; return w > 0.4 ? '<i style="width:' + w + "%;background:" + x[2] + '"></i>' : "";
+    }).join("") + '</div><ul class="losslist">' + lb.parts.filter(function (x, i) { return i === 0 || x[1] / lb.tot > 0.005; }).map(function (x) {
+      return '<li><span class="sw" style="background:' + x[2] + '"></span><span>' + tr(x[0]) + '</span><span class="pc">' + Math.round(x[1] / lb.th * 100) + "%</span></li>";
+    }).join("") + "</ul>";
+    if (its.length) {
+      h += '<ul class="mist">' + its.map(function (it) {
+        var w = WR[it.k], sev = w.sev, title = w.title ? fill(w.title[lang] || w.title.en, it.vars) : tr(it.k);
+        var fix = fill(w.fix[lang] || w.fix.en, it.vars);
+        var when = it.t != null ? '<span class="when">' + tr("at") + " " + clockStr(it.t) + (it.n > 1 ? ", " + tr("times", { n: it.n }) : "") + "</span>" : "";
+        return '<li class="' + sev + '"><span class="tag">' + tr("tag_" + sev) + "</span>" + when + "<b>" + fmt(title) + "</b><p>" + fmt(fix) + (it.extra === "fixed" ? " <i>" + tr("fixed") + "</i>" : "") + "</p></li>";
+      }).join("") + "</ul>";
+    }
+    return h + "</div>";
+  }
+  function fill(s, vars) { if (vars) Object.keys(vars).forEach(function (k) { s = s.split("{" + k + "}").join(vars[k]); }); return s; }
+
+  var WKEYS = ["v_ppe", "v_hood_hcl", "v_hood_ether", "v_hood_ald", "v_cl2", "v_nocond", "v_etherheat", "v_etherwarm",
+    "m_filt_lost", "m_hotwash", "m_filt_warm", "m_rec_exc", "m_rec_mn", "m_upper", "m_bis_ald", "m_kmno4_bnoh", "m_dilute", "m_redis",
+    "m_sep_solid", "m_weigh_wet", "m_mp_wet", "m_nohe", "s_tol_left", "s_ald_left", "s_ext0", "s_ext1", "s_bz_left", "s_noph",
+    "s_solid_left", "s_norec", "s_impure", "s_wet_final", "s_noweigh", "s_nomp", "s_noprod"];
+  function fnv(str) { var h = 2166136261; for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(16); }
+  function b64url(str) {
+    var bytes = new TextEncoder().encode(str), bin = "";
+    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+    return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+  }
+  function resultCode() {
+    var r = analyze();
+    var o = {
+      v: 1, n: lab.name || "", r: lab.route, vol: lab.vol, m: lab.mass, mw: lab.massWet ? 1 : 0,
+      mp: lab.mp ? [lab.mp[0], lab.mp[1], lab.mp[2] ? 1 : 0, lab.mp[3] ? 1 : 0] : null,
+      q1: lab.calc.q1ok == null ? null : lab.calc.q1ok ? 1 : 0, q2: lab.calc.q2ok == null ? null : lab.calc.q2ok ? 1 : 0,
+      t: Math.round(lab.clock), h: lab.hints,
+      w: r.items.map(function (it) { return [WKEYS.indexOf(it.k), it.n || 0, it.extra === "fixed" ? 1 : 0]; }).filter(function (x) { return x[0] >= 0; }),
+      lb: r.lb.parts.map(function (x) { return Math.round(x[1] / r.lb.th * 100); }),
+      at: lab.finishedAt || Math.round(Date.now() / 60000)
+    };
+    var b = b64url(JSON.stringify(o));
+    return "BZL1-" + b + "-" + ("00000000" + fnv("bzl-2026|" + b)).slice(-6);
+  }
+  function sendHtml() {
+    var code = resultCode();
+    var h = '<div class="card send" id="sendCard"><h2>' + tr("snd_t") + '</h2><p class="small" style="margin:0">' + tr("snd_p") + "</p>";
+    if (!lab.name) h += '<p class="small" style="margin:10px 0 4px">' + tr("snd_name") + '</p><input class="input" id="nm2" type="text" autocomplete="name" placeholder="' + esc(tr("s_name_ph")) + '">';
+    h += '<textarea class="codebox" id="codebox" readonly rows="4" aria-label="' + esc(tr("snd_t")) + '">' + esc(code) + '</textarea>' +
+      '<button type="button" class="btn full" data-go="copy" style="margin-top:8px">' + tr("snd_copy") + '</button><div class="copied" id="copied" aria-live="polite"></div>' +
+      '<p class="small muted" style="margin:6px 0 0">' + tr("snd_note") + "</p></div>";
+    return h;
+  }
+  function copyCode() {
+    var box = document.getElementById("codebox"), msg = document.getElementById("copied");
+    if (!box) return;
+    function ok() { msg.textContent = tr("snd_ok"); msg.className = "copied ok"; }
+    function manual() { box.focus(); box.select(); try { box.setSelectionRange(0, box.value.length); } catch (e) {} msg.textContent = tr("snd_manual"); msg.className = "copied no"; }
+    function legacy() {
+      box.focus(); box.select(); try { box.setSelectionRange(0, box.value.length); } catch (e) {}
+      var done = false; try { done = document.execCommand("copy"); } catch (e) { done = false; }
+      if (done) ok(); else manual();
+    }
+    var settled = false;
+    function once(fn) { return function () { if (settled) return; settled = true; fn(); }; }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(box.value).then(once(ok), once(legacy));
+      setTimeout(once(legacy), 1500);
+    } else legacy();
+  }
+
+  function saveResult() {
+    results[lab.route] = { mass: lab.mass, pct: lab.mass != null ? lab.mass / thYield() * 100 : null, mp: lab.mp, viol: Object.keys(lab.viol).length, at: Date.now() };
+    store.set("vl-results", JSON.stringify(results));
+  }
+
+  /* =============== render & events =============== */
+  var app = document.getElementById("app");
+  function applyStatic() {
+    document.documentElement.lang = lang; document.title = tr("title");
+    document.querySelectorAll("[data-t]").forEach(function (el) { el.innerHTML = fmt(tr(el.getAttribute("data-t"))); });
+    document.querySelectorAll(".lang button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.lang === lang)); });
+  }
+  function render(scroll) {
+    if (ui.screen === "setup" || !lab) app.innerHTML = renderSetup();
+    else if (ui.screen === "report") app.innerHTML = renderReport();
+    else app.innerHTML = renderLab();
+    ui.anim = false;
+    if (scroll) { var el = document.getElementById(scroll); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "nearest" }); }
+  }
+
+  app.addEventListener("input", function (e) {
+    if (e.target.id === "nm") {
+      setup.name = e.target.value.slice(0, 80); store.set("vl-name", setup.name);
+      var va = variantFor(setup.name, setup.route), vb = document.getElementById("varbox");
+      if (vb) vb.querySelector("b").textContent = tr("var_" + setup.route, { v: num(va.vol, setup.route === "A" ? 2 : 1) });
+    }
+    if (e.target.id === "q1" || e.target.id === "q2") { lab.calc[e.target.id] = e.target.value; save(); }
+    if (e.target.id === "nm2") {
+      lab.name = e.target.value.slice(0, 80).trim(); save();
+      var cb = document.getElementById("codebox"); if (cb) cb.value = resultCode();
+    }
+  });
+  app.addEventListener("click", function (e) {
+    var b = e.target.closest("button");
+    if (!b || b.disabled) return;
+    var d = b.dataset;
+    if (d.route) { setup.route = d.route; store.set("vl-route", d.route); render(); return; }
+    if (d.go === "start") { newLab(); ui.screen = "lab"; ui.chooser = null; render(); window.scrollTo({ top: 0 }); return; }
+    if (d.go === "resume") { ui.screen = "lab"; render(); return; }
+    if (d.go === "reset") {
+      if (!ui.resetArmed) { ui.resetArmed = true; render(); setTimeout(function () { ui.resetArmed = false; if (ui.screen === "lab") render(); }, 3000); return; }
+      ui.resetArmed = false; lab = null; save(); ui.screen = "setup"; render(); window.scrollTo({ top: 0 }); return;
+    }
+    if (d.go === "copy") { copyCode(); return; }
+    if (d.go === "finish") { lab.finished = true; lab.finishedAt = Math.round(Date.now() / 60000); saveResult(); save(); ui.screen = "report"; render(); window.scrollTo({ top: 0 }); return; }
+    if (d.go === "back") { lab.finished = false; save(); ui.screen = "lab"; render(); return; }
+    if (d.go === "other") { setup.route = lab.route === "A" ? "B" : "A"; store.set("vl-route", setup.route); lab = null; save(); ui.screen = "setup"; render(); window.scrollTo({ top: 0 }); return; }
+    if (d.ppe) { lab.ppe[d.ppe] = !lab.ppe[d.ppe]; save(); render(); return; }
+    if (d.hood) { lab.hood = !lab.hood; save(); render(); return; }
+    if (d.take !== undefined) { takeBack(+d.take); return; }
+    if (d.r === "q1") {
+      var x = parseNum(lab.calc.q1 || ""), th = thYield();
+      lab.calc.q1ok = isFinite(x) && Math.abs(x - th) <= Math.max(0.01, th * 0.02); save(); render(); return;
+    }
+    if (d.r === "q2") {
+      var y = parseNum(lab.calc.q2 || ""), pc = lab.mass / thYield() * 100;
+      lab.calc.q2ok = isFinite(y) && Math.abs(y - pc) <= 1; saveResult(); save(); render(); return;
+    }
+    if (d.c) {
+      if (d.c === "cancel") { ui.chooser = null; render(); return; }
+      var box = document.getElementById("chooser");
+      function val(n) { var el = box.querySelector('input[name="' + n + '"]:checked'); return el ? el.value : null; }
+      var c = d.c; ui.chooser = null;
+      if (c === "filter") filtrate(val("keep"), val("wash"));
+      else if (c === "drain") drain(val("layer"));
+      else recryst(val("amt"), box.querySelector('input[name="hf"]').checked);
+      scrollMsgs(); return;
+    }
+    if (d.a) {
+      var a = d.a;
+      if (a === "hint") { lab.hints++; say(hintKey(), null, "hint"); commit(null, null, false, true); scrollMsgs(); return; }
+      if (a === "filter" || a === "drain" || a === "recryst") { ui.chooser = a; render("chooser"); return; }
+      if (PACT[a]) { PACT[a](lab.prod); scrollMsgs(); return; }
+      if (ACT[a]) {
+        if (lab.v && ["reflux", "shake", "ice", "cond", "ph", "room"].indexOf(a) < 0) { lab.v.heat = lab.v.heat === "ice" ? "ice" : null; if (lab.v.T > 20) lab.v.T -= (lab.v.T - 20) * 0.1; }
+        ACT[a](lab.v); scrollMsgs();
+      }
+    }
+  });
+  function scrollMsgs() {
+    var el = document.getElementById("benchCard");
+    if (el && el.getBoundingClientRect().top < 0 && el.scrollIntoView) el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+  }
+  document.querySelector(".lang").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-lang]"); if (!b || b.dataset.lang === lang) return;
+    lang = b.dataset.lang; store.set("vl-lang", lang); applyStatic(); render();
+  });
+  applyStatic();
+  render();
+})();
+</script>
+</body>
+</html>

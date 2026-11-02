@@ -1,0 +1,759 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Синтез м-нитробензойной кислоты</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&family=Unbounded:wght@500;700&display=swap">
+<style>
+/* Layout: рабочее место — методика, прибор и органы управления в одной колонке; лабораторный журнал «в клетку» рядом (на телефоне — ниже) */
+:root{
+  --paper:#edf1f3; --grid:rgba(31,79,209,.07); --panel:#fbfcfd; --scene:#f5f8fa; --ink:#15222b; --muted:#56656f; --line:#cbd5db;
+  --accent:#1f4fd1; --accent-soft:#e1e8fd; --accent-ink:#ffffff;
+  --warn:#9a5a00; --warn-soft:#fff0d3; --bad:#c0352c; --bad-soft:#fde4e1; --good:#1b7a49; --good-soft:#ddf3e6;
+  --glass:#6f8a9b; --glass-fill:rgba(185,215,232,.28); --liquid:rgba(160,198,222,.55); --liq-y:rgba(236,212,110,.6); --melt:rgba(250,232,160,.8);
+  --ice:#f3fbff; --ice-edge:#a9cfe3; --bench:#c9d2d8; --metal:#9aa7b0; --metal-dark:#5f6c75; --screen:#1d2b22; --screen-ink:#7dff9e;
+  --solid:#fdfdf8; --solid-y:#f4eec9; --hot:#ff6a2b; --nox:#b8661f;
+  --f-display:"Unbounded",system-ui,sans-serif; --f-body:"Golos Text",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#0e1519; --grid:rgba(126,162,255,.06); --panel:#151f25; --scene:#111a20; --ink:#e2eaef; --muted:#93a3ad; --line:#2a3a44;
+  --accent:#86a6ff; --accent-soft:#1c2a4a; --accent-ink:#0b1430;
+  --warn:#f2aa45; --warn-soft:#38270c; --bad:#ff7a70; --bad-soft:#3b1714; --good:#5bd393; --good-soft:#112d1e;
+  --glass:#8fb0c3; --glass-fill:rgba(120,170,200,.12); --liquid:rgba(130,175,210,.35); --liq-y:rgba(220,190,90,.4); --melt:rgba(230,210,140,.6);
+  --ice:#2c4352; --ice-edge:#5d8aa3; --bench:#24323b; --metal:#4d5b64; --metal-dark:#8d9aa3; --screen:#0b130e; --screen-ink:#6cf08f;
+  --solid:#e9ece4; --solid-y:#e4dcae; --hot:#ff7d45; --nox:#e08a42; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#0e1519; --grid:rgba(126,162,255,.06); --panel:#151f25; --scene:#111a20; --ink:#e2eaef; --muted:#93a3ad; --line:#2a3a44;
+  --accent:#86a6ff; --accent-soft:#1c2a4a; --accent-ink:#0b1430;
+  --warn:#f2aa45; --warn-soft:#38270c; --bad:#ff7a70; --bad-soft:#3b1714; --good:#5bd393; --good-soft:#112d1e;
+  --glass:#8fb0c3; --glass-fill:rgba(120,170,200,.12); --liquid:rgba(130,175,210,.35); --liq-y:rgba(220,190,90,.4); --melt:rgba(230,210,140,.6);
+  --ice:#2c4352; --ice-edge:#5d8aa3; --bench:#24323b; --metal:#4d5b64; --metal-dark:#8d9aa3; --screen:#0b130e; --screen-ink:#6cf08f;
+  --solid:#e9ece4; --solid-y:#e4dcae; --hot:#ff7d45; --nox:#e08a42; color-scheme:dark}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+body{background-color:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:18px 18px;color:var(--ink);font:15px/1.5 var(--f-body)}
+.wrap{max-width:1160px;margin:0 auto;padding-inline:16px;padding-block:14px 56px}
+.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 16px}
+.eyebrow{font:600 11px/1.3 var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font:700 clamp(19px,4.8vw,28px)/1.15 var(--f-display);margin:5px 0 0;letter-spacing:-.01em;text-wrap:balance}
+h2{font:600 clamp(16px,4vw,20px)/1.25 var(--f-display);margin:3px 0 10px;text-wrap:balance}
+.topr{display:flex;gap:8px;align-items:center}
+.clock{font:600 13px var(--f-mono);font-variant-numeric:tabular-nums;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);white-space:nowrap}
+.stages{display:flex;gap:6px;overflow-x:auto;margin:14px 0 12px;padding-bottom:2px;scrollbar-width:none}
+.stg{flex:0 0 auto;font:500 12.5px var(--f-body);padding:6px 11px;border-radius:999px;border:1px solid var(--line);color:var(--muted);background:var(--panel);white-space:nowrap}
+.stg.now{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.stg.done{color:var(--good);border-color:var(--good)}
+.grid{display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:920px){.grid{grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);align-items:start}.side{position:sticky;top:calc(env(safe-area-inset-top,0px) + 12px)}}
+.side{display:grid;gap:14px;min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px}
+.bench{padding:16px;min-width:0}
+.stepmeta{font:600 11.5px var(--f-mono);color:var(--accent)}
+.instr{font-size:14.5px;line-height:1.55;margin-bottom:12px;max-width:68ch}
+.instr p{margin:0 0 6px}.instr ol{margin:0;padding-left:20px}.instr li{margin:3px 0}
+.instr .note{color:var(--muted);font-size:13.5px;margin-top:6px}
+.scene{border:1px solid var(--line);border-radius:12px;background:var(--scene);overflow:hidden}
+.scene svg{display:block;width:100%;max-width:560px;height:auto;max-height:48vh;margin:0 auto}
+.fb{margin-top:10px;padding:10px 12px;border-radius:10px;font-size:14px;line-height:1.45;border:1px solid transparent}
+.fb.info{background:var(--accent-soft)}.fb.warn{background:var(--warn-soft);border-color:var(--warn)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}.fb.good{background:var(--good-soft);border-color:var(--good)}
+.readouts{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.readouts:empty{display:none}
+.ro{display:flex;flex-direction:column;padding:6px 10px;border-radius:8px;background:var(--paper);border:1px solid var(--line);min-width:0}
+.ro span{font:600 10px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.ro b{font:600 15px var(--f-mono);font-variant-numeric:tabular-nums}
+.ro.ok b{color:var(--good)}.ro.warn{background:var(--warn-soft);border-color:var(--warn)}.ro.warn b{color:var(--warn)}
+.ro.bad{background:var(--bad-soft);border-color:var(--bad)}.ro.bad b{color:var(--bad)}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;min-width:0}
+.controls>*{min-width:0}
+.row{display:flex;flex-wrap:wrap;gap:8px;width:100%;align-items:center}
+.row input[type=range]{flex:1;min-width:150px;accent-color:var(--accent)}
+.lab{width:100%;font:600 11px var(--f-body);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-top:6px}
+.b{font:500 14px/1.2 var(--f-body);min-height:42px;padding:9px 13px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer;touch-action:manipulation;text-align:left}
+.b:hover:not(:disabled){border-color:var(--accent)}
+.b:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.b:disabled{opacity:.42;cursor:not-allowed}
+.b.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.b.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.b.big{font-size:17px;font-weight:600;min-height:54px;padding:12px 26px}
+.b.sm{min-height:34px;padding:6px 10px;font-size:13px}
+.b.danger{border-color:var(--bad);color:var(--bad)}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+.seg .b{border:0;border-radius:0;min-height:38px}
+.seg .b+.b{border-left:1px solid var(--line)}
+.check{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:8px;width:100%}
+.check .b.on::before{content:"✓ "}
+.nextrow{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:10px;margin-top:16px;padding-top:12px;border-top:1px dashed var(--line)}
+.hint{font-size:13px;color:var(--muted);margin-right:auto}
+.journal{padding:12px 14px}
+.journal summary{font:600 14px var(--f-display);cursor:pointer}
+#logCount{font:500 12px var(--f-mono);color:var(--muted)}
+#log{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:7px;max-height:62vh;overflow:auto}
+.lg{display:grid;grid-template-columns:58px minmax(0,1fr);gap:8px;font-size:13.5px;line-height:1.4}
+.lg time{font:500 12px var(--f-mono);color:var(--muted);padding-top:1px}
+.lg.obs span::before{content:"Набл. ";font-weight:600;color:var(--accent)}
+:root[lang="en"] .lg.obs span::before{content:"Obs. "}
+.lg.warn span{color:var(--bad)}
+.lg.calc span{font-family:var(--f-mono);font-size:12.5px}
+.tb{padding:12px 14px;font-size:13.5px}.tb ul{margin:6px 0 0;padding-left:18px}.tb li{margin:3px 0}
+.q{display:grid;gap:8px;width:100%;margin-bottom:12px}.q p{margin:0;font-weight:600}
+.opt{width:100%}.opt.right{border-color:var(--good);background:var(--good-soft)}.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+canvas.tg{width:100%;height:110px;display:block;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+.strip{display:flex;align-items:center;gap:10px;flex-wrap:wrap;width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:10px;font-size:14px}
+.strip i{width:30px;height:16px;border-radius:3px;border:1px solid var(--line);display:inline-block}
+.strip em{color:var(--muted);font-style:normal}
+.scale{height:8px;border-radius:4px;width:100%;background:linear-gradient(90deg,#c81e32,#e63c32,#f58c28,#f5c832,#6eb428,#1e9682,#325aaa,#5a2882)}
+.doc{width:100%;font-size:14.5px;line-height:1.55}
+.doc h3{font:600 15.5px/1.3 var(--f-display);margin:20px 0 6px}
+.doc p{margin:4px 0;max-width:72ch}.doc ul{margin:4px 0;padding-left:20px}
+.eq{background:var(--paper);border:1px solid var(--line);padding:7px 10px;border-radius:8px;margin:6px 0;overflow-x:auto;white-space:nowrap;font-size:14px}
+.calc{font-family:var(--f-mono);font-size:13px}
+.tw{overflow-x:auto;margin:6px 0}
+.doc table{border-collapse:collapse;font-size:13.5px;min-width:600px;font-variant-numeric:tabular-nums}
+.doc th,.doc td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.doc th{background:var(--paper);font-weight:600}
+.dochead{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--paper)}
+.dochead label{display:block;font:600 11px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.dochead input{width:100%;font:15px var(--f-body);padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink)}
+.grade{display:flex;gap:16px;align-items:center;padding:14px;border-radius:12px;background:var(--accent-soft);margin-top:10px}
+.grade b{font:700 44px/1 var(--f-display);color:var(--accent)}
+.confirm{position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));max-width:440px;margin:0 auto;padding:14px;background:var(--panel);border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.2);display:flex;gap:8px;align-items:center;flex-wrap:wrap;z-index:9}
+.confirm span{flex:1 1 100%}
+textarea.cp{width:100%;min-height:160px;font:12px var(--f-mono);background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px}
+/* SVG */
+.sv-bench{fill:var(--bench)}.gl{fill:var(--glass-fill);stroke:var(--glass);stroke-width:1.8}.gls{fill:none;stroke:var(--glass);stroke-width:1.8}
+.liq{fill:var(--liquid)}.ice{fill:var(--ice);stroke:var(--ice-edge);stroke-width:1}.met{fill:var(--metal)}.metd{fill:var(--metal-dark)}
+.sol{fill:var(--solid);stroke:var(--muted);stroke-width:.6}.porc{fill:var(--solid);stroke:var(--muted);stroke-width:1}.ppt{fill:var(--solid-y)}
+.lbl{font:500 10px var(--f-body);fill:var(--muted)}.lblb{font:600 10.5px var(--f-body);fill:var(--ink)}.mono{font-family:var(--f-mono)}
+.redc{fill:var(--bad)}.nox{fill:var(--nox)}.scr{fill:var(--screen)}.scrt{fill:var(--screen-ink);font:600 15px var(--f-mono)}.pnl{fill:var(--panel);stroke:var(--muted);stroke-width:1}
+.bub{fill:none;stroke:var(--glass);stroke-width:1;animation:rise 1.3s linear infinite}
+@keyframes rise{0%{transform:translateY(0);opacity:0}15%{opacity:1}100%{transform:translateY(-34px);opacity:0}}
+.drop{animation:fall .45s ease-in forwards}
+@keyframes fall{from{transform:translateY(0)}to{transform:translateY(var(--dy,120px));opacity:.15}}
+.stir{animation:stir .55s ease-in-out infinite alternate;transform-origin:172px 10px}
+@keyframes stir{from{transform:rotate(-3.5deg)}to{transform:rotate(3.5deg)}}
+.airp{animation:air 1.6s linear infinite}
+@keyframes air{from{transform:translateY(12px);opacity:0}50%{opacity:1}to{transform:translateY(-22px);opacity:0}}
+.fume{animation:fume 3s ease-out infinite}
+@keyframes fume{0%{transform:translate(0,0);opacity:0}30%{opacity:1}100%{transform:translate(10px,-42px);opacity:0}}
+.flow{stroke-dasharray:6 5;animation:flow .5s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-11}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+<div class="wrap">
+<header class="top">
+  <div class="brand"><div class="eyebrow" data-ru="ЛР № 6–7 · Химия функциональных производных · 3 курс" data-en="Lab 6–7 · Chemistry of functional derivatives · Year 3">ЛР № 6–7 · Химия функциональных производных · 3 курс</div><h1 data-ru="Синтез м‑нитробензойной кислоты" data-en="Synthesis of m‑nitrobenzoic acid">Синтез м‑нитробензойной кислоты</h1></div>
+  <div class="topr"><div class="seg" role="group" aria-label="Язык / Language"><button class="b sm on" type="button" id="lg-ru" aria-pressed="true">RU</button><button class="b sm" type="button" id="lg-en" aria-pressed="false">EN</button></div><div class="clock" id="clock">День 1 · 09:00</div><button class="b sm" type="button" id="resetBtn" data-ru="Начать заново" data-en="Restart">Начать заново</button></div>
+</header>
+<nav class="stages" id="stages" aria-label="Этапы работы"></nav>
+<main class="grid">
+  <section class="card bench">
+    <div class="stepmeta" id="stepMeta"></div>
+    <h2 id="stepTitle"></h2>
+    <div class="instr" id="instr"></div>
+    <div class="scene" id="scene"></div>
+    <div class="fb" id="fb" role="status" aria-live="polite" hidden></div>
+    <div class="readouts" id="readouts"></div>
+    <div class="controls" id="controls"></div>
+    <div class="nextrow" id="nextrow"><span class="hint" id="nextHint"></span><button class="b pri" type="button" id="nextBtn" disabled>Далее →</button></div>
+  </section>
+  <aside class="side">
+    <details class="card journal" open><summary><span data-ru="Лабораторный журнал" data-en="Lab notebook">Лабораторный журнал</span> <span id="logCount"></span></summary><ol id="log"></ol></details>
+    <div class="card tb"><div class="eyebrow" data-ru="Техника безопасности" data-en="Safety">Техника безопасности</div><ul data-ru="&lt;li&gt;Нитрующая смесь — только в вытяжном шкафу, в очках и перчатках.&lt;/li&gt;&lt;li&gt;HNO₃ приливают к H₂SO₄ медленно, при охлаждении.&lt;/li&gt;&lt;li&gt;При нитровании температура — не выше 10 °C.&lt;/li&gt;&lt;li&gt;Кислую смесь выливают на лёд, а не воду в кислоту.&lt;/li&gt;&lt;li&gt;Нитросоединения всасываются через кожу.&lt;/li&gt;" data-en="&lt;li&gt;Handle the nitrating mixture only in the fume hood, wearing goggles and gloves.&lt;/li&gt;&lt;li&gt;Add HNO₃ to H₂SO₄ slowly, with cooling.&lt;/li&gt;&lt;li&gt;Keep the nitration below 10 °C.&lt;/li&gt;&lt;li&gt;Pour the acid mixture onto ice — never water into acid.&lt;/li&gt;&lt;li&gt;Nitro compounds are absorbed through the skin.&lt;/li&gt;"></ul></div>
+  </aside>
+</main>
+<div class="confirm" id="confirm" hidden><span data-ru="Сбросить весь прогресс и начать работу заново?" data-en="Reset all progress and start the work again?">Сбросить весь прогресс и начать работу заново?</span><button class="b sm danger" id="cfYes" type="button" data-ru="Сбросить" data-en="Reset">Сбросить</button><button class="b sm" id="cfNo" type="button" data-ru="Отмена" data-en="Cancel">Отмена</button></div>
+</div>
+<script>
+"use strict";
+/* ===== язык / language ===== */
+let LANG=(()=>{try{return localStorage.getItem('mnba-lang')==='en'?'en':'ru'}catch(e){return 'ru'}})();
+const L=(ru,en)=>LANG==='en'?en:ru, tx=(ru,en)=>[ru,en], P=x=>Array.isArray(x)?x[LANG==='en'?1:0]:x;
+const numfix=s=>LANG==='en'?String(s).replace(/(\d),(\d)/g,'$1.$2'):String(s).replace(/(\d)\.(\d)/g,'$1,$2');
+/* ===== ядро ===== */
+const $=(s,r=document)=>r.querySelector(s), q=id=>document.getElementById(id);
+function h(tag,p,...kids){const e=document.createElement(tag);if(p)for(const k in p){const v=p[k];if(v==null||v===false)continue;if(k==='class')e.className=v;else if(k==='html')e.innerHTML=v;else if(k.slice(0,2)==='on')e.addEventListener(k.slice(2),v);else e.setAttribute(k,v===true?'':v)}for(const c of kids.flat()){if(c==null||c===false)continue;e.append(c.nodeType?c:document.createTextNode(String(c)))}return e}
+const f=(x,d=2)=>{const s=(Number(x)||0).toFixed(d).replace(/^-/,'−');return LANG==='en'?s:s.replace('.',',')};
+const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const vis=(el,on)=>{if(el)el.toggleAttribute('hidden',!on)};
+const M={BA:122.12,NBA:167.12,DNBA:212.12};
+const KEY='mnba-lab-v1';
+function fresh(){return{t:0,log:[],rem:[],ppe:{},mBA:0,vAcid:0,T:22,Tb:22,bath:{ice:false,salt:false,in:false},
+ mix:{s:0,n:0,T:3},nit:{drops:0,maxT:-99,E:0,t0:null,t1:null,hot:0,pts:[]},hold:{bath:0,room:0},conv:0,
+ pour:{loss:0,ice:35,method:''},filt:{washes:0,pH:0.4,loss:0,tloss:0,lastCheck:-1},crude:null,rec:{V:0,full:false,shock:false,Vneed:0},
+ fin:null,water:0,mFin:0,e2:{},mp:{},bamp:null,quiz:{},fio:'',grp:''}}
+let S=fresh(),cur=0,entry='',cleanup=null;
+const STEPS=[];
+const STAGES=[['dop',['Допуск','Admission']],['e1',['Опыт 1 · Синтез','Exp. 1 · Synthesis']],['e2',['Опыт 2 · Кислотные свойства','Exp. 2 · Acidic properties']],['e3',['Опыт 3 · Т. пл.','Exp. 3 · Melting point']],['prot',['Протокол','Lab report']]];
+function hm(t){const m=Math.floor((t+32400)/60)%1440;return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0')}
+function day(t){return Math.floor((t+32400)/86400)+1}
+function clock(){return `${L('День','Day')} ${day(S.t)} · ${hm(S.t)}`}
+function adv(sec){S.t+=Math.round(sec);q('clock').textContent=clock()}
+function log(text,kind){S.log.push({t:S.t,text,kind:kind||'act',st:STEPS[cur]?STEPS[cur].stage:''});drawLog()}
+function drawLog(){const ol=q('log');ol.innerHTML='';for(let i=S.log.length-1;i>=0;i--){const e=S.log[i];ol.append(h('li',{class:'lg '+e.kind},h('time',null,(day(e.t)>1?L('д','d')+day(e.t)+' ':'')+hm(e.t)),h('span',{html:numfix(P(e.text))})))}q('logCount').textContent=S.log.length?'· '+S.log.length:''}
+function remark(key,text,pts){if(S.rem.some(r=>r.key===key))return false;const tp=Array.isArray(text)?text:[text,text];S.rem.push({key,text:tp,pts:pts==null?1:pts});log(tx('Замечание: '+tp[0],'Remark: '+tp[1]),'warn');return true}
+function fb(msg,kind){const b=q('fb');b.className='fb '+(kind||'info');b.innerHTML=msg;b.hidden=false}
+function RO(items){const r=q('readouts');r.innerHTML='';items.forEach(([k,v,st])=>r.append(h('div',{class:'ro '+(st||'')},h('span',null,k),h('b',null,v))))}
+function B(label,fn,cls){return h('button',{class:'b '+(cls||''),type:'button',onclick:fn},label)}
+function row(...k){return h('div',{class:'row'},...k)}
+function lab(t){return h('div',{class:'lab'},t)}
+function C(){return q('controls')}
+function ready(hint){q('nextBtn').disabled=false;q('nextHint').textContent=hint||''}
+function notReady(hint){q('nextBtn').disabled=true;q('nextHint').textContent=hint||''}
+function loop(fn,ms){const id=setInterval(fn,ms||100);return()=>clearInterval(id)}
+function seg(opts,get,set,label){const w=h('div',{class:'seg',role:'group','aria-label':label||''});opts.forEach(([v,t])=>{const b=h('button',{class:'b sm'+(get()===v?' on':''),type:'button',onclick:()=>{set(v);[...w.children].forEach(x=>x.classList.toggle('on',x===b))}},t);w.append(b)});return w}
+function quiz(host,o){const box=h('div',{class:'q'},h('p',null,o.q));const res=h('div');let solved=false;
+ o.opts.forEach((t,i)=>{const b=h('button',{class:'b opt',type:'button',onclick:()=>{if(solved)return;if(i===o.ok){solved=true;b.classList.add('right');res.className='fb good';res.innerHTML=L('Верно. ','Correct. ')+o.why;o.onRight&&o.onRight(i)}else{b.classList.add('wrong');res.className='fb bad';res.innerHTML=o.hint||L('Неверно. Подумайте ещё.','Incorrect. Think again.');if(o.key&&o.pts)remark(o.key,tx('ошибка в ответе: «'+o.q+'»','wrong answer: “'+o.q+'”'),o.pts)}}},t);box.append(b)});box.append(res);host.append(box);return box}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({s:entry,cur}))}catch(e){}}
+function load(){try{const o=JSON.parse(localStorage.getItem(KEY)||'null');if(o&&o.s){S=Object.assign(fresh(),JSON.parse(o.s));cur=clamp(o.cur|0,0,STEPS.length-1)}}catch(e){}}
+function render(){
+ if(cleanup){try{cleanup()}catch(e){}}cleanup=null;
+ const st=STEPS[cur];entry=JSON.stringify(S);save();
+ const si=STAGES.findIndex(x=>x[0]===st.stage),nav=q('stages');nav.innerHTML='';
+ STAGES.forEach(([id,nm],i)=>nav.append(h('span',{class:'stg '+(i<si?'done':i===si?'now':'')},(i<si?'✓ ':'')+P(nm))));
+ const list=STEPS.filter(x=>x.stage===st.stage),k=list.indexOf(st)+1,n=list.length;
+ q('stepMeta').textContent=P(STAGES[si][1])+(n>1?L(` · шаг ${k} из ${n}`,` · step ${k} of ${n}`):'');
+ q('stepTitle').textContent=P(st.title);q('instr').innerHTML=P(st.instr)||'';
+ const sc=q('scene');sc.innerHTML=st.scene?st.scene():'';sc.hidden=!st.scene;
+ q('readouts').innerHTML='';q('controls').innerHTML='';q('fb').hidden=true;
+ q('nextrow').hidden=!!st.last;q('nextBtn').textContent=L('Далее →','Next →');notReady(P(st.need)||'');
+ cleanup=st.run?(st.run()||null):null;q('clock').textContent=clock();drawLog();
+}
+function go(i){cur=i;render();const b=$('.bench');if(b&&b.getBoundingClientRect().top<0)b.scrollIntoView({behavior:'smooth',block:'start'})}
+function applyStatic(){document.documentElement.lang=LANG;document.querySelectorAll('[data-ru]').forEach(e=>{e.innerHTML=e.getAttribute('data-'+LANG)});
+ ['ru','en'].forEach(l=>{const b=q('lg-'+l);if(b){b.classList.toggle('on',LANG===l);b.setAttribute('aria-pressed',LANG===l)}})}
+function setLang(l){if(l===LANG)return;LANG=l;try{localStorage.setItem('mnba-lang',l)}catch(e){}const changed=entry&&JSON.stringify(S)!==entry;if(entry)S=Object.assign(fresh(),JSON.parse(entry));applyStatic();render();
+ if(changed)fb(L('Язык переключён — текущий шаг начат заново.','Language switched — the current step has been restarted.'),'info')}
+/* ===== pH: баланс зарядов для м-нитробензойной кислоты (pKa 3,45; растворимость ≈0,015 М) ===== */
+const KA=10**-3.45,SOL=0.015,KW=1e-14;
+function pHcalc(net,Cm,V){const n=net/V,c=Cm/V,F=x=>n+x-KA*c/(KA+x)-KW/x;let lo=-15,hi=1.5;
+ for(let i=0;i<70;i++){const m=(lo+hi)/2;if(F(10**m)>0)hi=m;else lo=m}let x=10**((lo+hi)/2),ppt=0;
+ if(c*x/(KA+x)>SOL){x=(-n+Math.sqrt(n*n+4*(KA*SOL+KW)))/2;ppt=Math.max(0,c-SOL-KA*SOL/x)*V}return{pH:-Math.log10(x),ppt}}
+function pHcolor(p){const st=[[0,[200,30,50]],[2,[230,60,50]],[4,[245,140,40]],[5,[245,200,50]],[7,[110,180,40]],[9,[30,150,130]],[11,[50,90,170]],[14,[90,40,130]]];p=clamp(p,0,14);
+ for(let i=1;i<st.length;i++){if(p<=st[i][0]){const[a,ca]=st[i-1],[b,cb]=st[i],u=(p-a)/(b-a);return `rgb(${ca.map((v,j)=>Math.round(v+(cb[j]-v)*u)).join(',')})`}}return 'rgb(90,40,130)'}
+function paperShow(pH){const box=q('paperBox');if(!box)return;const p=Math.round(clamp(pH,0,14));box.innerHTML='';
+ const w=p<=2?['сильнокислая','strongly acidic']:p<=4?['кислая','acidic']:p<=6?['слабокислая','weakly acidic']:p===7?['нейтральная','neutral']:p<=9?['слабощелочная','weakly alkaline']:['щелочная','alkaline'];
+ box.append(h('div',{class:'strip'},h('i',{style:`background:${pHcolor(pH)}`}),h('span',null,L(`Индикаторная бумага: pH ≈ ${p}`,`Indicator paper: pH ≈ ${p}`)),h('em',null,P(w)),h('div',{class:'scale',title:L('Шкала универсального индикатора, pH 0–14','Universal indicator scale, pH 0–14')})));
+ log(tx(`Индикаторная бумага: pH ≈ ${p}`,`Indicator paper: pH ≈ ${p}`),'obs')}
+
+/* ===== сцены (SVG) ===== */
+const SV=inner=>`<svg viewBox="0 0 360 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="${L('Лабораторная установка','Laboratory set-up')}"><rect class="sv-bench" x="0" y="232" width="360" height="18"/>${inner}</svg>`;
+const FL='M168 58 L168 112 L124 212 Q121 222 132 222 L228 222 Q239 222 236 212 L192 112 L192 58 Z';
+const Ty=T=>196-(T+20)*2.6;
+const ICE=[[74,164,15,-12],[98,184,17,8],[240,166,16,14],[262,188,15,-6],[78,206,16,10],[268,208,14,-14],[112,210,13,6],[234,208,15,-8]];
+const iceP=a=>a.map(([x,y,s,r])=>`<rect class="ice" x="${x}" y="${y}" width="${s}" height="${s}" rx="3" transform="rotate(${r} ${x+s/2} ${y+s/2})" opacity=".92"/>`).join('');
+const bathName=()=>L('баня: лёд','bath: ice')+(S.bath.salt?L(' + NaCl',' + NaCl'):'');
+function thermoP(){let t='';for(let T=-20;T<=40;T+=5){const y=Ty(T);t+=`<line x1="189" x2="${T%10?192:195}" y1="${y}" y2="${y}" stroke="${T===10?'var(--bad)':'var(--glass)'}" stroke-width="${T===10?1.8:.9}"/>`}
+ return `<g><rect x="183" y="4" width="7" height="206" rx="3.5" fill="var(--panel)" stroke="var(--glass)" stroke-width="1.2"/>${t}<rect id="thCol" class="redc" x="185.2" y="150" width="2.6" height="58"/><circle class="redc" cx="186.5" cy="210" r="5"/><text class="lbl" x="197" y="${Ty(10)+3}" style="fill:var(--bad)">10°</text></g>`}
+function flaskP(o){o=o||{};return `<defs><clipPath id="fc"><path d="${FL}"/></clipPath></defs>
+<g id="bathB"${o.bath?'':' hidden'}><rect class="gl" x="64" y="136" width="232" height="94" rx="10"/><rect class="liq" x="66" y="150" width="228" height="78" rx="8" opacity=".5"/>${iceP(ICE.slice(0,4))}</g>
+<g clip-path="url(#fc)"><rect id="flLiq" class="liq" x="110" y="222" width="140" height="0"/><path id="flSol" class="sol" d=""/></g>
+<path class="gl" d="${FL}"/><rect class="gl" x="164" y="53" width="32" height="6" rx="2"/>
+${o.th?thermoP():''}
+<g id="rodG"${o.rod?'':' hidden'}><line id="rod" x1="172" y1="10" x2="158" y2="216" stroke="var(--glass)" stroke-width="3.2" stroke-linecap="round"/></g>
+${o.pip?`<g><ellipse cx="177" cy="9" rx="6.5" ry="8.5" class="metd"/><rect x="174" y="15" width="6" height="30" class="gl"/><path class="gl" d="M174 45 L176.4 64 L177.6 64 L180 45 Z"/><circle id="drop" cx="177" cy="66" r="2.4" style="fill:var(--liq-y)" opacity="0"/></g>`:''}
+<g id="fumes" opacity="0">${[0,1,2].map(i=>`<ellipse class="nox fume" style="animation-delay:${i}s" cx="${176+i*5}" cy="46" rx="9" ry="6"/>`).join('')}</g>
+<g id="bathF"${o.bath?'':' hidden'}>${iceP(ICE.slice(4))}<g id="salt"${S.bath.salt?'':' hidden'}>${[80,104,130,226,250,276,90,262].map((x,i)=>`<circle class="sol" cx="${x}" cy="${152+(i%3)*4}" r="1.7"/>`).join('')}</g><text id="bathLbl" class="lbl" x="70" y="131">${bathName()}</text></g>
+<text class="lbl" x="250" y="64">${L('колба 50 мл','50 mL flask')}</text>`}
+function setFlask(vol,solid,col){const y=222-vol*4.2,r=q('flLiq');if(r){r.setAttribute('y',y);r.setAttribute('height',222-y);if(col)r.style.fill=col}const s=q('flSol');if(s){const hh=solid>0.01?3+7*Math.sqrt(solid/2):0,w=hh*3.2;s.setAttribute('d',hh?`M${180-w} 222 Q180 ${222-2*hh} ${180+w} 222 Z`:'')}}
+function setThermo(T){const c=q('thCol');if(!c)return;const y=clamp(Ty(T),8,205);c.setAttribute('y',y);c.setAttribute('height',208-y)}
+function drip(){const d=q('drop'),l=q('flLiq');if(!d||!l)return;d.style.setProperty('--dy',(+l.getAttribute('y')-66)+'px');d.classList.remove('drop');void d.getBoundingClientRect();d.setAttribute('opacity','1');d.classList.add('drop')}
+const bottle=(x,name,cls)=>`<rect class="${cls||'pnl'}" x="${x}" y="122" width="46" height="98" rx="6"${cls?' opacity=".25"':''}/>${cls?`<rect x="${x}" y="122" width="46" height="98" rx="6" fill="none" stroke="var(--muted)"/>`:''}<rect class="met" x="${x+12}" y="106" width="22" height="18" rx="2"/><text class="lblb" x="${x+23}" y="164" text-anchor="middle">${name}</text><text class="lbl" x="${x+23}" y="178" text-anchor="middle">${L('конц.','conc.')}</text>`;
+function cylP(){let t='';for(let v=0;v<=10;v++){const y=214-v*14;t+=`<line x1="69" x2="${v%5?74:79}" y1="${y}" y2="${y}" stroke="var(--glass)" stroke-width=".9"/>`+(v%5===0&&v?`<text class="lbl mono" x="99" y="${y+3}">${v}</text>`:'')}
+ return `${bottle(8,'H₂SO₄')}<defs><clipPath id="cc"><rect x="70" y="58" width="24" height="156"/></clipPath></defs><g clip-path="url(#cc)"><rect id="cylL" class="liq" x="70" y="214" width="24" height="0"/></g><rect class="gl" x="69" y="54" width="26" height="162" rx="2"/><rect class="gl" x="58" y="214" width="48" height="8" rx="2"/>${t}<text class="lbl" x="82" y="46" text-anchor="middle">${L('цилиндр 10 мл','10 mL cylinder')}</text>`}
+function setCyl(v){const r=q('cylL');if(r){r.setAttribute('y',214-v*14);r.setAttribute('height',v*14)}}
+function balanceP(){return `<rect class="pnl" x="12" y="150" width="44" height="72" rx="5"/><rect class="met" x="20" y="138" width="28" height="13" rx="2"/><text class="lbl" x="34" y="184" text-anchor="middle">${L('реактив','reagent')}</text>
+<rect class="met" x="70" y="196" width="220" height="36" rx="6"/><rect class="scr" x="128" y="203" width="138" height="24" rx="3"/><text id="balD" class="scrt" x="260" y="221" text-anchor="end">0${L(',','.')}0000 g</text><circle id="balStab" cx="137" cy="215" r="2.6" fill="var(--screen-ink)" opacity=".2"/>
+<rect class="gl" x="84" y="56" width="192" height="140" rx="4"/><rect class="metd" x="176" y="186" width="8" height="10"/><ellipse class="metd" cx="180" cy="186" rx="46" ry="5"/>
+<g id="boat" hidden><path class="pnl" d="M148 168 L212 168 L205 181 L155 181 Z"/></g><g id="glassDish" hidden><ellipse class="gl" cx="180" cy="177" rx="42" ry="6"/></g>
+<path id="pile" class="sol" d=""/>
+<rect id="door" x="84" y="56" width="96" height="140" fill="none" stroke="var(--glass)" stroke-width="2.4" stroke-dasharray="4 3"/><text id="doorT" class="lbl" x="90" y="70">${L('дверца открыта','door open')}</text>
+<text class="lbl" x="270" y="50" text-anchor="end">${L('аналитические весы, d = 0,1 мг','analytical balance, d = 0.1 mg')}</text>`}
+function setPile(m,prod,base){const p=q('pile');if(!p)return;if(m<=0){p.setAttribute('d','');return}const hh=3+8*Math.sqrt(m/2.5),w=12+16*Math.sqrt(m/2.5);p.setAttribute('d',`M${180-w} ${base} Q180 ${base-2*hh} ${180+w} ${base} Z`);p.style.fill=prod?'var(--solid-y)':''}
+function mixP(){return `${bottle(8,'H₂SO₄')}${bottle(64,'HNO₃','nox')}
+<rect class="gl" x="168" y="128" width="128" height="102" rx="6"/><rect class="liq" x="170" y="146" width="124" height="82" rx="5" opacity=".5"/>${iceP([[176,158,15,10],[268,164,15,-10],[180,204,14,-6],[270,206,14,8]])}
+<defs><clipPath id="tc"><path d="M223 30 L223 200 A9 9 0 0 0 241 200 L241 30 Z"/></clipPath></defs><g clip-path="url(#tc)"><rect id="tubeL" class="liq" x="220" y="209" width="24" height="0"/></g><path class="gls" d="M223 26 L223 200 A9 9 0 0 0 241 200 L241 26"/><text class="lbl" x="232" y="18" text-anchor="middle">${L('пробирка','test tube')}</text><text class="lbl" x="232" y="244" text-anchor="middle">${L('ледяная баня','ice bath')}</text>`}
+function setTubeMix(v){const r=q('tubeL');if(r){const hh=v*22;r.setAttribute('y',209-hh);r.setAttribute('height',hh)}}
+function pourP(){return `<defs><clipPath id="bk"><rect x="114" y="104" width="152" height="124" rx="5"/></clipPath><clipPath id="fc2"><path d="${FL}"/></clipPath></defs>
+<rect class="gl" x="112" y="104" width="156" height="126" rx="6"/><g clip-path="url(#bk)"><rect id="bkL" class="liq" x="114" y="228" width="152" height="0"/>
+<g id="iceB">${iceP([[124,196,18,8],[150,204,17,-12],[178,200,18,4],[204,206,16,15],[230,198,18,-6],[138,178,16,20],[192,182,17,-14],[220,176,16,6],[164,166,15,-4]])}</g>
+<g id="ppt" opacity="0" class="ppt">${Array.from({length:46},(_,i)=>`<circle cx="${120+((i*37)%140)}" cy="${156+((i*53)%70)}" r="${1.2+(i%3)*.6}"/>`).join('')}</g></g>
+<line id="stream" class="flow" x1="168" y1="98" x2="176" y2="206" stroke="var(--liq-y)" stroke-width="3.5" stroke-linecap="round" opacity="0"/>
+<g transform="translate(166 96) rotate(132) scale(.42) translate(-180 -58)"><g clip-path="url(#fc2)"><rect id="tiltL" x="140" y="58" width="80" height="70" style="fill:var(--liq-y)"/></g><path class="gl" d="${FL}"/></g>
+<text class="lbl" x="190" y="96">${L('стакан со льдом','beaker with ice')}</text><text id="bkT" class="lbl mono" x="262" y="120" text-anchor="end"></text>`}
+function filterP(){return `<defs><clipPath id="bf"><path d="M152 126 L152 150 L112 222 L230 222 L190 150 L190 126 Z"/></clipPath></defs>
+<g clip-path="url(#bf)"><rect id="filtr" class="liq" x="110" y="222" width="122" height="0"/></g>
+<path class="gl" d="M152 124 L152 150 L112 220 Q110 224 116 224 L226 224 Q232 224 230 220 L190 150 L190 124"/>
+<path class="gls" d="M190 136 L232 128"/><path d="M232 128 C262 122 270 150 292 160" fill="none" stroke="var(--metal-dark)" stroke-width="5" stroke-linecap="round"/>
+<rect class="met" x="290" y="150" width="46" height="72" rx="6"/><circle id="vacL" cx="313" cy="168" r="5" fill="var(--good)" opacity=".2"/><text class="lbl" x="313" y="244" text-anchor="middle">${L('насос','pump')}</text>
+<rect class="metd" x="146" y="112" width="50" height="14" rx="3"/><rect class="porc" x="166" y="92" width="10" height="34"/><path class="porc" d="M124 56 L218 56 L214 94 L128 94 Z"/>
+<rect id="fliq" x="130" y="74" width="82" height="0" class="liq"/><rect id="cake" x="132" y="88" width="78" height="0" class="ppt" stroke="var(--muted)" stroke-width=".5"/>
+<line id="fpaper" x1="130" y1="89" x2="212" y2="89" stroke="var(--muted)" stroke-width="2.5" opacity="0"/>
+<rect id="paper" x="30" y="146" width="16" height="60" rx="2" fill="var(--panel)" stroke="var(--line)"/><text class="lbl" x="38" y="220" text-anchor="middle">${L('инд. бумага','pH paper')}</text>
+<text class="lbl" x="171" y="48" text-anchor="middle">${L('воронка Бюхнера','Büchner funnel')}</text><text class="lbl" x="171" y="244" text-anchor="middle">${L('колба Бунзена','filter flask')}</text>`}
+function hotP(){let b='';for(let i=0;i<7;i++)b+=`<circle class="bub" cx="${148+i*12}" cy="186" r="${1.5+(i%3)}" style="animation-delay:${(i*.19).toFixed(2)}s"/>`;
+ return `<defs><clipPath id="bkr"><rect x="138" y="62" width="84" height="128"/></clipPath></defs>
+<rect class="met" x="100" y="198" width="160" height="34" rx="5"/><rect x="112" y="192" width="136" height="7" rx="2" class="metd"/><rect id="glow" x="112" y="192" width="136" height="7" rx="2" fill="var(--hot)" opacity="0"/><circle cx="242" cy="215" r="7" class="metd"/><circle id="lamp" cx="118" cy="215" r="3.5" fill="var(--hot)" opacity=".15"/>
+<g clip-path="url(#bkr)"><rect id="rL" class="liq" x="138" y="190" width="84" height="0"/><path id="rS" class="ppt" stroke="var(--muted)" stroke-width=".6" d=""/>
+<g id="oil" opacity="0">${[150,166,182,200,212].map((x,i)=>`<ellipse cx="${x}" cy="${185-(i%2)*3}" rx="5" ry="3" fill="var(--liq-y)" stroke="var(--warn)" stroke-width=".7"/>`).join('')}</g>
+<g id="xt" opacity="0">${Array.from({length:28},(_,i)=>{const x=142+((i*29)%74),y=168+((i*17)%20),a=(i*47)%180;return `<rect x="${x}" y="${y}" width="8" height="1.7" class="ppt" stroke="var(--muted)" stroke-width=".3" transform="rotate(${a} ${x+4} ${y+.8})"/>`}).join('')}</g><g id="rb" opacity="0">${b}</g></g>
+<path class="gls" d="M136 60 L136 186 Q136 191 141 191 L219 191 Q224 191 224 186 L224 60 M136 60 l-6 -5"/>
+${[50,100].map(v=>`<line x1="136" x2="146" y1="${190-v*.8}" y2="${190-v*.8}" stroke="var(--glass)"/><text class="lbl mono" x="150" y="${193-v*.8}">${v}</text>`).join('')}<text class="lbl" x="180" y="50" text-anchor="middle">${L('стакан 150 мл на плитке','150 mL beaker on a hot plate')}</text>`}
+function tubesP(labels){const n=labels.length,xs=n===1?[180]:n===2?[140,220]:[110,180,250];let s='';
+ xs.forEach((x,i)=>{s+=`<defs><clipPath id="tc${i}"><path d="M${x-11} 40 L${x-11} 196 A11 11 0 0 0 ${x+11} 196 L${x+11} 40 Z"/></clipPath></defs>
+<g clip-path="url(#tc${i})"><rect id="tl${i}" class="liq" x="${x-12}" y="208" width="24" height="0"/><path id="ts${i}" class="sol" d=""/><g id="tp${i}" opacity="0" style="fill:var(--solid)">${Array.from({length:16},(_,k)=>`<circle cx="${x-8+((k*7)%16)}" cy="${202-((k*5)%14)-(k>9?6:0)}" r="${1.4+(k%2)*.8}"/>`).join('')}</g><g id="tb${i}" opacity="0">${[0,1,2,3].map(k=>`<circle class="bub" cx="${x-5+k*3.5}" cy="200" r="${1.3+(k%2)}" style="animation-delay:${k*.3}s"/>`).join('')}</g></g>
+<path class="gls" d="M${x-11} 36 L${x-11} 196 A11 11 0 0 0 ${x+11} 196 L${x+11} 36"/><text class="lblb" x="${x}" y="246" text-anchor="middle">${labels[i]}</text>`});
+ return s+`<rect class="met" x="60" y="150" width="240" height="10" rx="2"/><rect class="met" x="60" y="222" width="240" height="8" rx="2"/><rect class="met" x="62" y="150" width="6" height="80"/><rect class="met" x="292" y="150" width="6" height="80"/>`}
+function setT(i,o){const l=q('tl'+i);if(!l)return;const x=+l.getAttribute('x')+12;if(o.v!=null){const hh=o.v*18;l.setAttribute('y',208-hh);l.setAttribute('height',hh)}if(o.c)l.style.fill=o.c;
+ if(o.p!=null){const p=q('tp'+i);p.setAttribute('opacity',o.p);if(o.pc)p.style.fill=o.pc}if(o.b!=null)q('tb'+i).setAttribute('opacity',o.b?1:0);
+ if(o.s!=null)q('ts'+i).setAttribute('d',o.s>0?`M${x-9} 207 Q${x} ${207-2*o.s} ${x+9} 207 Z`:'')}
+function mpP(){return `<defs><clipPath id="mg"><circle cx="262" cy="116" r="84"/></clipPath></defs>
+<rect class="met" x="22" y="96" width="140" height="128" rx="10"/><rect class="scr" x="40" y="182" width="104" height="28" rx="4"/><text id="mpT" class="scrt" x="138" y="202" text-anchor="end">25${L(',','.')}0 °C</text><circle id="heat" cx="32" cy="196" r="4" fill="var(--hot)" opacity=".15"/>
+<rect x="60" y="14" width="8" height="92" rx="4" fill="var(--panel)" stroke="var(--glass)"/><rect id="mpCol" class="redc" x="62.5" y="100" width="3" height="4"/>
+<line id="capSm" x1="100" y1="40" x2="100" y2="112" stroke="var(--glass)" stroke-width="2.4" opacity="0"/><rect x="88" y="112" width="26" height="40" rx="3" class="metd"/><text class="lbl" x="101" y="166" text-anchor="middle">${L('окно','window')}</text>
+<circle cx="262" cy="116" r="86" fill="var(--scene)" stroke="var(--glass)" stroke-width="3"/>
+<g clip-path="url(#mg)"><rect x="248" y="10" width="28" height="198" rx="2" class="gl"/><rect id="capS" x="251" y="200" width="22" height="0" class="ppt"/><rect id="capLoose" x="251" y="30" width="22" height="0" class="ppt" opacity=".7"/><rect id="capL" x="251" y="200" width="22" height="0" style="fill:var(--melt)"/></g>
+<text class="lbl" x="262" y="222" text-anchor="middle">${L('капилляр под лупой','capillary under the magnifier')}</text>`}
+function hoodP(){return `<rect class="met" x="44" y="10" width="272" height="222" rx="8"/><rect x="58" y="34" width="244" height="190" rx="4" fill="var(--scene)"/>
+<g id="air" opacity="0">${[100,180,260].map((x,i)=>`<path class="airp" style="animation-delay:${i*.4}s" d="M${x} 160 l0 -40 m-6 8 l6 -8 l6 8" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>`).join('')}</g>
+<rect class="gl" x="58" y="34" width="244" height="92" rx="3"/><rect class="metd" x="58" y="124" width="244" height="6"/>
+<rect class="pnl" x="88" y="178" width="30" height="46" rx="4"/><rect class="nox" x="128" y="178" width="30" height="46" rx="4" opacity=".3"/><path class="gl" d="M200 170 L200 190 L184 222 L232 222 L216 190 L216 170 Z"/>
+<circle id="hl" cx="294" cy="22" r="5" fill="var(--good)" opacity=".2"/><text class="lbl" x="284" y="26" text-anchor="end">${L('тяга','airflow')}</text><text class="lbl" x="58" y="26">${L('вытяжной шкаф','fume hood')}</text>`}
+function ring(cx,cy,r,subs){const V=[];for(let i=0;i<6;i++){const a=(-90+60*i)*Math.PI/180;V.push([cx+r*Math.cos(a),cy+r*Math.sin(a)])}
+ let p=`<polygon points="${V.map(v=>v.map(n=>n.toFixed(1)).join(',')).join(' ')}" fill="none" stroke="var(--ink)" stroke-width="1.6"/><circle cx="${cx}" cy="${cy}" r="${r*.58}" fill="none" stroke="var(--ink)" stroke-width="1.2"/>`;
+ for(const k in subs){const i=+k,[x,y]=V[i],a=(-90+60*i)*Math.PI/180,c=Math.cos(a),s=Math.sin(a);p+=`<line x1="${x.toFixed(1)}" y1="${y.toFixed(1)}" x2="${(cx+(r+13)*c).toFixed(1)}" y2="${(cy+(r+13)*s).toFixed(1)}" stroke="var(--ink)" stroke-width="1.6"/><text class="lblb" x="${(cx+(r+17)*c).toFixed(1)}" y="${(cy+(r+17)*s+4).toFixed(1)}" text-anchor="${c>.3?'start':c<-.3?'end':'middle'}">${subs[k]}</text>`}return p}
+function schemeP(){return `${ring(78,124,30,{0:'COOH'})}<text class="lblb" x="78" y="188" text-anchor="middle">${L('бензойная кислота','benzoic acid')}</text><text class="lbl mono" x="78" y="202" text-anchor="middle">M ${f(122.12,2)}</text>
+<line x1="124" y1="124" x2="206" y2="124" stroke="var(--ink)" stroke-width="1.6"/><path d="M206 119 L216 124 L206 129 Z" fill="var(--ink)"/><text class="lbl" x="166" y="114" text-anchor="middle">HNO₃ / H₂SO₄</text><text class="lbl" x="166" y="140" text-anchor="middle">0–10 °C</text>
+${ring(270,124,30,{0:'COOH',2:'NO₂'})}<text class="lblb" x="270" y="188" text-anchor="middle">${L('м-нитробензойная к-та','m-nitrobenzoic acid')}</text><text class="lbl mono" x="270" y="202" text-anchor="middle">M ${f(167.12,2)}</text>`}
+/* ===== Допуск / Admission ===== */
+STEPS.push({stage:'dop',title:['Рабочее место и средства защиты','Workplace and protective equipment'],
+ instr:[`<p>Работа с нитрующей смесью (конц. HNO₃ + H₂SO₄) — только в вытяжном шкафу. Наденьте средства защиты, включите тягу и найдите средства аварийной защиты: нажмите на каждый пункт.</p>`,
+  `<p>The nitrating mixture (conc. HNO₃ + H₂SO₄) is handled only in a fume hood. Put on your protective equipment, switch on the hood and locate the emergency equipment: tap every item.</p>`],
+ need:['Выполните все пункты','Complete every item'],scene:()=>SV(hoodP()),
+ run(){const items=[['coat',['Халат застёгнут','Lab coat buttoned'],['Надет халат','Lab coat on']],['gog',['Защитные очки','Safety goggles'],['Надеты защитные очки','Safety goggles on']],['glv',['Перчатки нитриловые','Nitrile gloves'],['Надеты перчатки','Gloves on']],
+  ['hood',['Включить тягу шкафа','Switch on the fume hood'],['Включена тяга вытяжного шкафа','Fume hood switched on']],['eye',['Найти фонтанчик для глаз','Locate the eyewash station'],['Найден фонтанчик для промывания глаз','Eyewash station located']],
+  ['shw',['Найти аварийный душ','Locate the safety shower'],['Найден аварийный душ','Safety shower located']],['ext',['Найти огнетушитель','Locate the fire extinguisher'],['Найден огнетушитель','Fire extinguisher located']],
+  ['waste',['Ёмкость для кислотных отходов','Acid waste container'],['Подготовлена ёмкость для кислотных отходов','Acid waste container ready']]];
+  const box=h('div',{class:'check'});
+  const upd=()=>{q('air').setAttribute('opacity',S.ppe.hood?1:0);q('hl').setAttribute('opacity',S.ppe.hood?1:.2);const n=items.filter(([k])=>S.ppe[k]).length;RO([[L('Готово','Done'),n+' / '+items.length,n===items.length?'ok':'']]);n===items.length?ready(L('Можно приступать','You may start')):notReady(L('Выполните все пункты','Complete every item'))};
+  items.forEach(([k,t,l])=>{const b=B(P(t),()=>{S.ppe[k]=!S.ppe[k];b.classList.toggle('on',!!S.ppe[k]);if(S.ppe[k])log(l);upd()},S.ppe[k]?'on':'');box.append(b)});
+  C().append(box);upd()}});
+
+STEPS.push({stage:'dop',title:['Допуск к работе','Pre-lab check'],
+ instr:[`<p>Ответьте на вопросы преподавателя. Каждая ошибка записывается в журнал.</p>`,`<p>Answer the instructor's questions. Every wrong answer is recorded in the lab notebook.</p>`],
+ need:['Ответьте на все вопросы','Answer all the questions'],scene:()=>SV(schemeP()),
+ run(){const Q=LANG==='en'?[
+  {q:'How is the nitrating mixture prepared?',opts:['HNO₃ is added slowly to H₂SO₄ with cooling','H₂SO₄ is added to HNO₃','Both acids are mixed at once without cooling','It is diluted with water to stop it warming up'],ok:0,why:'Mixing is exothermic: nitric acid is added to sulfuric acid in portions, in an ice bath.'},
+  {q:'Which species attacks the aromatic ring?',opts:['NO₂ (nitrogen dioxide)','NO₂⁺ (nitronium ion)','NO₃⁻','H₃O⁺'],ok:1,why:'HNO₃ + 2H₂SO₄ → NO₂⁺ + H₃O⁺ + 2HSO₄⁻. Sulfuric acid protonates nitric acid and binds the water.'},
+  {q:'Above what temperature must the mixture not rise while the nitrating mixture is added?',opts:['0 °C','5–10 °C','25 °C','50 °C'],ok:1,why:'Overheating leads to dinitration, oxidation and brown NO₂ fumes.'},
+  {q:'How is the reaction mixture diluted at the end?',opts:['Water is poured into the flask','The mixture is poured onto crushed ice with stirring','It is neutralised with 10 % NaOH','It is evaporated'],ok:1,why:'Acid into water (ice), never the reverse — otherwise it boils and spatters.'},
+  {q:'Theoretical yield of m-nitrobenzoic acid from 2.0 g of benzoic acid:',opts:['2.00 g','2.74 g','3.34 g','1.46 g'],ok:1,why:'2.0 / 122.12 × 167.12 = 2.74 g (1 : 1 by the equation).'}]:[
+  {q:'Как готовят нитрующую смесь?',opts:['HNO₃ медленно приливают к H₂SO₄ при охлаждении','H₂SO₄ приливают к HNO₃','Смешивают обе кислоты сразу, без охлаждения','Разбавляют водой, чтобы смесь не разогревалась'],ok:0,why:'Смешение экзотермично; азотную кислоту приливают к серной порциями, в ледяной бане.'},
+  {q:'Какая частица атакует ароматическое кольцо?',opts:['NO₂ (диоксид азота)','NO₂⁺ (катион нитрония)','NO₃⁻','H₃O⁺'],ok:1,why:'HNO₃ + 2H₂SO₄ → NO₂⁺ + H₃O⁺ + 2HSO₄⁻. Серная кислота протонирует азотную и связывает воду.'},
+  {q:'Выше какой температуры нельзя допускать смесь при прибавлении нитрующей смеси?',opts:['0 °C','5–10 °C','25 °C','50 °C'],ok:1,why:'Перегрев ведёт к динитрованию, окислению и выделению бурого NO₂.'},
+  {q:'Как разбавляют реакционную смесь в конце?',opts:['Приливают воду в колбу','Выливают смесь на колотый лёд, перемешивая','Нейтрализуют 10 % NaOH','Упаривают'],ok:1,why:'Кислоту — в воду (лёд), никогда наоборот: иначе вскипание и выброс.'},
+  {q:'Теоретический выход м-нитробензойной кислоты из 2,0 г бензойной кислоты:',opts:['2,00 г','2,74 г','3,34 г','1,46 г'],ok:1,why:'2,0 / 122,12 × 167,12 = 2,74 г (1 : 1 по уравнению).'}];
+  let i=0;const host=h('div',{style:'width:100%'});C().append(host);RO([[L('Вопросов','Questions'),String(Q.length)]]);
+  const show=()=>{if(i>=Q.length){log(tx('Допуск к работе получен','Admitted to the practical work'));ready(L('Допуск получен','Admitted'));return}quiz(host,Object.assign({key:'q'+i,pts:.5,onRight:()=>{i++;setTimeout(show,250)}},Q[i]))};show()}});
+
+/* ===== Весы (общий контроллер) / balance controller ===== */
+function balanceUI(o){const sp=o.mode==='spatula',base=sp?168:172;
+ const b={boat:false,tare:0,pw:0,open:true,bm:sp?rnd(.82,.87):rnd(21.3,24.8),done:false};
+ const disp=()=>{const v=(b.boat?b.bm:0)+b.pw-b.tare+(b.open?rnd(-6e-4,6e-4):rnd(-4e-5,4e-5));q('balD').textContent=f(v,4)+' g';q('balStab').setAttribute('opacity',b.open?.2:1);
+  q('door').setAttribute('stroke-dasharray',b.open?'4 3':'none');q('doorT').textContent=b.open?L('дверца открыта','door open'):L('дверца закрыта','door closed');setPile(b.pw,!sp,base)};
+ const boatB=B(P(o.boatLabel),()=>{if(b.boat)return;b.boat=true;vis(q(sp?'boat':'glassDish'),true);boatB.disabled=true;log(o.boatLog);disp()});
+ const tareB=B(L('Тарировать → 0','Tare → 0'),()=>{b.tare=(b.boat?b.bm:0)+b.pw;b.tared=b.boat&&b.pw===0;log(tx('Весы тарированы','Balance tared'));disp()});
+ const doorB=B(L('Закрыть дверцы','Close the doors'),()=>{b.open=!b.open;doorB.textContent=b.open?L('Закрыть дверцы','Close the doors'):L('Открыть дверцы','Open the doors');disp()});
+ const can=()=>{if(b.done)return false;if(!b.boat){remark('pan',tx('вещество насыпали прямо на чашку весов','substance was put straight onto the balance pan'),1);fb(L('Вещество нельзя насыпать прямо на чашку весов — поставьте лодочку.','Never put a substance straight onto the pan — use a weighing boat.'),'bad');return false}
+  if(!b.open){fb(L('Дверцы закрыты — откройте их, чтобы работать шпателем.','The doors are closed — open them to use the spatula.'),'warn');return false}return true};
+ const rows=[lab(L('Весы','Balance')),row(boatB,tareB,doorB)];
+ if(sp)rows.push(lab(L('Шпатель','Spatula')),row(B(L('Насыпать шпателем','Add a spatula load'),()=>{if(can()){b.pw+=rnd(.22,.42);disp()}}),B(L('Подсыпать чуть-чуть','Add a pinch'),()=>{if(can()){b.pw+=rnd(.006,.03);disp()}}),
+  B(L('Отсыпать излишек','Remove the excess'),()=>{if(can()&&b.pw>0){b.pw=Math.max(0,b.pw-rnd(.01,.05));if(b.pw<.004)b.pw=0;disp();log(tx('Излишек отсыпан в отдельный стаканчик (в банку с реактивом не возвращают)','Excess moved to a separate beaker (never back into the reagent jar)'))}})));
+ else rows.push(lab(L('Продукт','Product')),row(B(L('Перенести весь продукт','Transfer all the product'),()=>{if(!b.boat){fb(L('Сначала поставьте часовое стекло.','Place the watch glass first.'),'warn');return}if(!b.open){fb(L('Откройте дверцы весов.','Open the balance doors.'),'warn');return}if(b.pw)return;b.pw=o.mass;disp();log(tx('Продукт перенесён на часовое стекло','Product transferred onto the watch glass'))})));
+ const rec=B(L('Записать массу','Record the mass'),()=>{if(b.done)return;if(!b.boat||b.pw<=0){fb(L('На весах нет вещества.','There is nothing on the balance.'),'warn');return}
+  if(!b.tared){remark('tare',tx('взвешивание без тарирования пустой тары','weighing without taring the empty container'),.5);fb(L('На дисплее не масса вещества: весы тарированы не с пустой тарой. ','The display does not show the mass of the substance: the balance was not tared with an empty container. ')+(sp?L('Отсыпьте вещество до нуля, тарируйте весы с пустой лодочкой и взвесьте снова.','Remove the substance, tare with the empty boat and weigh again.'):L('Тарируйте весы с пустым стеклом.','Tare with the empty watch glass.')),'warn');if(!sp){b.pw=0;disp()}return}
+  if(b.open){fb(L('Закройте дверцы весов — при открытых дверцах показания «плывут».','Close the balance doors — with the doors open the reading drifts.'),'warn');return}
+  const m=+b.pw.toFixed(4);if(o.lo&&(m<o.lo||m>o.hi)){fb(L(`Масса ${f(m,4)} г вне допустимого интервала ${f(o.lo,2)}–${f(o.hi,2)} г.`,`The mass ${f(m,4)} g is outside the allowed ${f(o.lo,2)}–${f(o.hi,2)} g.`),'warn');return}
+  b.done=true;rec.disabled=true;q('balD').textContent=f(m,4)+' g';fb(L(`Записано в журнал: <b>${f(m,4)} г</b>`,`Recorded in the notebook: <b>${f(m,4)} g</b>`),'good');o.onRecord(m)},'pri');
+ rows.push(row(rec));C().append(...rows);disp();return loop(()=>{if(!b.done)disp()},350)}
+
+/* ===== Опыт 1 / Experiment 1 ===== */
+STEPS.push({stage:'e1',title:['Навеска бензойной кислоты','Weighing the benzoic acid'],
+ instr:[`<ol><li>Возьмите навеску <b>2,0 г (16,4 ммоль)</b> бензойной кислоты на аналитических весах.</li><li>Поставьте лодочку, тарируйте весы, насыпьте вещество шпателем, закройте дверцы и запишите массу.</li></ol><p class="note">Допустимо 1,95–2,05 г. Записывают фактическую массу до 0,0001 г — по ней считают выход.</p>`,
+  `<ol><li>Weigh out <b>2.0 g (16.4 mmol)</b> of benzoic acid on the analytical balance.</li><li>Place a weighing boat, tare the balance, add the solid with a spatula, close the doors and record the mass.</li></ol><p class="note">1.95–2.05 g is acceptable. Record the actual mass to 0.0001 g — the yield is calculated from it.</p>`],
+ need:['Запишите массу навески','Record the mass of the sample'],scene:()=>SV(balanceP()),
+ run(){return balanceUI({mode:'spatula',lo:1.95,hi:2.05,boatLabel:['Поставить лодочку','Place a weighing boat'],boatLog:tx('На чашку весов поставлена лодочка для взвешивания','Weighing boat placed on the pan'),
+  onRecord:m=>{S.mBA=m;log(tx(`Навеска бензойной кислоты: <b>${f(m,4)} г</b> (${f(m/M.BA*1000,1)} ммоль)`,`Benzoic acid sample: <b>${f(m,4)} g</b> (${f(m/M.BA*1000,1)} mmol)`),'calc');log(tx('Навеска перенесена в коническую колбу на 50 мл','Sample transferred to a 50 mL conical flask'));ready(L('Навеска взята','Sample weighed'))}})}});
+
+STEPS.push({stage:'e1',title:['Растворение в серной кислоте','Dissolving in sulfuric acid'],
+ instr:[`<ol><li>В вытяжном шкафу отмерьте цилиндром <b>5 мл</b> конц. H₂SO₄ (96–98 %, d 1,84).</li><li>Прилейте кислоту к бензойной кислоте в колбе и перемешайте стеклянной палочкой.</li></ol><p class="note">Излишек реактива в склянку не возвращают — только в ёмкость для отходов.</p>`,
+  `<ol><li>In the fume hood, measure <b>5 mL</b> of conc. H₂SO₄ (96–98 %, d 1.84) with a measuring cylinder.</li><li>Add the acid to the benzoic acid in the flask and stir with a glass rod.</li></ol><p class="note">Excess reagent never goes back into the bottle — only into the waste container.</p>`],
+ need:['Прилейте 5 мл H₂SO₄ и перемешайте','Add 5 mL of H₂SO₄ and stir'],scene:()=>SV(cylP()+flaskP()),
+ run(){let v=0,st=0;setFlask(0,S.mBA);const ml=L('мл','mL'),g=L('г','g');
+  const upd=()=>{setCyl(v);RO([[L('Цилиндр','Cylinder'),f(v,1)+' '+ml,Math.abs(v-5)<.05?'ok':v>5?'warn':''],[L('Колба','Flask'),st?f(S.vAcid,1)+' '+ml+' H₂SO₄ + '+f(S.mBA,2)+' '+g:f(S.mBA,2)+' '+g+' C₆H₅COOH']])};
+  const add=d=>B(`+${f(d,1)} ${ml}`,()=>{if(st)return;v=+Math.min(10,v+d).toFixed(1);upd()});
+  const sub=bt=>B(bt?L('Отлить 0,5 мл обратно в склянку','Pour 0.5 mL back into the bottle'):L('Отлить 0,5 мл в отходы','Pour 0.5 mL into the waste'),()=>{if(st||v<=0)return;v=+Math.max(0,v-.5).toFixed(1);
+   if(bt)remark('bottle',tx('излишек реактива вернули в склянку — так загрязняют реактив','excess reagent returned to the bottle — this contaminates the reagent'),1);else log(tx('Излишек H₂SO₄ слит в ёмкость для кислотных отходов','Excess H₂SO₄ poured into the acid waste container'));upd()});
+  const pourB=B(L('Перелить в колбу','Pour into the flask'),()=>{if(st)return;if(v<.5){fb(L('Цилиндр пуст.','The cylinder is empty.'),'warn');return}
+   if(Math.abs(v-5)>.25)remark('vol',tx(`объём H₂SO₄ отмерен неточно (${f(v,1)} мл вместо 5 мл)`,`inaccurate volume of H₂SO₄ (${f(v,1)} mL instead of 5 mL)`),.5);
+   S.vAcid=v;st=1;v=0;pourB.disabled=true;adv(60);setFlask(S.vAcid+.4,S.mBA*.75);log(tx(`К бензойной кислоте прилито ${f(S.vAcid,1)} мл конц. H₂SO₄`,`${f(S.vAcid,1)} mL of conc. H₂SO₄ added to the benzoic acid`));upd()});
+  const stirB=B(L('Перемешать палочкой','Stir with the rod'),()=>{if(st!==1){fb(st?L('Уже перемешано.','Already stirred.'):L('Сначала прилейте кислоту.','Add the acid first.'),'warn');return}st=2;stirB.disabled=true;vis(q('rodG'),true);q('rod').classList.add('stir');
+   setTimeout(()=>{const r=q('rod');if(r)r.classList.remove('stir')},1600);adv(120);S.T=27;setFlask(S.vAcid+1,S.mBA*.08);
+   log(tx('Бензойная кислота почти полностью растворяется в H₂SO₄; густой бесцветный раствор, смесь слегка разогрелась (≈ 27 °C)','The benzoic acid dissolves almost completely in H₂SO₄; thick colourless solution, the mixture has warmed slightly (≈ 27 °C)'),'obs');ready(L('Раствор готов','Solution ready'))});
+  C().append(lab(L('Цилиндр 10 мл','10 mL cylinder')),row(add(1),add(.5),add(.1)),row(sub(false),sub(true)),lab(L('Колба','Flask')),row(pourB,stirB));upd()}});
+
+STEPS.push({stage:'e1',title:['Охлаждение до 0–5 °C','Cooling to 0–5 °C'],
+ instr:[`<ol><li>Приготовьте баню из колотого льда с солью (охлаждающая смесь до −10 °C).</li><li>Поместите колбу в баню и охладите раствор до <b>0–5 °C</b>, перемешивая.</li></ol><p class="note">Лёд с водой даёт только около 0 °C — с солью охлаждение быстрее и надёжнее.</p>`,
+  `<ol><li>Prepare an ice–salt bath (a freezing mixture down to −10 °C).</li><li>Put the flask in the bath and cool the solution to <b>0–5 °C</b> with stirring.</li></ol><p class="note">Ice and water only reach about 0 °C — with salt the cooling is faster and more reliable.</p>`],
+ need:['Охладите раствор до 5 °C и ниже','Cool the solution to 5 °C or below'],scene:()=>SV(flaskP({bath:S.bath.ice,th:true,rod:true})),
+ run(){let sp=10,stir=false,acc=0,okLogged=false;if(S.T==null)S.T=27;if(!S.bath.ice)S.Tb=22;setFlask(S.vAcid+1,S.mBA*.08);
+  const iceB=B(L('Насыпать колотый лёд','Add crushed ice'),()=>{if(S.bath.ice)return;S.bath.ice=true;vis(q('bathB'),true);vis(q('bathF'),true);iceB.disabled=true;log(tx('Приготовлена ледяная баня','Ice bath prepared'))});
+  const saltB=B(L('Добавить соль NaCl','Add NaCl'),()=>{if(!S.bath.ice){fb(L('Сначала насыпьте лёд.','Add the ice first.'),'warn');return}if(S.bath.salt)return;S.bath.salt=true;vis(q('salt'),true);q('bathLbl').textContent=bathName();saltB.disabled=true;log(tx('В баню добавлена соль: охлаждающая смесь лёд / NaCl','Salt added: ice / NaCl freezing mixture'))});
+  const inB=B(L('Поместить колбу в баню','Put the flask in the bath'),()=>{if(!S.bath.ice){fb(L('Баня пуста — насыпьте лёд.','The bath is empty — add ice.'),'warn');return}S.bath.in=true;inB.disabled=true;log(tx('Колба помещена в баню','Flask placed in the bath'))});
+  const stB=B(L('Перемешивать','Stir'),()=>{stir=!stir;stB.classList.toggle('on',stir);q('rod').classList.toggle('stir',stir)});
+  if(S.bath.ice)iceB.disabled=true;if(S.bath.salt)saltB.disabled=true;if(S.bath.in)inB.disabled=true;
+  C().append(lab(L('Баня','Bath')),row(iceB,saltB,inB),lab(L('Колба','Flask')),row(stB),lab(L('Ход времени','Time speed')),row(seg([[5,'×5'],[10,'×10'],[30,'×30']],()=>sp,v=>sp=v,L('Скорость времени','Time speed'))));
+  return loop(()=>{const dt=.1*sp;const tgt=S.bath.ice?(S.bath.salt?-8:.5):22;S.Tb+=(tgt-S.Tb)*Math.min(1,.03*dt);
+   const k=S.bath.in?(stir?.024:.011):.0008;S.T+=((S.bath.in?S.Tb:22)-S.T)*Math.min(1,k*dt);acc+=dt;if(acc>=1){adv(Math.floor(acc));acc%=1}
+   setThermo(S.T);RO([[L('Раствор','Solution'),f(S.T,1)+' °C',S.T<=5?'ok':''],[L('Баня','Bath'),f(S.Tb,1)+' °C']]);
+   if(S.T<=5&&S.bath.in&&!okLogged){okLogged=true;log(tx(`Раствор охлаждён до ${f(S.T,1)} °C`,`Solution cooled to ${f(S.T,1)} °C`),'obs');ready(L('Раствор охлаждён','Solution cooled'))}})}});
+
+STEPS.push({stage:'e1',title:['Нитрующая смесь','Nitrating mixture'],
+ instr:[`<ol><li>В пробирку налейте <b>1,5 мл</b> конц. H₂SO₄.</li><li>Медленно, порциями, при охлаждении прилейте <b>1,5 мл</b> конц. HNO₃ (65–68 %).</li><li>Охладите смесь в ледяной бане до 0–5 °C.</li></ol><p class="note">Азотную кислоту приливают к серной, а не наоборот. Колба с бензойной кислотой всё это время стоит в бане.</p>`,
+  `<ol><li>Put <b>1.5 mL</b> of conc. H₂SO₄ into a test tube.</li><li>Slowly, in portions and with cooling, add <b>1.5 mL</b> of conc. HNO₃ (65–68 %).</li><li>Cool the mixture in an ice bath to 0–5 °C.</li></ol><p class="note">Nitric acid is added to sulfuric acid, not the other way round. The benzoic acid flask stays in the bath all this time.</p>`],
+ need:['Приготовьте 1,5 + 1,5 мл и охладите','Prepare 1.5 + 1.5 mL and cool it'],scene:()=>SV(mixP()),
+ run(){const m=S.mix;let last=0;const ml=L('мл','mL');
+  const upd=()=>{setTubeMix(m.s+m.n);RO([['H₂SO₄',f(m.s,1)+' '+ml,m.s===1.5?'ok':m.s>1.5?'bad':''],['HNO₃',f(m.n,1)+' '+ml,m.n===1.5?'ok':m.n>1.5?'bad':''],[L('Смесь','Mixture'),f(m.T,1)+' °C',m.T>30?'bad':m.T>10?'warn':'ok']]);
+   m.s===1.5&&m.n===1.5&&m.T<=5?ready(L('Нитрующая смесь готова','Nitrating mixture ready')):notReady(m.s===1.5&&m.n===1.5?L('Дождитесь охлаждения до 5 °C','Wait until it cools to 5 °C'):L('Приготовьте 1,5 + 1,5 мл и охладите','Prepare 1.5 + 1.5 mL and cool it'))};
+  const over=()=>{if(m.s>1.5||m.n>1.5)fb(L('Объём превышен. Слейте смесь в ёмкость для кислотных отходов и приготовьте заново.','Too much acid. Pour the mixture into the acid waste and prepare it again.'),'warn')};
+  const addS=B(L('H₂SO₄ +0,5 мл','H₂SO₄ +0.5 mL'),()=>{if(m.n>0){remark('order',tx('нарушен порядок смешения: серную кислоту прилили к азотной','wrong order of mixing: sulfuric acid added to nitric acid'),2);m.T+=7}m.s=+(m.s+.5).toFixed(1);adv(20);log(tx('В пробирку налито 0,5 мл конц. H₂SO₄','0.5 mL of conc. H₂SO₄ put into the tube'));over();upd()});
+  const addN=B(L('HNO₃ +0,5 мл, по стенке','HNO₃ +0.5 mL, down the wall'),()=>{if(m.s===0)remark('order',tx('нарушен порядок смешения: азотную кислоту налили первой','wrong order of mixing: nitric acid put in first'),2);const now=Date.now(),quick=m.n>0&&now-last<2500;last=now;
+   m.n=+(m.n+.5).toFixed(1);m.T+=quick?11:6.5;adv(20);log(quick?tx('Прилито 0,5 мл конц. HNO₃ — слишком быстро','0.5 mL of conc. HNO₃ added — too quickly'):tx('Прилито 0,5 мл конц. HNO₃','0.5 mL of conc. HNO₃ added'));
+   if(m.T>30)remark('mixhot',tx('нитрующая смесь перегрета при смешении — приливать медленнее, с охлаждением','nitrating mixture overheated while mixing — add more slowly, with cooling'),1);
+   if(m.T>18)fb(L('Смесь сильно разогрелась. Дождитесь охлаждения, прежде чем приливать следующую порцию.','The mixture has warmed up a lot. Let it cool before adding the next portion.'),'warn');over();upd()});
+  const resetB=B(L('Слить в отходы, приготовить заново','Discard into waste and start again'),()=>{m.s=0;m.n=0;m.T=3;log(tx('Нитрующая смесь слита в ёмкость для кислотных отходов','Nitrating mixture poured into the acid waste'));q('fb').hidden=true;upd()},'danger');
+  C().append(lab(L('Реактивы','Reagents')),row(addS,addN),row(resetB));upd();
+  return loop(()=>{m.T+=(1-m.T)*.02;S.T+=(S.Tb+1.5-S.T)*.01;adv(1);upd()})}});
+/* ===== Термограмма / thermogram ===== */
+function drawTG(cv){const dpr=window.devicePixelRatio||1,r=cv.getBoundingClientRect(),w=Math.max(50,r.width),hh=110;
+ if(cv.width!==Math.round(w*dpr)){cv.width=Math.round(w*dpr);cv.height=hh*dpr}const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,w,hh);
+ const cs=getComputedStyle(document.documentElement),col=n=>cs.getPropertyValue(n).trim();const P0={l:34,r:10,t:8,b:20},pts=S.nit.pts,mn=L(' мин',' min');
+ const tmax=Math.max(900,pts.length?pts[pts.length-1][0]+60:0),X=t=>P0.l+(w-P0.l-P0.r)*t/tmax,Y=T=>P0.t+(hh-P0.t-P0.b)*(1-(clamp(T,-10,40)+10)/50);
+ c.fillStyle=col('--good-soft');c.fillRect(P0.l,Y(10),w-P0.l-P0.r,Y(0)-Y(10));
+ c.font='10px '+col('--f-mono');c.fillStyle=col('--muted');c.strokeStyle=col('--line');c.lineWidth=1;c.textAlign='right';
+ [-10,0,10,20,30,40].forEach(T=>{c.beginPath();c.moveTo(P0.l,Y(T)+.5);c.lineTo(w-P0.r,Y(T)+.5);c.stroke();c.fillText(T+'°',P0.l-4,Y(T)+3)});
+ c.textAlign='center';for(let m=0;m*60<=tmax;m+=5){if(X(m*60)<w-P0.r-22)c.fillText(m+mn,X(m*60),hh-5)}
+ c.strokeStyle=col('--warn');c.setLineDash([5,4]);c.beginPath();c.moveTo(P0.l,Y(10));c.lineTo(w-P0.r,Y(10));c.stroke();c.setLineDash([]);
+ if(pts.length){c.strokeStyle=col('--accent');c.lineWidth=2;c.beginPath();pts.forEach(([t,T],i)=>i?c.lineTo(X(t),Y(T)):c.moveTo(X(t),Y(T)));c.stroke();
+  const [lt,lT]=pts[pts.length-1];c.fillStyle=lT>10?col('--bad'):col('--accent');c.beginPath();c.arc(X(lt),Y(lT),3.5,0,7);c.fill()}
+ else{c.fillStyle=col('--muted');c.textAlign='left';c.fillText(L('термограмма начнётся с первой капли','the thermogram starts with the first drop'),P0.l+8,P0.t+14)}}
+
+/* ===== Опыт 1: нитрование / nitration ===== */
+STEPS.push({stage:'e1',title:['Нитрование: прибавление по каплям','Nitration: dropwise addition'],
+ instr:[`<ol><li>Холодную нитрующую смесь (3,0 мл ≈ 60 капель) прибавляйте <b>по каплям</b> к раствору бензойной кислоты при постоянном перемешивании.</li><li>Температура не должна подниматься <b>выше 5–10 °C</b>. Прибавление занимает 10–15 минут.</li></ol><p class="note">Растёт температура — прекратите прибавление, перемешивайте, подсыпьте в баню лёд с солью. Капать можно вручную или в выбранном ритме.</p>`,
+  `<ol><li>Add the cold nitrating mixture (3.0 mL ≈ 60 drops) <b>dropwise</b> to the benzoic acid solution with constant stirring.</li><li>The temperature must not rise <b>above 5–10 °C</b>. The addition takes 10–15 minutes.</li></ol><p class="note">If the temperature climbs, stop adding, keep stirring and add more ice and salt to the bath. Drop by hand or choose a steady rhythm.</p>`],
+ need:['Прибавьте всю нитрующую смесь','Add all of the nitrating mixture'],scene:()=>SV(flaskP({bath:true,th:true,rod:true,pip:true})),
+ run(){const N=S.nit,TOT=60,mn=L('мин','min');let sp=10,stir=false,rh=0,pend=0,acc=0,ptAcc=0,warned=0,nextRh=0;
+  if(S.bath.in)S.T=Math.max(S.Tb+1.5,Math.min(S.T,4));setFlask(S.vAcid+1+N.drops*.05,0,N.drops?'var(--liq-y)':null);setThermo(S.T);
+  const cv=h('canvas',{class:'tg','aria-label':L('Термограмма: температура в колбе во времени','Thermogram: flask temperature over time')});
+  const dropB=B(L('Капля','Drop'),()=>doDrop(),'pri big');
+  const rhSeg=seg([[0,L('вручную','by hand')],[15,L('15 с','15 s')],[10,L('10 с','10 s')],[6,L('6 с','6 s')]],()=>rh,v=>{rh=v;nextRh=0},L('Ритм прибавления','Addition rhythm'));
+  const stB=B(L('Перемешивать','Stir'),()=>{stir=!stir;stB.classList.toggle('on',stir);q('rod').classList.toggle('stir',stir)});
+  const iceB=B(L('Подсыпать лёд с солью','Add ice and salt'),()=>{S.Tb=Math.min(S.Tb,-8);if(!S.bath.salt){S.bath.salt=true;vis(q('salt'),true);q('bathLbl').textContent=bathName()}log(tx('В баню подсыпали лёд с солью','Ice and salt added to the bath'))});
+  C().append(cv,lab(L('Капельная пипетка · интервал между каплями','Dropping pipette · interval between drops')),row(dropB,rhSeg),lab(L('Колба и баня','Flask and bath')),row(stB,iceB),lab(L('Ход времени','Time speed')),row(seg([[5,'×5'],[10,'×10'],[20,'×20']],()=>sp,v=>sp=v,L('Скорость времени','Time speed'))));
+  function doDrop(){if(N.drops>=TOT)return;if(N.t0==null){N.t0=S.t;log(tx('Начато прибавление нитрующей смеси по каплям','Dropwise addition of the nitrating mixture started'))}
+   N.drops++;pend+=1.5;if(S.T>10.5)remark('dropHot',tx('нитрующую смесь прибавляли при температуре выше 10 °C','nitrating mixture added while above 10 °C'),1);drip();setFlask(S.vAcid+1+N.drops*.05,0,'var(--liq-y)');
+   if(N.drops>=TOT){N.t1=S.t;if(rh)rhSeg.children[0].click();dropB.disabled=true;const min=(N.t1-N.t0)/60;
+    log(tx(`Прибавлено 3,0 мл нитрующей смеси за ${f(min,1)} мин; максимальная температура ${f(N.maxT,1)} °C`,`3.0 mL of nitrating mixture added in ${f(min,1)} min; maximum temperature ${f(N.maxT,1)} °C`),'obs');
+    if(min<7)remark('fast',tx(`прибавление слишком быстрое (${f(min,1)} мин вместо 10–15)`,`addition too fast (${f(min,1)} min instead of 10–15)`),.5);
+    log(N.maxT<=10?tx('Температура всё время оставалась в пределах 0–10 °C; раствор светло-жёлтый','The temperature stayed within 0–10 °C throughout; the solution is pale yellow'):tx('Раствор жёлто-оранжевый, над колбой появлялись бурые пары','The solution is yellow-orange; brown fumes appeared above the flask'),'obs');ready(L('Прибавление закончено','Addition complete'))}}
+  return loop(()=>{const dt=.1*sp;
+   if(rh&&N.drops<TOT){nextRh-=dt;if(nextRh<=0){doDrop();nextRh=rh}}
+   S.Tb=Math.min(12,S.Tb+.004*dt);const rel=Math.min(pend,pend*.35*dt);pend-=rel;
+   S.T+=rel-(S.T-S.Tb)*Math.min(1,(stir?.03:.012)*dt);
+   if(N.t0!=null){N.maxT=Math.max(N.maxT,S.T);if(S.T>10){N.E+=(S.T-10)*dt;N.hot+=dt}}
+   acc+=dt;if(acc>=1){const s=Math.floor(acc);acc-=s;adv(s);ptAcc+=s;if(ptAcc>=5&&N.t0!=null&&(N.t1==null||S.t-N.t1<90)){N.pts.push([S.t-N.t0,+S.T.toFixed(2)]);ptAcc=0}}
+   setThermo(S.T);q('fumes').setAttribute('opacity',clamp((S.T-14)/12,0,.9).toFixed(2));
+   RO([[L('Раствор','Solution'),f(S.T,1)+' °C',S.T>20?'bad':S.T>10?'warn':'ok'],[L('Баня','Bath'),f(S.Tb,1)+' °C'],[L('Капель','Drops'),N.drops+' / '+TOT],[L('Время','Time'),N.t0==null?'—':f(((N.t1==null?S.t:N.t1)-N.t0)/60,1)+' '+mn]]);
+   if(S.T>30&&!N.run){N.run=1;remark('runaway',tx('перегрев выше 30 °C: окисление, бурые пары NO₂, динитрование','overheating above 30 °C: oxidation, brown NO₂ fumes, dinitration'),2);fb(L('Выше 30 °C — реакция выходит из-под контроля, выделяется бурый NO₂. Прекратите прибавление и интенсивно охлаждайте.','Above 30 °C — the reaction is running away and brown NO₂ is evolved. Stop adding and cool hard.'),'bad');if(rh)rhSeg.children[0].click()}
+   else if(S.T>20&&warned<2){warned=2;fb(L('Выше 20 °C: появляются бурые пары NO₂, идут окисление и динитрование.','Above 20 °C: brown NO₂ fumes appear; oxidation and dinitration set in.'),'bad')}
+   else if(S.T>10&&!warned){warned=1;fb(L('Температура выше 10 °C. Прекратите прибавление, перемешивайте, подсыпьте лёд с солью.','Temperature above 10 °C. Stop adding, keep stirring, add ice and salt.'),'warn')}
+   else if(S.T<8&&warned){warned=0;q('fb').hidden=true}
+   drawTG(cv)})}});
+
+STEPS.push({stage:'e1',title:['Выдержка реакционной смеси','Holding the reaction mixture'],
+ instr:[`<ol><li>Выдержите смесь в ледяной бане ещё <b>10–15 минут</b>, периодически перемешивая.</li><li>Затем выньте колбу и оставьте при комнатной температуре на <b>10 минут</b>.</li></ol>`,
+  `<ol><li>Keep the mixture in the ice bath for another <b>10–15 minutes</b>, stirring from time to time.</li><li>Then take the flask out and leave it at room temperature for <b>10 minutes</b>.</li></ol>`],
+ need:['Выдержите смесь в бане, затем при комнатной температуре','Hold the mixture in the bath, then at room temperature'],scene:()=>SV(flaskP({bath:true,th:true,rod:true})),
+ run(){const H=S.hold,mn=L('мин','min');setFlask(S.vAcid+4,.15,'var(--liq-y)');setThermo(S.T);
+  const upd=()=>{RO([[L('В бане','In the bath'),Math.round(H.bath/60)+' '+mn,H.bath>=600?'ok':''],[L('При комн. т-ре','At room temp.'),Math.round(H.room/60)+' '+mn,H.room>=600?'ok':''],[L('Раствор','Solution'),f(S.T,1)+' °C']]);setThermo(S.T);
+   if(H.room>=600&&H.bath>=300)ready(L('Нитрование завершено','Nitration complete'));else notReady(L('Выдержите смесь в бане, затем при комнатной температуре','Hold the mixture in the bath, then at room temperature'))};
+  const bathB=B(L('В бане, перемешивая: +5 мин','In the bath, stirring: +5 min'),()=>{H.bath+=300;adv(300);S.T+=(S.Tb+1-S.T)*.95;const r=q('rod');r.classList.add('stir');setTimeout(()=>{const x=q('rod');if(x)x.classList.remove('stir')},1200);
+   log(tx('Выдержка в ледяной бане 5 мин, перемешивание','Held in the ice bath for 5 min with stirring'));if(H.bath===300)log(tx('Смесь густеет, из раствора начинает выделяться осадок','The mixture thickens; a solid starts to separate'),'obs');setFlask(S.vAcid+4,.15+H.bath/2000,'var(--liq-y)');upd()});
+  const roomB=B(L('Вынуть из бани: +5 мин при комн. т-ре','Out of the bath: +5 min at room temp.'),()=>{if(H.room===0){if(H.bath<600)remark('hold',tx('колбу вынули из бани раньше 10 минут','flask taken out of the bath before 10 minutes'),.5);vis(q('bathB'),false);vis(q('bathF'),false);bathB.disabled=true}
+   H.room+=300;adv(300);S.T+=(21-S.T)*.6;log(tx('Выдержка при комнатной температуре 5 мин','Held at room temperature for 5 min'));upd()});
+  if(H.room>0){vis(q('bathB'),false);vis(q('bathF'),false);bathB.disabled=true}
+  C().append(row(bathB,roomB));upd()}});
+
+STEPS.push({stage:'e1',title:['Выливание на лёд','Pouring onto ice'],
+ instr:[`<ol><li>Медленно, при перемешивании, вылейте реакционную смесь на <b>30–40 г</b> колотого льда в стакане.</li><li>Выпадает осадок сырого продукта белого или бледно-жёлтого цвета.</li></ol><p class="note">Ни в коем случае не приливайте воду к концентрированной кислотной смеси.</p>`,
+  `<ol><li>Slowly, with stirring, pour the reaction mixture onto <b>30–40 g</b> of crushed ice in a beaker.</li><li>The crude product precipitates as a white or pale yellow solid.</li></ol><p class="note">Never add water to the concentrated acid mixture.</p>`],
+ need:['Вылейте смесь на лёд','Pour the mixture onto ice'],scene:()=>SV(pourP()),
+ run(){const Pr=S.pour,g=L('г','g');let done=false;const icn=()=>Math.round(Pr.ice/60*9);
+  const drawIce=()=>[...q('iceB').children].forEach((r,i)=>r.setAttribute('opacity',i<icn()?'.92':'0'));
+  const sl=h('input',{type:'range',id:'iceMass',min:10,max:60,step:5,value:Pr.ice,'aria-label':L('Масса льда, г','Mass of ice, g')}),lv=h('b',{class:'mono'},Pr.ice+' '+g);
+  sl.oninput=()=>{Pr.ice=+sl.value;lv.textContent=Pr.ice+' '+g;drawIce()};
+  const act=meth=>()=>{if(done)return;done=true;C().querySelectorAll('button').forEach(b=>b.disabled=true);sl.disabled=true;Pr.method=meth;
+   q('stream').setAttribute('opacity','1');adv(120);const E=S.nit.E,col=E>900?['жёлтый, с оранжевым оттенком','yellow with an orange tinge']:E>200?['бледно-жёлтый','pale yellow']:['белый, слегка кремовый','white, slightly creamy'];let obs,loss=0;
+   if(meth==='ok')obs=[`Смесь медленно вылита на ${Pr.ice} г льда при перемешивании. Выпал мелкокристаллический осадок — ${col[0]}.`,`The mixture was poured slowly onto ${Pr.ice} g of ice with stirring. A finely crystalline precipitate formed — ${col[1]}.`];
+   else if(meth==='fast'){loss=.03;remark('pourfast',tx('смесь вылита на лёд одной порцией — местный перегрев, комки','mixture poured onto ice all at once — local overheating, lumps'),.5);obs=[`Смесь вылита разом: шипение, разогревание, осадок комковатый (${col[0]}).`,`Poured all at once: hissing, warming, lumpy precipitate (${col[1]}).`]}
+   else{loss=.12;remark('water',tx('грубое нарушение ТБ: вода прилита к концентрированной кислотной смеси','serious safety violation: water added to the concentrated acid mixture'),2);fb(L('Вода прилита к концентрированной кислоте: смесь вскипела, кислоту выбросило из колбы. В настоящей лаборатории это химический ожог. Часть продукта потеряна.','Water was added to the concentrated acid: the mixture boiled and acid spattered out of the flask. In a real lab this means a chemical burn. Some product was lost.'),'bad');obs=[`Вода прилита в колбу: вскипание и разбрызгивание. Осадок ${col[0]}.`,`Water poured into the flask: boiling and spattering. Precipitate ${col[1]}.`]}
+   if(Pr.ice<25){loss+=.04;remark('ice',tx('мало льда: смесь разогрелась, часть продукта осталась в растворе','too little ice: the mixture warmed up and some product stayed in solution'),.5);obs=[obs[0]+' Лёд полностью растаял, смесь тёплая.',obs[1]+' All the ice melted; the mixture is warm.']}
+   Pr.loss=loss;const pp=q('ppt');pp.setAttribute('opacity','1');if(E>900)pp.style.fill='var(--warn)';q('tiltL').setAttribute('opacity','0');
+   setTimeout(()=>{const s=q('stream');if(s)s.setAttribute('opacity','0')},1500);const v=Pr.ice+9,l=q('bkL');l.setAttribute('y',228-v*1.3);l.setAttribute('height',v*1.3);
+   [...q('iceB').children].forEach(r=>{if(r.getAttribute('opacity')!=='0')r.setAttribute('opacity','.3')});q('bkT').textContent=Pr.ice<25?'≈ 18 °C':'≈ 2 °C';
+   log(obs,'obs');if(meth==='ok'&&Pr.ice>=25)fb(L('Выпал осадок сырой м-нитробензойной кислоты. Смесь холодная.','Crude m-nitrobenzoic acid has precipitated. The mixture is cold.'),'good');ready(L('Осадок выпал','Precipitate formed'))};
+  C().append(lab(L('Колотый лёд','Crushed ice')),row(sl,lv),lab(L('Как разбавить реакционную смесь','How to dilute the reaction mixture')),h('div',{class:'check'},B(L('Медленно вылить смесь на лёд, перемешивая','Pour the mixture slowly onto the ice, stirring'),act('ok')),B(L('Вылить на лёд быстро, одной порцией','Pour it onto the ice quickly, all at once'),act('fast')),B(L('Прилить в колбу холодную воду','Pour cold water into the flask'),act('water'))));drawIce()}});
+/* ===== модель состава продукта / product composition model ===== */
+function makeCrude(){const n=S.mBA/M.BA,H=S.hold,N=S.nit;
+ const conv=Math.min(.98,.80+.12*Math.min(1,H.bath/600)+.06*Math.min(1,H.room/600));S.conv=conv;
+ const d=clamp(.006+N.E/12000,0,.35),ox=clamp(N.E/30000,0,.2),nN=n*conv*(1-ox),keep=1-S.pour.loss-S.filt.tloss;
+ const c={meta:Math.max(.05,nN*(1-d)*.80*M.NBA*keep-S.filt.loss),ortho:nN*(1-d)*.185*M.NBA*keep*.7,para:nN*(1-d)*.015*M.NBA*keep,di:nN*d*M.DNBA*keep,ba:n*(1-conv)*M.BA*keep*.9,d};
+ c.acid=S.filt.pH<2.5?.06:.008;c.org=c.meta+c.ortho+c.para+c.di+c.ba;c.tot=c.org*(1+c.acid);S.crude=c}
+function makeFin(){const c=S.crude,R=S.rec,imp=R.full?1:3,meta=Math.max(.05,c.meta-R.V*(R.shock?.0022:.0024)-.04);
+ const o={meta,ortho:c.ortho*.05*imp*(R.shock?1.6:1),para:c.para*.45,di:c.di*.3*imp*(R.shock?1.3:1),ba:Math.max(0,c.ba-R.V*.0017)*.6*imp,acid:c.acid*.1*c.org};
+ o.m=o.meta+o.ortho+o.para+o.di+o.ba+o.acid;o.purity=o.meta/o.m;S.fin=o}
+
+/* ===== Опыт 1: фильтрование / filtration ===== */
+STEPS.push({stage:'e1',title:['Фильтрование и промывание','Filtration and washing'],
+ instr:[`<ol><li>Отфильтруйте осадок под вакуумом на воронке Бюхнера.</li><li>Промойте его на фильтре несколькими небольшими порциями <b>ледяной воды</b>, пока промывные воды не станут лишь слабокислыми — проверяйте индикаторной бумагой.</li></ol><p class="note">Перед выключением водоструйного насоса отсоедините шланг от колбы Бунзена.</p>`,
+  `<ol><li>Filter off the solid under vacuum on a Büchner funnel.</li><li>Wash it on the filter with several small portions of <b>ice-cold water</b> until the washings are only weakly acidic — check with indicator paper.</li></ol><p class="note">Before switching off the water aspirator, disconnect the hose from the filter flask.</p>`],
+ need:['Отфильтруйте и промойте осадок','Filter and wash the solid'],scene:()=>SV(filterP()),
+ run(){const F=S.filt,st={paper:false,wet:false,vac:false,moved:false,end:false};
+  const set=()=>{q('fpaper').setAttribute('opacity',st.paper?1:0);q('vacL').setAttribute('opacity',st.vac?1:.2);q('cake').setAttribute('height',st.moved?9:0);q('cake').setAttribute('y',st.moved?80:89);
+   const fv=(st.moved?40:0)+F.washes*5+(st.wet?3:0)+(st.suck?20:0),r=q('filtr');r.setAttribute('y',222-fv*.9);r.setAttribute('height',fv*.9);
+   RO([[L('Вакуум','Vacuum'),st.vac?L('вкл.','on'):L('выкл.','off'),st.vac?'ok':''],[L('Промывок','Washes'),String(F.washes)],[L('Последняя проба','Last test'),F.lastCheck>=0&&st.moved?'pH ≈ '+Math.round(F.pH):'—',F.lastCheck>=0&&F.pH>=2.5?'ok':'']])};
+  const pulse=()=>{const l=q('fliq');l.setAttribute('height',14);l.setAttribute('y',75);setTimeout(()=>{const x=q('fliq');if(x)x.setAttribute('height',0)},st.vac?700:2200)};
+  const paperB=B(L('Положить фильтр','Insert the filter paper'),()=>{st.paper=true;paperB.disabled=true;log(tx('Бумажный фильтр уложен в воронку Бюхнера','Filter paper placed in the Büchner funnel'));set()});
+  const wetB=B(L('Смочить фильтр водой','Wet the filter paper'),()=>{if(!st.paper){fb(L('Сначала положите фильтр.','Insert the filter paper first.'),'warn');return}st.wet=true;wetB.disabled=true;set()});
+  const vacB=B(L('Включить вакуум','Switch on the vacuum'),()=>{st.vac=true;vacB.disabled=true;log(tx('Включён водоструйный насос','Water aspirator switched on'));set()});
+  const moveB=B(L('Перенести суспензию на фильтр','Pour the suspension onto the filter'),()=>{if(!st.paper){fb(L('Без фильтра осадок уйдёт в колбу Бунзена.','Without filter paper the solid goes straight into the flask.'),'bad');return}
+   if(!st.vac){remark('vac',tx('суспензию вылили на фильтр без вакуума — фильтр сдвинулся, часть осадка ушла в фильтрат','suspension poured on without vacuum — the paper shifted and some solid went into the filtrate'),.5);F.tloss+=.03}
+   if(!st.wet){remark('wet',tx('фильтр не смочен — неплотное прилегание, мелкие частицы проходят','filter paper not wetted — it does not seal and fine particles pass through'),.5);F.tloss+=.02}
+   st.moved=true;moveB.disabled=true;pulse();adv(240);F.pH=.4;F.lastCheck=-1;log(tx('Осадок отфильтрован, остатки смыты из стакана фильтратом; фильтрат сильнокислый','Solid filtered off, the beaker rinsed out with filtrate; the filtrate is strongly acidic'),'obs');set()});
+  const washB=B(L('Промыть ледяной водой (~5 мл)','Wash with ice-cold water (~5 mL)'),()=>{if(!st.moved){fb(L('Сначала перенесите осадок на фильтр.','Transfer the solid onto the filter first.'),'warn');return}if(st.end)return;
+   F.washes++;F.loss+=.012;F.pH=-Math.log10(10**-(.4+.75*F.washes)+10**-2.9);pulse();adv(90);if(!st.vac)F.loss+=.01;log(tx(`Промывка ${F.washes}: ~5 мл ледяной воды`,`Wash ${F.washes}: ~5 mL of ice-cold water`));set()});
+  const pB=B(L('Проверить промывные воды','Test the washings'),()=>{if(!st.moved){fb(L('Пока нечего проверять.','Nothing to test yet.'),'warn');return}F.lastCheck=F.washes;q('paper').setAttribute('fill',pHcolor(F.pH));const p=Math.round(F.pH);
+   log(tx(`Промывные воды после ${F.washes}-й промывки: индикаторная бумага — pH ≈ ${p}`,`Washings after wash ${F.washes}: indicator paper — pH ≈ ${p}`),'obs');
+   fb(p<=1?L('Бумага красная — промывные воды сильнокислые.','The paper is red — the washings are strongly acidic.'):p<=2?L('Бумага красно-оранжевая — ещё кислые.','The paper is red-orange — still acidic.'):L('Бумага оранжевая — промывные воды слабокислые. Кислее не станет: сама м-нитробензойная кислота немного растворима в воде (pH ≈ 3).','The paper is orange — the washings are weakly acidic. It will not get higher: m-nitrobenzoic acid itself is slightly soluble in water (pH ≈ 3).'),p>=3?'good':'info');set()});
+  const endA=B(L('Отсоединить шланг, затем выключить насос','Disconnect the hose, then switch off the pump'),()=>finish(true)),endB=B(L('Выключить насос','Switch off the pump'),()=>finish(false));
+  function finish(right){if(!st.moved||F.washes<1){fb(L('Промойте осадок хотя бы один раз.','Wash the solid at least once.'),'warn');return}if(st.end)return;st.end=true;endA.disabled=endB.disabled=true;washB.disabled=pB.disabled=true;
+   if(!right){st.suck=true;remark('suck',tx('насос выключен при подсоединённом шланге — вода засосана в колбу Бунзена','pump switched off with the hose connected — water was sucked back into the filter flask'),.5);log(tx('Вода из насоса засосана в колбу Бунзена','Water from the aspirator sucked back into the filter flask'),'obs')}
+   if(F.pH<2.5||F.lastCheck!==F.washes)remark('wash',tx('осадок недостаточно промыт или не проверены последние промывные воды','solid insufficiently washed, or the last washings were not tested'),1);
+   if(F.washes>8)remark('overwash',tx('лишние промывки — потери продукта','too many washes — product lost'),.5);
+   st.vac=false;set();makeCrude();const wm=f(S.crude.tot*1.3,1);
+   log(S.crude.d>.08?tx(`Сырой продукт отжат на фильтре: влажная масса ≈ ${wm} г, жёлтого цвета`,`Crude product pressed dry on the filter: wet mass ≈ ${wm} g, yellow`):tx(`Сырой продукт отжат на фильтре: влажная масса ≈ ${wm} г, белого с кремовым оттенком цвета`,`Crude product pressed dry on the filter: wet mass ≈ ${wm} g, creamy white`),'obs');ready(L('Осадок отфильтрован','Solid filtered off'))}
+  C().append(lab(L('Сборка','Set-up')),row(paperB,wetB,vacB),lab(L('Фильтрование','Filtration')),row(moveB,washB,pB),lab(L('Завершение','Finishing')),row(endA,endB));set()}});
+
+/* ===== Опыт 1: перекристаллизация / recrystallisation ===== */
+STEPS.push({stage:'e1',title:['Перекристаллизация из воды','Recrystallisation from water'],
+ instr:[`<ol><li>Перенесите сырой продукт в стакан и перекристаллизуйте из <b>минимального объёма кипящей воды</b>: добавляйте воду порциями и нагревайте до кипения, пока вещество не растворится.</li><li>Охладите, затем выдержите во льду и отфильтруйте кристаллы.</li></ol><p class="note">Орто-изомер лучше растворим в воде и в основном остаётся в маточном растворе. Лишняя вода — лишние потери.</p>`,
+  `<ol><li>Transfer the crude product to a beaker and recrystallise it from the <b>minimum volume of boiling water</b>: add water in portions and heat to boiling until the solid dissolves.</li><li>Let it cool, then chill in ice and filter off the crystals.</li></ol><p class="note">The ortho isomer is more soluble in water and mostly stays in the mother liquor. Extra water means extra losses.</p>`],
+ need:['Перекристаллизуйте продукт','Recrystallise the product'],scene:()=>SV(hotP()),
+ run(){const R=S.rec,c=S.crude,ml=L('мл','mL');let on=false,T=22,sp=20,phase=0,acc=0,oilShown=false,okShown=false;R.V=0;R.full=false;R.shock=false;
+  const sol=t=>.0024*Math.exp(.0316*(t-20)),solids=()=>c.meta+c.para+c.di*.8+c.ba*.6+c.ortho*.3,und=()=>Math.max(0,solids()-R.V*sol(T));R.Vneed=Math.round(solids()/sol(100));
+  const draw=()=>{q('rL').setAttribute('y',190-R.V*.8);q('rL').setAttribute('height',R.V*.8);const u=phase===0?und():0,hh=u>.005?2+6*Math.sqrt(u/2.6):0,w=hh*4;
+   q('rS').setAttribute('d',hh?`M${180-w} 190 Q180 ${190-2*hh} ${180+w} 190 Z`:'');q('glow').setAttribute('opacity',on?.55:0);q('lamp').setAttribute('opacity',on?1:.15);
+   q('rb').setAttribute('opacity',T>=99.5&&R.V>0&&phase===0?1:0);q('oil').setAttribute('opacity',phase===0&&T>88&&u>.25&&R.V>0?1:0);
+   RO([[L('Вода','Water'),R.V+' '+ml],[L('Температура','Temperature'),Math.round(T)+' °C',T>=99.5?'warn':''],[L('Не растворилось','Undissolved'),phase?'—':u<.005?L('нет','none'):u<.3?L('немного','a little'):L('много','a lot'),phase===0&&u<.005?'ok':'']])};
+  const addW=d=>B(L(`Добавить воды +${d} мл`,`Add water +${d} mL`),()=>{if(phase)return;R.V+=d;T-=(T-22)*d/(R.V+5);adv(30);draw()});
+  const w10=addW(10),w5=addW(5);
+  const heatB=B(L('Плитка: включить','Hot plate: on'),()=>{if(phase)return;on=!on;heatB.textContent=on?L('Плитка: выключить','Hot plate: off'):L('Плитка: включить','Hot plate: on');heatB.classList.toggle('on',on)});
+  const slowB=B(L('Снять с плитки, остудить, затем лёд','Remove from heat, cool, then ice'),()=>cool(false),'pri'),iceB=B(L('Сразу поставить в ледяную баню','Put straight into an ice bath'),()=>cool(true));
+  function cool(shock){if(phase)return;if(R.V===0){fb(L('В стакане нет воды.','There is no water in the beaker.'),'warn');return}if(T<95){fb(L('Раствор не доведён до кипения — растворяйте вещество в кипящей воде.','The solution is not boiling — dissolve the solid in boiling water.'),'warn');return}
+   R.full=und()<.005;if(!R.full)remark('undiss',tx('перекристаллизация без полного растворения вещества — примеси остаются в кристаллах','recrystallised without complete dissolution — impurities stay in the crystals'),.5);
+   if(R.V>1.6*R.Vneed)remark('water_x',tx(`слишком много воды (${R.V} мл) — большие потери в маточном растворе`,`too much water (${R.V} mL) — large losses in the mother liquor`),.5);
+   R.shock=shock;phase=1;on=false;[w10,w5,heatB,slowB,iceB].forEach(b=>b.disabled=true);adv(shock?600:1500);T=3;let k=0;
+   const g=setInterval(()=>{k++;const x=q('xt');if(!x||k>=12){clearInterval(g);if(x)x.setAttribute('opacity',1);return}x.setAttribute('opacity',(k/12).toFixed(2))},120);
+   log(tx(`Продукт растворён в ${R.V} мл кипящей воды${R.full?'':' не полностью'}; ${shock?'раствор сразу охлаждён во льду — мелкие кристаллы':'медленное охлаждение, затем лёд — длинные игольчатые кристаллы'}`,
+    `Product dissolved in ${R.V} mL of boiling water${R.full?'':' (not completely)'}; ${shock?'chilled straight in ice — small crystals':'slow cooling, then ice — long needle-like crystals'}`),'obs');filtB.disabled=false;q('fb').hidden=true;draw()}
+  const filtB=B(L('Отфильтровать, промыть 2–3 мл ледяной воды','Filter, wash with 2–3 mL of ice-cold water'),()=>{if(phase!==1)return;phase=2;filtB.disabled=true;adv(300);makeFin();
+   log(tx('Кристаллы отфильтрованы под вакуумом; маточный раствор (с орто-изомером) слит в отходы','Crystals filtered off under vacuum; the mother liquor (with the ortho isomer) discarded to waste'),'obs');fb(L('Кристаллы отфильтрованы. Осталось высушить и взвесить.','Crystals filtered off. Now dry and weigh them.'),'good');ready(L('Кристаллы получены','Crystals obtained'))});filtB.disabled=true;
+  C().append(lab(L('Вода и нагрев','Water and heating')),row(w10,w5,heatB),lab(L('Охлаждение','Cooling')),row(slowB,iceB),row(filtB),lab(L('Ход времени','Time speed')),row(seg([[10,'×10'],[20,'×20'],[40,'×40']],()=>sp,v=>sp=v,L('Скорость времени','Time speed'))));
+  log(tx(`Сырой продукт (≈ ${f(c.tot,2)} г в пересчёте на сухое вещество) перенесён в стакан на 150 мл`,`Crude product (≈ ${f(c.tot,2)} g on a dry basis) transferred to a 150 mL beaker`));draw();
+  return loop(()=>{if(phase)return;const dt=.1*sp;T+=((on?104:22)-T)*Math.min(1,(on?.0045:.002)*dt*(R.V?1:3));T=Math.min(T,100);acc+=dt;if(acc>=1){adv(Math.floor(acc));acc%=1}
+   if(T>88&&und()>.25&&R.V>0&&!oilShown){oilShown=true;fb(L('На дне собираются маслянистые капли — вещество плавится под горячей водой. Добавьте воды и кипятите до полного растворения.','Oily droplets collect on the bottom — the solid is melting under the hot water. Add water and boil until it dissolves completely.'),'info')}
+   if(T>=99.5&&R.V>0&&und()<.005&&!okShown){okShown=true;log(tx(`Вещество полностью растворилось в ${R.V} мл кипящей воды`,`The solid dissolved completely in ${R.V} mL of boiling water`),'obs');fb(L('Раствор прозрачный. Снимите стакан с плитки.','The solution is clear. Take the beaker off the hot plate.'),'good')}
+   draw()})}});
+
+/* ===== Опыт 1: сушка и взвешивание / drying and weighing ===== */
+STEPS.push({stage:'e1',title:['Сушка и взвешивание продукта','Drying and weighing the product'],
+ instr:[`<ol><li>Высушите кристаллы на воздухе.</li><li>Взвесьте продукт на часовом стекле и рассчитайте выход.</li></ol><p class="note">Теоретический выход считают по фактической навеске бензойной кислоты: m × 167,12 / 122,12.</p>`,
+  `<ol><li>Dry the crystals in air.</li><li>Weigh the product on a watch glass and calculate the yield.</li></ol><p class="note">The theoretical yield is calculated from the actual mass of benzoic acid: m × 167.12 / 122.12.</p>`],
+ need:['Высушите и взвесьте продукт','Dry and weigh the product'],scene:()=>SV(balanceP()),
+ run(){const box=h('div',{class:'check'});let chosen=false,stop=null;
+  const pick=(w,txt,logt)=>B(txt,()=>{if(chosen)return;chosen=true;S.water=w;[...box.children].forEach(b=>b.disabled=true);
+   if(w<.01){adv(day(S.t)*86400-S.t)}else adv(w<.1?900:0);log(logt);
+   if(w>=.2)remark('wet',tx('продукт взвешен влажным — масса и выход завышены','product weighed while wet — mass and yield too high'),1);else if(w>=.05)remark('damp',tx('продукт недосушен','product not fully dry'),.5);
+   stop=balanceUI({mode:'transfer',mass:S.fin.m*(1+w),boatLabel:['Поставить часовое стекло','Place a watch glass'],boatLog:tx('На весы поставлено часовое стекло','Watch glass placed on the balance'),onRecord:m=>{S.mFin=m;const th=S.mBA*M.NBA/M.BA,y=m/th*100,white=S.fin.purity>.965&&w<.02;
+    log(white?tx(`Белые игольчатые кристаллы, масса <b>${f(m,4)} г</b>`,`White needle-like crystals, mass <b>${f(m,4)} g</b>`):tx(`Бледно-жёлтые кристаллы, масса <b>${f(m,4)} г</b>`,`Pale yellow crystals, mass <b>${f(m,4)} g</b>`),'obs');
+    log(tx(`m(теор.) = ${f(S.mBA,4)} × 167,12 / 122,12 = ${f(th,3)} г`,`m(theor.) = ${f(S.mBA,4)} × 167.12 / 122.12 = ${f(th,3)} g`),'calc');log(tx(`Выход = ${f(m,4)} / ${f(th,3)} × 100 % = ${f(y,1)} %`,`Yield = ${f(m,4)} / ${f(th,3)} × 100 % = ${f(y,1)} %`),'calc');
+    fb(L(`Выход продукта: <b>${f(y,1)} %</b> от теоретического (${f(th,3)} г).`,`Product yield: <b>${f(y,1)} %</b> of theoretical (${f(th,3)} g).`),'good');ready(L('Синтез завершён','Synthesis complete'))}})});
+  box.append(pick(.003,L('Оставить на воздухе до следующего занятия','Leave to dry in air until the next session'),tx('Кристаллы оставлены сушиться на воздухе до следующего занятия','Crystals left to dry in air until the next session')),
+   pick(.06,L('Подсушить на фильтре, просасывая воздух 15 мин','Dry on the filter by drawing air through for 15 min'),tx('Кристаллы подсушены на фильтре током воздуха 15 мин','Crystals dried on the filter with an air stream for 15 min')),
+   pick(.25,L('Взвесить сразу','Weigh straight away'),tx('Кристаллы взвешены сразу после фильтрования','Crystals weighed straight after filtration')));
+  C().append(lab(L('Сушка','Drying')),box);return ()=>{if(stop)stop()}}});
+/* ===== Опыт 2: кислотные свойства / acidic properties ===== */
+STEPS.push({stage:'e2',title:['Реакция с гидрокарбонатом натрия','Reaction with sodium hydrogencarbonate'],
+ instr:[`<ol><li>К нескольким кристаллам м-нитробензойной кислоты и параллельно — бензойной кислоты прилейте по 1–2 мл раствора NaHCO₃ (5–10 %).</li><li>Наблюдайте и запишите наблюдение.</li></ol>`,
+  `<ol><li>To a few crystals of m-nitrobenzoic acid and, side by side, of benzoic acid add 1–2 mL of NaHCO₃ solution (5–10 %).</li><li>Observe and record what you see.</li></ol>`],
+ need:['Проведите пробу и запишите наблюдение','Do the test and record the observation'],scene:()=>SV(tubesP([L('1 · продукт','1 · product'),L('2 · бензойная к-та','2 · benzoic acid')])),
+ run(){let st=0,iv=null;const host=h('div',{style:'width:100%'});
+  const inB=B(L('Внести кристаллы в пробирки','Put crystals into the tubes'),()=>{if(st)return;st=1;setT(0,{s:3});setT(1,{s:3});inB.disabled=true;log(tx('В пробирку 1 внесены кристаллы продукта, в пробирку 2 — бензойной кислоты','Tube 1: crystals of the product; tube 2: crystals of benzoic acid'))});
+  const addB=B(L('Прилить по 1,5 мл NaHCO₃','Add 1.5 mL of NaHCO₃ to each'),()=>{if(st!==1){fb(L('Сначала внесите кристаллы.','Put the crystals in first.'),'warn');return}st=2;addB.disabled=true;adv(60);[0,1].forEach(i=>setT(i,{v:1.5,b:1}));let k=3;
+   iv=setInterval(()=>{k-=.5;[0,1].forEach(i=>setT(i,{s:Math.max(0,k)}));if(k<=0){clearInterval(iv);iv=null;setTimeout(()=>{[0,1].forEach(i=>{if(q('tb'+i))setT(i,{b:0})})},1500);ask()}},450)});
+  function ask(){quiz(host,{q:L('Что вы наблюдаете в обеих пробирках?','What do you observe in both tubes?'),opts:LANG==='en'?['Gas bubbles are given off and the crystals dissolve','A white precipitate forms','No change','A violet colour appears']:['Выделяются пузырьки газа, кристаллы растворяются','Выпадает белый осадок','Изменений нет','Появляется фиолетовое окрашивание'],ok:0,key:'e2a',pts:.5,
+   why:L('Обе карбоновые кислоты (pKa 3,45 и 4,20) сильнее угольной кислоты (pKa₁ 6,4) и вытесняют CO₂ из гидрокарбоната.','Both carboxylic acids (pKa 3.45 and 4.20) are stronger than carbonic acid (pKa₁ 6.4) and liberate CO₂ from hydrogencarbonate.'),
+   onRight:()=>{log(tx('В обеих пробирках выделяются пузырьки газа (CO₂), кристаллы растворяются','Gas bubbles (CO₂) are given off in both tubes and the crystals dissolve'),'obs');S.e2.a=1;ready(L('Проба выполнена','Test done'))}})}
+  C().append(row(inB,addB),host);return ()=>{if(iv)clearInterval(iv)}}});
+
+STEPS.push({stage:'e2',title:['Соль и её разложение кислотой','The salt and its decomposition by acid'],
+ instr:[`<ol><li>Растворите около <b>0,1 г</b> продукта в 1–2 мл 10 % NaOH.</li><li>По каплям прибавляйте 10 % HCl до кислой реакции, контролируя pH индикаторной бумагой.</li></ol>`,
+  `<ol><li>Dissolve about <b>0.1 g</b> of the product in 1–2 mL of 10 % NaOH.</li><li>Add 10 % HCl dropwise until the solution is acidic, checking the pH with indicator paper.</li></ol>`],
+ need:['Подкислите раствор до выпадения осадка','Acidify until a precipitate forms'],scene:()=>SV(tubesP([L('продукт + NaOH','product + NaOH')])),
+ run(){const C0=.1/M.NBA*1000;let net=0,V=0,st=0,drops=0,res=null,done=false;
+  const upd=()=>{res=V?pHcalc(net,C0,V):null;setT(0,{v:V,p:res?clamp(res.ppt/C0*1.4,0,1):0});RO([['HCl 10 %',drops+' '+L('кап.','drops')],[L('Объём','Volume'),f(V,2)+' '+L('мл','mL')]]);
+   if(res&&res.pH<3&&res.ppt>.3*C0&&!done){done=true;const p=Math.round(res.pH);log(tx(`При подкислении до pH ≈ ${p} выпал белый осадок свободной м-нитробензойной кислоты`,`On acidifying to pH ≈ ${p} a white precipitate of free m-nitrobenzoic acid formed`),'obs');
+    fb(L('Выпал белый осадок: сильная кислота вытеснила слабую карбоновую кислоту из её соли.','A white precipitate formed: the strong acid displaced the weak carboxylic acid from its salt.'),'good');S.e2.b=1;ready(L('Проба выполнена','Test done'))}};
+  const dB=B(L('Растворить 0,1 г в 1,5 мл NaOH','Dissolve 0.1 g in 1.5 mL of NaOH'),()=>{if(st)return;st=1;net=4.16;V=1.5;dB.disabled=true;setT(0,{s:3});setTimeout(()=>{if(q('ts0'))setT(0,{s:0})},700);adv(60);
+   log(tx('Продукт растворился в NaOH — прозрачный бесцветный раствор м-нитробензоата натрия','The product dissolved in NaOH — a clear colourless solution of sodium m-nitrobenzoate'),'obs');upd()});
+  const hcl=n=>B(L(`HCl 10 %: +${n} кап.`,`HCl 10 %: +${n} ${n>1?'drops':'drop'}`),()=>{if(!st){fb(L('Сначала растворите продукт в щёлочи.','Dissolve the product in alkali first.'),'warn');return}net-=.1436*n;V+=.05*n;drops+=n;adv(10*n);upd()});
+  const pB=B(L('Индикаторная бумага','Indicator paper'),()=>{if(!res){fb(L('В пробирке пока ничего нет.','The tube is still empty.'),'warn');return}paperShow(res.pH)});
+  C().append(row(dB),lab(L('Хлороводородная кислота','Hydrochloric acid')),row(hcl(1),hcl(5),pB),h('div',{id:'paperBox',style:'width:100%'}));upd()}});
+
+STEPS.push({stage:'e2',title:['Реакция с хлоридом железа(III)','Reaction with iron(III) chloride'],
+ instr:[`<ol><li>Растворите немного кислоты в нескольких каплях NaOH.</li><li>Осторожно нейтрализуйте HCl до <b>нейтральной реакции</b> — проверьте индикаторной бумагой: избыток кислоты или щёлочи мешает пробе.</li><li>Прибавьте 2–3 капли 3 % FeCl₃.</li></ol><p class="note">Для точной нейтрализации удобна разбавленная (1 %) HCl; перетитровали — верните каплей NaOH.</p>`,
+  `<ol><li>Dissolve a little of the acid in a few drops of NaOH.</li><li>Carefully neutralise with HCl to a <b>neutral reaction</b> — check with indicator paper: excess acid or alkali spoils the test.</li><li>Add 2–3 drops of 3 % FeCl₃.</li></ol><p class="note">Dilute (1 %) HCl is handy for fine neutralisation; if you overshoot, bring it back with a drop of NaOH.</p>`],
+ need:['Получите осадок основной соли железа(III)','Obtain the basic iron(III) salt precipitate'],scene:()=>SV(tubesP([L('соль + FeCl₃','salt + FeCl₃')])),
+ run(){const C0=.03/M.NBA*1000;let net=0,V=0,st=0,res=null,used=false,nD=0;
+  const upd=()=>{res=V?pHcalc(net,C0,V):null;setT(0,{v:V*1.8});RO([[L('Объём','Volume'),f(V,2)+' '+L('мл','mL')],[L('Капель добавлено','Drops added'),String(nD)]])};
+  const reset=()=>{net=0;V=0;st=0;res=null;used=false;nD=0;setT(0,{v:0,p:0,s:0,c:'var(--liquid)'});const pb=q('paperBox');if(pb)pb.innerHTML='';q('fb').hidden=true;upd()};
+  const dB=B(L('Кристаллы + 4 капли NaOH 10 %','Crystals + 4 drops of 10 % NaOH'),()=>{if(st)return;st=1;net=.555;V=.25;setT(0,{c:'var(--liquid)'});log(tx('Несколько кристаллов продукта растворены в 4 каплях 10 % NaOH','A few crystals of the product dissolved in 4 drops of 10 % NaOH'));upd()});
+  const add=(lbl,dn)=>B(lbl,()=>{if(!st||used){fb(used?L('Проба уже проведена — вылейте и повторите.','The test is done — empty the tube and repeat.'):L('Сначала растворите кислоту в щёлочи.','Dissolve the acid in alkali first.'),'warn');return}net+=dn;V+=.05;nD++;adv(10);upd()});
+  const pB=B(L('Индикаторная бумага','Indicator paper'),()=>{if(!res){fb(L('В пробирке пока ничего нет.','The tube is still empty.'),'warn');return}paperShow(res.pH)});
+  const fe=B(L('Прибавить 3 капли FeCl₃','Add 3 drops of FeCl₃'),()=>{if(!st||used)return;used=true;V+=.15;const p=res.pH,pr=Math.round(p);adv(30);let obs,cls;
+   if(p>9){obs=['Бурый осадок гидроксида железа(III): в растворе избыток щёлочи','Brown precipitate of iron(III) hydroxide: the solution contains excess alkali'];cls='bad';remark('fe_alk',tx('проба с FeCl₃ в щелочной среде — выпал Fe(OH)₃','FeCl₃ test done in alkaline medium — Fe(OH)₃ precipitated'),.5);setT(0,{p:1,pc:'#8a3b12',c:'rgba(160,80,30,.35)'})}
+   else if(p<4){obs=['Осадка основной соли нет: раствор жёлтый от FeCl₃, белая муть свободной кислоты — среда слишком кислая','No basic salt: the solution is yellow from FeCl₃ with a white haze of free acid — the medium is too acidic'];cls='bad';remark('fe_acid',tx('проба с FeCl₃ в кислой среде','FeCl₃ test done in acidic medium'),.5);setT(0,{p:.35,pc:'var(--solid)',c:'rgba(230,190,60,.5)'})}
+   else{obs=['Бледно-коричневый (телесного цвета) осадок основной соли железа(III) м-нитробензойной кислоты','Pale brown (buff, flesh-coloured) precipitate of the basic iron(III) salt of m-nitrobenzoic acid'];cls='good';setT(0,{p:1,pc:'#d9a27f',c:'rgba(225,180,140,.35)'});S.e2.c=1;ready(L('Проба выполнена','Test done'))}
+   log(tx(`${obs[0]} (pH перед пробой ≈ ${pr})`,`${obs[1]} (pH before the test ≈ ${pr})`),'obs');fb(P(obs)+(cls==='bad'?L('. Вылейте содержимое и повторите пробу.','. Empty the tube and repeat the test.'):'.'),cls)});
+  C().append(row(dB),lab(L('Нейтрализация','Neutralisation')),row(add(L('HCl 10 %: +1 кап.','HCl 10 %: +1 drop'),-.1436),add(L('HCl 1 %: +1 кап.','HCl 1 %: +1 drop'),-.0144),add(L('NaOH 10 %: +1 кап.','NaOH 10 %: +1 drop'),.139)),row(pB,fe),
+   row(B(L('Вылить и повторить пробу','Empty the tube and repeat'),()=>{reset();log(tx('Пробирка вымыта, проба повторяется','Tube washed out; the test is repeated'))},'danger')),h('div',{id:'paperBox',style:'width:100%'}));reset()}});
+/* ===== Опыт 3: температура плавления / melting point ===== */
+STEPS.push({stage:'e3',title:['Набивка капилляра','Filling the capillary'],
+ instr:[`<ol><li>Высушенную пробу разотрите на часовом стекле.</li><li>Наберите порошок в капилляр и уплотните, бросая капилляр запаянным концом вниз через длинную стеклянную трубку, до слоя <b>2–3 мм</b>.</li></ol>`,
+  `<ol><li>Grind the dried sample on a watch glass.</li><li>Push the open end of the capillary into the powder and pack it by dropping the capillary, sealed end down, through a long glass tube until the layer is <b>2–3 mm</b>.</li></ol>`],
+ need:['Набейте капилляр слоем 2–3 мм','Pack a 2–3 mm layer'],scene:()=>SV(mpP()),
+ run(){const Pc={ground:false,loose:0,packed:0},mm=L('мм','mm');
+  const draw=()=>{const s=q('capS');s.setAttribute('y',200-Pc.packed*13);s.setAttribute('height',Pc.packed*13);q('capLoose').setAttribute('height',Pc.loose*13);
+   RO([[L('Слой','Layer'),f(Pc.packed,1)+' '+mm,Pc.packed>=2&&Pc.packed<=3.2?'ok':Pc.packed>3.2?'warn':''],[L('Рыхлый порошок','Loose powder'),Pc.loose?f(Pc.loose,1)+' '+mm:'—']]);
+   Pc.packed>=2&&Pc.packed<=3.2&&Pc.loose===0?ready(L('Капилляр готов','Capillary ready')):notReady(L('Набейте капилляр слоем 2–3 мм','Pack a 2–3 mm layer'))};
+  const gB=B(L('Растереть пробу','Grind the sample'),()=>{Pc.ground=true;gB.disabled=true;log(tx('Проба растёрта в тонкий порошок','Sample ground to a fine powder'))});
+  const dipB=B(L('Вдавить капилляр в порошок','Push the capillary into the powder'),()=>{if(!Pc.ground)remark('grind',tx('проба не растёрта — неплотная набивка','sample not ground — loose packing'),.5);Pc.loose+=rnd(.8,1.3);draw()});
+  const tapB=B(L('Бросить через трубку (уплотнить)','Drop through the tube (pack)'),()=>{if(!Pc.loose){fb(L('В капилляре нет порошка.','There is no powder in the capillary.'),'warn');return}Pc.packed+=Pc.loose*(Pc.ground?.72:.95);Pc.loose=0;
+   if(Pc.packed>3.6)fb(L('Слой больше 3–4 мм — интервал плавления растянется. Возьмите новый капилляр.','The layer is over 3–4 mm — the melting range will be broad. Take a new capillary.'),'warn');draw()});
+  const newB=B(L('Взять новый капилляр','Take a new capillary'),()=>{Pc.loose=0;Pc.packed=0;q('fb').hidden=true;draw()},'danger');
+  C().append(row(gB),row(dipB,tapB),row(newB));draw();return ()=>{S.mp.layer=Pc.packed;S.mp.ground=Pc.ground}}});
+
+STEPS.push({stage:'e3',title:['Определение температуры плавления','Melting point determination'],
+ instr:[`<ol><li>Поместите капилляр в прибор. Нагревайте быстро до ~125 °C, а вблизи ожидаемого значения — медленно, <b>1–2 °C/мин</b>.</li><li>Отметьте начало плавления (появление жидкости) и конец (вещество полностью прозрачное).</li><li>При наличии времени определите т. пл. исходной бензойной кислоты (лит. 122 °C).</li></ol>`,
+  `<ol><li>Put the capillary into the apparatus. Heat quickly to ~125 °C, then near the expected value heat slowly, <b>1–2 °C/min</b>.</li><li>Mark the start of melting (first liquid) and the end (the sample is completely clear).</li><li>If time allows, determine the m.p. of the starting benzoic acid (lit. 122 °C).</li></ol>`],
+ need:['Отметьте начало и конец плавления продукта','Mark the start and end of melting of the product'],scene:()=>SV(mpP()),
+ run(){const p=S.fin?S.fin.purity:.97,w=S.water||0,Lh=(S.mp.layer||2.5)*13;
+  const mk=prod=>prod?{on:clamp(140.8-60*(1-p)-(w>.02?w*40:0),112,141),end:clamp(141.2-15*(1-p)-(w>.02?w*8:0),118,141.3)+(S.mp.layer>3.2?.8:0)+(S.mp.ground?0:.6),name:['продукт','product']}:{on:121.4,end:122.4,name:['бензойная кислота','benzoic acid']};
+  let smp=mk(true),Tb=25,rate=10,on=false,sp=10,inB=false,acc=0,key='prod';const marks={};
+  const draw=()=>{const Ts=Tb-(on?.4*rate:0);const sin=Ts>smp.on-1.5,fr=Ts>=smp.on?clamp((Ts-smp.on)/Math.max(.3,smp.end-smp.on),0,1):0;
+   const sH=Lh*(1-fr)*(sin?.92:1),lH=Lh*.8*fr,cs=q('capS'),cl=q('capL');cl.setAttribute('y',200-lH);cl.setAttribute('height',lH);cs.setAttribute('y',200-lH-sH);cs.setAttribute('height',sH);cs.setAttribute('opacity',fr>0?.85:1);
+   q('mpT').textContent=f(Tb,1)+' °C';q('heat').setAttribute('opacity',on?1:.15);q('capSm').setAttribute('opacity',inB?1:0);const u=clamp((Tb-20)/160,0,1);q('mpCol').setAttribute('y',102-u*80);q('mpCol').setAttribute('height',u*80+4);
+   RO([[L('Блок','Block'),f(Tb,1)+' °C'],[L('Нагрев','Heating'),on?rate+' °C/'+L('мин','min'):L('выкл.','off'),on&&rate>3&&Tb>smp.on-15?'warn':''],[L('В приборе','In the apparatus'),inB?P(smp.name):'—']])};
+  const inBtn=B(L('Поместить капилляр в прибор','Put the capillary into the apparatus'),()=>{inB=true;inBtn.disabled=true;log(tx('Капилляр с продуктом помещён в прибор','Capillary with the product placed in the apparatus'))});
+  const heatB=B(L('Нагрев: включить','Heating: on'),()=>{if(!inB){fb(L('Сначала поместите капилляр в прибор.','Put the capillary into the apparatus first.'),'warn');return}on=!on;heatB.textContent=on?L('Нагрев: выключить','Heating: off'):L('Нагрев: включить','Heating: on');heatB.classList.toggle('on',on)});
+  const mark=k=>B(k==='on'?L('Отметить начало плавления','Mark the start of melting'):L('Отметить конец плавления','Mark the end of melting'),()=>{if(!inB){fb(L('Капилляр ещё не в приборе.','The capillary is not in the apparatus yet.'),'warn');return}const T=+Tb.toFixed(1),m=marks[key]=marks[key]||{};
+   if(k==='end'&&m.on==null){fb(L('Сначала отметьте начало плавления.','Mark the start of melting first.'),'warn');return}if(m[k]!=null)return;m[k]=T;
+   if(on&&rate>3)remark('mpfast',tx('нагрев вблизи т. пл. был слишком быстрым — значения завышены','heating near the m.p. was too fast — the readings are too high'),1);
+   if(k==='on'&&Tb-(on?.4*rate:0)<smp.on-1.6)remark('mpearly',tx('начало плавления отмечено раньше, чем появилась жидкость','start of melting marked before any liquid appeared'),.5);
+   log(tx(`${smp.name[0]}: ${k==='on'?'начало плавления':'конец плавления'} — ${f(T,1)} °C`,`${smp.name[1]}: ${k==='on'?'start of melting':'end of melting'} — ${f(T,1)} °C`),'obs');
+   if(k==='end'){if(key==='prod'){S.mp.on=m.on;S.mp.end=m.end;const good=m.on>=138.5&&m.end<=142.5,rg=`<b>${f(m.on,1)}–${f(m.end,1)} °C</b>`;
+     fb(L(`Интервал плавления продукта: ${rg} (лит. 140–141 °C). ${good?'Узкий интервал — продукт чистый.':'Интервал занижен или растянут — продукт загрязнён либо нагрев был слишком быстрым.'}`,`Melting range of the product: ${rg} (lit. 140–141 °C). ${good?'A narrow range — the product is pure.':'The range is low or broad — the product is impure or the heating was too fast.'}`),good?'good':'warn');ready(L('Т. пл. определена','M.p. determined'))}
+    else{S.bamp=[m.on,m.end];fb(L(`Бензойная кислота: ${f(m.on,1)}–${f(m.end,1)} °C (лит. 122 °C).`,`Benzoic acid: ${f(m.on,1)}–${f(m.end,1)} °C (lit. 122 °C).`),'good')}}});
+  const baB=B(L('Охладить прибор, взять бензойную кислоту','Cool the apparatus, load benzoic acid'),()=>{if(S.mp.end==null){fb(L('Сначала определите т. пл. продукта.','Determine the m.p. of the product first.'),'warn');return}key='ba';smp=mk(false);Tb=95;on=false;heatB.textContent=L('Нагрев: включить','Heating: on');heatB.classList.remove('on');adv(480);baB.disabled=true;log(tx('Прибор охлаждён до 95 °C; в него помещён капилляр с бензойной кислотой','Apparatus cooled to 95 °C; a capillary with benzoic acid placed in it'))});
+  C().append(row(inBtn,heatB),lab(L('Скорость нагрева, °C/мин','Heating rate, °C/min')),row(seg([[10,'10'],[5,'5'],[2,'2'],[1,'1']],()=>rate,v=>rate=v,L('Скорость нагрева','Heating rate'))),lab(L('Отметки','Readings')),row(mark('on'),mark('end')),lab(L('Ход времени','Time speed')),row(seg([[1,'×1'],[10,'×10'],[30,'×30']],()=>sp,v=>sp=v,L('Скорость времени','Time speed'))),row(baB));draw();
+  return loop(()=>{const dt=.1*sp;Tb+=on?rate/60*dt:(25-Tb)*.0015*dt;acc+=dt;if(acc>=1){adv(Math.floor(acc));acc%=1}draw()})}});
+
+/* ===== Протокол / lab report ===== */
+STEPS.push({stage:'prot',title:['Протокол и оценка','Lab report and grade'],last:true,
+ instr:[`<p>Протокол собран из записей лабораторного журнала. Впишите ФИО и группу, ответьте на индивидуальное задание и скопируйте протокол в тетрадь.</p>`,
+  `<p>The report is compiled from your lab notebook entries. Enter your name and group, answer the individual assignment and copy the report into your notebook.</p>`],
+ run(){const host=h('div',{class:'doc'});C().append(host);buildProtocol(host)}});
+
+function obsOf(st){return S.log.filter(e=>e.st===st&&e.kind==='obs').map(e=>`<li>${numfix(P(e.text))}</li>`).join('')||'<li>—</li>'}
+function buildProtocol(host){const en=LANG==='en',g=L('г','g'),ml=L('мл','mL');
+ const th=S.mBA*M.NBA/M.BA,yl=S.mFin&&th?S.mFin/th*100:0,F=S.fin||{purity:0},mp=S.mp.end!=null?`${f(S.mp.on,1)}–${f(S.mp.end,1)}`:'—';
+ const look=F.purity>.965&&S.water<.02?L('белые игольчатые кристаллы','white needle-like crystals'):L('бледно-жёлтые кристаллы','pale yellow crystals'),T=S.nit;
+ const extra=[];if(yl&&yl<45)extra.push({text:tx('низкий выход продукта (менее 45 %)','low product yield (below 45 %)'),pts:1});if(S.mp.on!=null&&S.mp.on<137)extra.push({text:tx('продукт загрязнён: т. пл. занижена и растянута','impure product: m.p. low and broad'),pts:1});
+ const all=S.rem.concat(extra),pts=all.reduce((a,r)=>a+r.pts,0),grade=pts<=1?5:pts<=3?4:pts<=5.5?3:2;
+ const gw=(en?['','','unsatisfactory','satisfactory','good','excellent']:['','','неудовлетворительно','удовлетворительно','хорошо','отлично'])[grade];
+ const ok1=S.mp.on!=null&&S.mp.on>=138.5,ptsS=f(pts,1).replace(/[,.]0$/,''),eq=s=>`<div class="eq">${s}</div>`;
+ const tdur=T.t1!=null&&T.t0!=null?f((T.t1-T.t0)/60,1):'—',hot=T.hot>0?L(`, выше 10 °C — ${f(T.hot/60,1)} мин`,`, above 10 °C for ${f(T.hot/60,1)} min`):'';
+ host.innerHTML=`<div class="dochead"><div><label for="fio">${L('Студент','Student')}</label><input id="fio" autocomplete="name" value=""></div><div><label for="grp">${L('Группа','Group')}</label><input id="grp" value=""></div><div><label>${L('Дата','Date')}</label><div class="mono">${L('День','Day')} 1–${day(S.t)} ${L('(лабораторное время)','(lab time)')}</div></div></div>
+<div id="docBody">
+<h3>${L('Лабораторная работа № 6–7. Карбоновые кислоты. Получение м-нитробензойной кислоты','Laboratory work No. 6–7. Carboxylic acids. Preparation of m-nitrobenzoic acid')}</h3>
+<p><b>${L('Цель:','Aim:')}</b> ${L('получить м-нитробензойную кислоту нитрованием бензойной кислоты, подтвердить её кислотные свойства и чистоту.','to prepare m-nitrobenzoic acid by nitration of benzoic acid and to confirm its acidic properties and purity.')}</p>
+<h3>${L('Опыт 1. Нитрование бензойной кислоты','Experiment 1. Nitration of benzoic acid')}</h3>
+<p><b>${L('Реактивы:','Reagents:')}</b> ${L('бензойная кислота','benzoic acid')} — ${f(S.mBA,4)} ${g} (${f(S.mBA/M.BA*1000,1)} ${L('ммоль','mmol')}); ${L('H₂SO₄ конц.','conc. H₂SO₄')} — ${f(S.vAcid,1)} ${ml} + ${f(1.5,1)} ${ml}; ${L('HNO₃ конц.','conc. HNO₃')} — ${f(1.5,1)} ${ml}; ${L('лёд','ice')} — ${S.pour.ice} ${g}; ${L('вода для перекристаллизации','water for recrystallisation')} — ${S.rec.V} ${ml}.</p>
+${eq('HNO₃ + 2H₂SO₄ → NO₂⁺ + H₃O⁺ + 2HSO₄⁻')}${eq(L('C₆H₅COOH + HNO₃ → м-O₂N–C₆H₄–COOH + H₂O (H₂SO₄, 0–10 °C)','C₆H₅COOH + HNO₃ → m-O₂N–C₆H₄–COOH + H₂O (H₂SO₄, 0–10 °C)'))}
+<p><b>${L('Режим нитрования:','Nitration conditions:')}</b> ${L(`прибавление ${tdur} мин, максимальная температура ${f(T.maxT,1)} °C`,`addition over ${tdur} min, maximum temperature ${f(T.maxT,1)} °C`)}${hot}.</p>
+<p><b>${L('Наблюдения:','Observations:')}</b></p><ul>${obsOf('e1')}</ul>
+<p><b>${L('Расчёт:','Calculation:')}</b></p><div class="eq calc">m(${L('теор.','theor.')}) = ${f(S.mBA,4)} ${g} × ${f(167.12,2)} / ${f(122.12,2)} = ${f(th,3)} ${g}</div><div class="eq calc">η = ${f(S.mFin,4)} / ${f(th,3)} × 100 % = ${f(yl,1)} %</div>
+<p><b>${L('Вывод:','Conclusion:')}</b> ${L(`нитрованием бензойной кислоты нитрующей смесью получена м-нитробензойная кислота (${look}) с выходом ${f(yl,1)} %. Группа –COOH (−I, −M) дезактивирует кольцо и направляет нитрогруппу в мета-положение; ${T.maxT<=10?'температура не превышала 10 °C, поэтому побочные динитрование и окисление сведены к минимуму':'перегрев выше 10 °C привёл к побочному динитрованию и окислению'}.`,
+ `nitration of benzoic acid with the nitrating mixture gave m-nitrobenzoic acid (${look}) in ${f(yl,1)} % yield. The –COOH group (−I, −M) deactivates the ring and directs the nitro group to the meta position; ${T.maxT<=10?'the temperature never exceeded 10 °C, so dinitration and oxidation were kept to a minimum':'overheating above 10 °C caused some dinitration and oxidation'}.`)}</p>
+<h3>${L('Опыт 2. Кислотные свойства продукта','Experiment 2. Acidic properties of the product')}</h3>
+${eq(L('м','m')+'-O₂N–C₆H₄–COOH + NaHCO₃ → '+L('м','m')+'-O₂N–C₆H₄–COONa + CO₂↑ + H₂O')}${eq(L('м','m')+'-O₂N–C₆H₄–COOH + NaOH → '+L('м','m')+'-O₂N–C₆H₄–COONa + H₂O')}${eq(L('м','m')+'-O₂N–C₆H₄–COONa + HCl → '+L('м','m')+'-O₂N–C₆H₄–COOH↓ + NaCl')}
+<p><b>${L('Наблюдения:','Observations:')}</b></p><ul>${obsOf('e2')}</ul>
+<p><b>${L('Вывод:','Conclusion:')}</b> ${L('продукт разлагает NaHCO₃ с выделением CO₂, растворяется в щёлочи и вновь осаждается кислотой, с FeCl₃ в нейтральной среде даёт основную соль железа(III) — это карбоновая кислота. Фенол растворился бы в NaOH, но не выделял бы CO₂ из NaHCO₃.','the product liberates CO₂ from NaHCO₃, dissolves in alkali and is reprecipitated by acid, and gives a basic iron(III) salt with FeCl₃ in neutral solution — it is a carboxylic acid. A phenol would dissolve in NaOH but would not liberate CO₂ from NaHCO₃.')}</p>
+<h3>${L('Опыт 3. Температура плавления','Experiment 3. Melting point')}</h3>
+<p><b>${L('Наблюдения:','Observations:')}</b></p><ul>${obsOf('e3')}</ul>
+<p><b>${L('Вывод:','Conclusion:')}</b> ${L(`т. пл. продукта ${mp} °C (лит. 140–141 °C)`,`m.p. of the product ${mp} °C (lit. 140–141 °C)`)}${S.bamp?L(`, бензойной кислоты ${f(S.bamp[0],1)}–${f(S.bamp[1],1)} °C (лит. 122 °C)`,`; benzoic acid ${f(S.bamp[0],1)}–${f(S.bamp[1],1)} °C (lit. 122 °C)`):''}. ${ok1?L('Узкий интервал, близкий к литературному, подтверждает подлинность и чистоту м-нитробензойной кислоты.','A narrow range close to the literature value confirms the identity and purity of m-nitrobenzoic acid.'):L('Заниженный или растянутый интервал указывает на примеси (орто-изомер, динитропроизводные, влага) — нужна повторная перекристаллизация.','A low or broad range points to impurities (ortho isomer, dinitro compounds, moisture) — the product should be recrystallised again.')}</p>
+<h3>${L('Итоговая таблица','Summary table')}</h3>
+<div class="tw"><table><thead><tr><th>${L('Вещество','Substance')}</th><th>${L('Внешний вид','Appearance')}</th><th>${L('Масса, г','Mass, g')}</th><th>${L('Выход, %','Yield, %')}</th><th>${L('Т. пл. найд., °C','M.p. found, °C')}</th><th>${L('Т. пл. лит., °C','M.p. lit., °C')}</th><th>${L('Проба с NaHCO₃','NaHCO₃ test')}</th></tr></thead><tbody>
+<tr><td>${L('Бензойная кислота (исходное)','Benzoic acid (starting material)')}</td><td>${L('белые кристаллы','white crystals')}</td><td>${f(S.mBA,4)}</td><td>—</td><td>${S.bamp?f(S.bamp[0],1)+'–'+f(S.bamp[1],1):'—'}</td><td>122</td><td>+ (CO₂)</td></tr>
+<tr><td>${L('м-Нитробензойная кислота (продукт)','m-Nitrobenzoic acid (product)')}</td><td>${look}</td><td>${f(S.mFin,4)}</td><td>${f(yl,1)}</td><td>${mp}</td><td>140–141</td><td>+ (CO₂)</td></tr></tbody></table></div>
+<h3>${L('Индивидуальное задание','Individual assignment')}</h3>
+<p>${L(`Теоретический выход — ${f(th,3)} г, практический — ${f(S.mFin,4)} г (${f(yl,1)} %). Механизм: NO₂⁺ атакует кольцо с образованием σ-комплекса; при мета-атаке ни одна резонансная структура не несёт положительного заряда на атоме C, связанном с –COOH, поэтому мета-σ-комплекс устойчивее орто- и пара-, затем отщепление H⁺ восстанавливает ароматичность.`,
+ `Theoretical yield ${f(th,3)} g, actual ${f(S.mFin,4)} g (${f(yl,1)} %). Mechanism: NO₂⁺ attacks the ring to form a σ-complex; on meta attack none of the resonance structures places the positive charge on the carbon bearing –COOH, so the meta σ-complex is more stable than the ortho and para ones; loss of H⁺ then restores aromaticity.`)}</p>
+<div id="ind"></div>
+<h3>${L('Замечания преподавателя','Instructor’s remarks')}</h3>${all.length?'<ul>'+all.map(r=>`<li>${P(r.text)} <span class="mono">(−${f(r.pts,1).replace(/[,.]0$/,'')})</span></li>`).join('')+'</ul>':`<p>${L('Замечаний нет. Работа выполнена аккуратно, с соблюдением техники безопасности.','No remarks. The work was carried out carefully and safely.')}</p>`}
+</div>
+<div class="grade"><b>${grade}</b><div><div class="eyebrow">${L('Оценка за практическую часть','Grade for the practical work')}</div><div>${gw} · ${L('штрафных баллов','penalty points')}: ${ptsS}</div></div></div>
+<div class="row" style="margin-top:12px" id="docBtns"></div><div id="cpBox" style="width:100%"></div>`;
+ const fio=q('fio'),grp=q('grp');fio.value=S.fio||'';grp.value=S.grp||'';const sv=()=>{S.fio=fio.value;S.grp=grp.value;entry=JSON.stringify(S);save()};fio.oninput=sv;grp.oninput=sv;
+ const ind=q('ind'),Q=en?[['methyl benzoate',['methyl 3-nitrobenzoate (meta)','methyl 4-nitrobenzoate (para)','equal amounts of ortho and para isomers'],0,'–COOCH₃ is a deactivating meta director, like –COOH.'],
+  ['acetanilide',['3-nitroacetanilide (meta)','4-nitroacetanilide (para), with some ortho','no nitration takes place'],1,'–NHCOCH₃ is an activating ortho/para director; the bulky group makes para the main product.'],
+  ['chlorobenzene',['1-chloro-3-nitrobenzene (meta)','1-chloro-4-nitrobenzene (para) and 1-chloro-2-nitrobenzene (ortho), mostly para','nitrobenzene'],1,'Halogen deactivates the ring (−I) but directs ortho/para (+M).']]:
+  [['метилбензоата',['метил-3-нитробензоат (мета)','метил-4-нитробензоат (пара)','смесь орто- и пара-изомеров поровну'],0,'–COOCH₃ — дезактивирующий мета-ориентант, как и –COOH.'],
+  ['ацетанилида',['3-нитроацетанилид (мета)','4-нитроацетанилид (пара), немного орто-','нитрование не идёт'],1,'–NHCOCH₃ — активирующий орто/пара-ориентант; из-за объёма группы преобладает пара-продукт.'],
+  ['хлорбензола',['1-хлор-3-нитробензол (мета)','1-хлор-4-нитробензол (пара) и 1-хлор-2-нитробензол (орто), пара больше','нитробензол'],1,'Галоген дезактивирует кольцо (−I), но направляет в орто/пара-положения (+M).']];
+ Q.forEach(([s,o,k,why],i)=>quiz(ind,{q:en?`Main product of the nitration of ${s}:`:`Основной продукт нитрования ${s}:`,opts:o,ok:k,why,onRight:j=>{S.quiz['i'+i]=o[j];entry=JSON.stringify(S);save()}}));
+ const cp=B(L('Скопировать протокол','Copy the report'),()=>{const txt=`${L('Студент','Student')}: ${S.fio||'—'}   ${L('Группа','Group')}: ${S.grp||'—'}\n\n`+q('docBody').innerText+`\n\n${L('Оценка','Grade')}: ${grade} (${gw})`;
+  const fallback=()=>{const b=q('cpBox');b.innerHTML='';const ta=h('textarea',{class:'cp',id:'cpText','aria-label':L('Текст протокола','Report text')});ta.value=txt;b.append(h('p',{class:'hint'},L('Скопировать автоматически не удалось — выделите текст и скопируйте вручную.','Automatic copying failed — select the text and copy it manually.')),ta);ta.focus();ta.select()};
+  try{navigator.clipboard.writeText(txt).then(()=>fb(L('Протокол скопирован в буфер обмена.','Report copied to the clipboard.'),'good'),fallback)}catch(e){fallback()}},'pri');
+ q('docBtns').append(cp,B(L('Начать работу заново','Start the work again'),()=>{q('confirm').hidden=false},'danger'))}
+
+/* ===== запуск / start ===== */
+q('nextBtn').addEventListener('click',()=>{if(!q('nextBtn').disabled&&cur<STEPS.length-1)go(cur+1)});
+q('resetBtn').addEventListener('click',()=>{q('confirm').hidden=false});
+q('cfNo').addEventListener('click',()=>{q('confirm').hidden=true});
+q('cfYes').addEventListener('click',()=>{q('confirm').hidden=true;try{localStorage.removeItem(KEY)}catch(e){}S=fresh();cur=0;render();window.scrollTo(0,0)});
+q('lg-ru').addEventListener('click',()=>setLang('ru'));q('lg-en').addEventListener('click',()=>setLang('en'));
+load();applyStatic();render();
+</script>
+
+</body></html>

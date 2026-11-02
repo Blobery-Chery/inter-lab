@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Benzoic acid lab: pre-lab trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #e9eff3; --surface: #ffffff; --surface-2: #f4f7f9; --ink: #1f252c; --muted: #5b6672; --line: #d2dbe2;
+  --carbon: #4a525c; --oxygen: #d7263d; --iodine: #5b3e96; --iodine-soft: #ece6f7;
+  --action: #1f5faf; --action-soft: #dde9f8; --on-action: #ffffff;
+  --ok: #1e8a5a; --ok-soft: #dcf2e7; --bad: #a8480a; --bad-soft: #fbe9dc;
+  --glass: rgba(255,255,255,0.7); --glass-line: #7f8d99; --heat: #e0662e; --ice: rgba(110,170,225,0.22); --ice-line: rgba(80,140,200,0.55);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11161b; --surface: #1a2129; --surface-2: #212a33; --ink: #e5ebf0; --muted: #9aa6b2; --line: #2e3945;
+    --carbon: #a9b3be; --oxygen: #ff5d71; --iodine: #a88ee3; --iodine-soft: #2b2340;
+    --action: #6ea7ff; --action-soft: #1d2d45; --on-action: #0f1a2b;
+    --ok: #4cc38a; --ok-soft: #173327; --bad: #f0a04b; --bad-soft: #3a2a18;
+    --glass: rgba(255,255,255,0.06); --glass-line: #8b98a5; --ice: rgba(110,170,225,0.16);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11161b; --surface: #1a2129; --surface-2: #212a33; --ink: #e5ebf0; --muted: #9aa6b2; --line: #2e3945;
+  --carbon: #a9b3be; --oxygen: #ff5d71; --iodine: #a88ee3; --iodine-soft: #2b2340;
+  --action: #6ea7ff; --action-soft: #1d2d45; --on-action: #0f1a2b;
+  --ok: #4cc38a; --ok-soft: #173327; --bad: #f0a04b; --bad-soft: #3a2a18;
+  --glass: rgba(255,255,255,0.06); --glass-line: #8b98a5; --ice: rgba(110,170,225,0.16);
+}
+:root { box-sizing: border-box; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+html { scroll-padding-top: env(safe-area-inset-top, 0px); background: var(--bg); }
+*, *::before, *::after { box-sizing: inherit; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-text-size-adjust: 100%; }
+sub, sup { font-size: 0.72em; line-height: 0; }
+sub { vertical-align: -0.28em; }
+sup { vertical-align: 0.5em; }
+button, input { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--action); outline-offset: 2px; }
+.nw { white-space: nowrap; }
+.wrap { max-width: 680px; margin: 0 auto; padding: 0 16px 56px; }
+
+.top { display: flex; align-items: center; gap: 12px; padding: 18px 0 12px; }
+.logo { flex: none; width: 34px; height: 40px; }
+.titles { flex: 1; min-width: 0; }
+.titles h1 { font-family: "Unbounded", "IBM Plex Sans", system-ui, sans-serif; font-weight: 700; font-size: 18px; line-height: 1.2; margin: 0; }
+.titles p { margin: 3px 0 0; color: var(--muted); font-size: 13.5px; }
+.lang { flex: none; display: inline-flex; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); padding: 2px; }
+.lang button { border: 0; background: none; padding: 5px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
+.lang button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+
+.tabs { padding: 6px 0 12px; }
+.tabbar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 4px; }
+.tabbar button { border: 0; background: none; border-radius: 9px; padding: 9px 4px; font-weight: 600; font-size: 14px; line-height: 1.25; color: var(--muted); cursor: pointer; }
+.tabbar button[aria-selected="true"] { background: var(--action); color: var(--on-action); }
+.panel[hidden] { display: none; }
+.lead { color: var(--muted); margin: 2px 0 14px; font-size: 15px; }
+
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 12px; }
+.seg button { border: 1.5px solid var(--line); background: var(--surface); border-radius: 11px; padding: 9px 10px; text-align: left; cursor: pointer; }
+.seg button b { display: block; font-size: 14.5px; }
+.seg button span { display: block; font-size: 12.5px; color: var(--muted); }
+.seg button[aria-pressed="true"] { border-color: var(--action); box-shadow: inset 0 0 0 1px var(--action); background: var(--action-soft); }
+.seg .st { float: right; font-size: 12px; font-weight: 600; color: var(--ok); }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; }
+.card + .card { margin-top: 12px; }
+.meta { display: flex; justify-content: space-between; gap: 8px; color: var(--muted); font-size: 13.5px; }
+.meta .mist { color: var(--bad); font-weight: 600; }
+.progress { height: 5px; background: var(--line); border-radius: 99px; margin: 8px 0 4px; overflow: hidden; }
+.progress i { display: block; height: 100%; background: var(--action); border-radius: 99px; transition: width .3s; }
+
+.vessel { display: grid; grid-template-columns: minmax(150px, 190px) 1fr; gap: 14px; align-items: center; margin-top: 8px; }
+@media (max-width: 420px) { .vessel { grid-template-columns: 150px 1fr; gap: 10px; } }
+.vessel svg { width: 100%; height: auto; display: block; }
+.caption { font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
+.legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; line-height: 1.35; }
+.legend li { display: flex; gap: 8px; align-items: flex-start; }
+.legend .sw { flex: none; width: 14px; height: 14px; border-radius: 4px; border: 1px solid var(--glass-line); margin-top: 2px; }
+.legend li.side { color: var(--muted); }
+.legend li.side .sw { border-style: dashed; }
+.mpread { font-family: "Unbounded", "IBM Plex Sans", system-ui, sans-serif; font-size: 24px; font-weight: 700; color: var(--ok); line-height: 1.15; }
+
+.prompt { font-size: 17.5px; font-weight: 600; line-height: 1.4; margin: 0 0 10px; }
+.shelf h3 { font-size: 13.5px; color: var(--muted); font-weight: 500; margin: 12px 0 6px; }
+.shelf h3:first-child { margin-top: 0; }
+.chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.chip { border: 1.5px solid var(--line); background: var(--surface); border-radius: 999px; padding: 7px 13px; font-size: 15px; cursor: pointer; line-height: 1.3; text-align: left; }
+.chip.r { border-color: color-mix(in srgb, var(--oxygen) 45%, var(--line)); }
+.chip.o { border-color: color-mix(in srgb, var(--action) 45%, var(--line)); }
+.chip:not(:disabled):hover { background: var(--surface-2); }
+.chip.tried { border-color: var(--bad); color: var(--bad); background: var(--bad-soft); text-decoration: line-through; text-decoration-thickness: 1px; cursor: default; }
+.choice { display: flex; flex-direction: column; gap: 8px; }
+.choice .chip { border-radius: 11px; padding: 11px 14px; font-size: 16px; }
+
+.whatif { margin-top: 12px; border-left: 4px solid var(--bad); background: var(--bad-soft); border-radius: 10px; padding: 10px 12px; font-size: 15px; }
+.whatif strong { display: block; margin-bottom: 2px; }
+.obs { border-left: 4px solid var(--ok); background: var(--ok-soft); border-radius: 10px; padding: 10px 12px; font-size: 15px; }
+.obs strong { display: block; margin-bottom: 2px; }
+.eqn { margin-top: 10px; font-size: 15.5px; line-height: 1.6; }
+.redox { margin-top: 8px; font-size: 14.5px; padding: 8px 10px; border-radius: 8px; background: var(--iodine-soft); }
+.redox b { color: var(--iodine); }
+.why { margin: 8px 0 0; font-size: 14.5px; color: var(--muted); }
+.btn { border: 0; border-radius: 11px; padding: 13px 16px; font-weight: 600; font-size: 16px; cursor: pointer; background: var(--action); color: var(--on-action); }
+.btn.ghost { background: var(--surface); color: var(--ink); border: 1px solid var(--line); }
+.btn:disabled { opacity: .4; cursor: default; }
+.btn.full { width: 100%; margin-top: 12px; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+.row2 .btn { padding: 11px 8px; font-size: 15px; }
+
+.done h2, .qcard h2.big { font-family: "Unbounded", "IBM Plex Sans", system-ui, sans-serif; font-size: 21px; margin: 0 0 6px; line-height: 1.25; }
+.done h3 { font-size: 15.5px; margin: 16px 0 6px; }
+.recap { margin: 0; padding-left: 22px; font-size: 15px; }
+.recap li { margin-bottom: 3px; }
+.mlist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.mlist li { background: var(--bad-soft); border-radius: 10px; padding: 9px 12px; font-size: 14.5px; }
+.mlist li b { display: block; }
+
+/* animation */
+.anim .liq { animation: rise .6s ease-out both; }
+.anim .liq:nth-of-type(2) { animation-delay: .08s; }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.heatw { animation: flick 1.2s ease-in-out infinite alternate; }
+@keyframes flick { from { opacity: .55; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .anim .liq, .heatw { animation: none; } }
+
+/* order */
+.olist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.ocard { width: 100%; text-align: left; display: flex; gap: 12px; align-items: flex-start; background: var(--surface); border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 12px; cursor: pointer; font-size: 15.5px; line-height: 1.4; }
+.ocard .n { flex: none; width: 28px; height: 28px; border-radius: 50%; border: 1.5px dashed var(--line); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+.ocard.set { border-color: var(--action); }
+.ocard.set .n { border: 0; background: var(--action); color: var(--on-action); }
+.ocard.good { border-color: var(--ok); background: var(--ok-soft); cursor: default; }
+.ocard.good .n { background: var(--ok); color: #fff; border: 0; }
+.ocard.badpos { border-color: var(--bad); background: var(--bad-soft); cursor: default; }
+.ocard.badpos .n { background: var(--bad); color: #fff; border: 0; }
+.ocard .should { display: block; font-size: 13px; color: var(--bad); font-weight: 600; margin-top: 2px; }
+.oscore { font-weight: 600; margin: 12px 0 0; }
+
+/* test */
+.qhead { display: flex; justify-content: space-between; color: var(--muted); font-size: 14px; }
+.bar { height: 6px; background: var(--line); border-radius: 99px; margin: 8px 0 14px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--action); border-radius: 99px; transition: width .3s; }
+.qcard { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; }
+.qcard h2 { font-size: 18px; line-height: 1.4; margin: 0 0 14px; font-weight: 600; }
+.opts { display: flex; flex-direction: column; gap: 8px; }
+.opt { text-align: left; background: var(--surface); border: 1.5px solid var(--line); border-radius: 10px; padding: 11px 12px; cursor: pointer; display: flex; gap: 10px; align-items: flex-start; font-size: 16px; }
+.opt .mk { flex: none; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--line); display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; margin-top: 1px; }
+.opt:disabled { cursor: default; }
+.opt.right { border-color: var(--ok); background: var(--ok-soft); }
+.opt.right .mk { background: var(--ok); border-color: var(--ok); color: #fff; }
+.opt.wrong { border-color: var(--bad); background: var(--bad-soft); }
+.opt.wrong .mk { background: var(--bad); border-color: var(--bad); color: #fff; }
+.opt.dim { opacity: .55; }
+.explain { margin-top: 12px; background: var(--surface-2); border-radius: 10px; padding: 10px 12px; font-size: 15px; }
+.explain strong { display: block; }
+.field { display: block; margin: 12px 0 4px; font-weight: 600; font-size: 15px; }
+.input { width: 100%; border: 1.5px solid var(--line); border-radius: 10px; padding: 11px 12px; background: var(--surface); font-size: 16px; }
+.rules { font-size: 14.5px; color: var(--muted); margin: 10px 0 0; padding-left: 20px; }
+.admit { border: 2px solid var(--line); border-radius: 16px; padding: 16px; margin-top: 14px; background: var(--surface); }
+.admit.yes { border-color: var(--ok); }
+.admit.no { border-color: var(--bad); }
+.admit .who { font-size: 20px; font-weight: 600; margin: 2px 0 0; }
+.admit .when { color: var(--muted); font-size: 13.5px; }
+.admit .status { font-family: "Unbounded", "IBM Plex Sans", system-ui, sans-serif; font-weight: 700; font-size: 22px; margin: 12px 0 8px; line-height: 1.2; }
+.admit.yes .status { color: var(--ok); }
+.admit.no .status { color: var(--bad); }
+.checks { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px; font-size: 15px; }
+.checks li { display: flex; gap: 8px; }
+.checks .ck { flex: none; font-weight: 700; width: 18px; }
+.checks .y { color: var(--ok); }
+.checks .n { color: var(--bad); }
+.checks .i { color: var(--muted); }
+.review { margin: 10px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.review li { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; font-size: 14.5px; }
+.review li b { display: block; margin-bottom: 2px; }
+.review .ans { color: var(--ok); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <svg class="logo" viewBox="0 0 34 40" aria-hidden="true">
+      <path d="M12 3 L12 15 L3 33 Q1.5 37 6 37 L28 37 Q32.5 37 31 33 L22 15 L22 3" fill="none" stroke="var(--carbon)" stroke-width="2.4" stroke-linejoin="round"/>
+      <path d="M7.2 26 L26.8 26 L30 32.6 Q31 35 28 35 L6 35 Q3 35 4 32.6 Z" fill="#7b2d8f"/>
+      <line x1="9" y1="3" x2="25" y2="3" stroke="var(--carbon)" stroke-width="2.4" stroke-linecap="round"/>
+    </svg>
+    <div class="titles">
+      <h1 data-t="title"></h1>
+      <p data-t="subtitle"></p>
+    </div>
+    <div class="lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="ru">RU</button>
+    </div>
+  </header>
+  <nav class="tabs">
+    <div class="tabbar" role="tablist">
+      <button type="button" role="tab" id="tab-bench" aria-controls="p-bench" data-tab="bench" data-t="tab_bench"></button>
+      <button type="button" role="tab" id="tab-order" aria-controls="p-order" data-tab="order" data-t="tab_order"></button>
+      <button type="button" role="tab" id="tab-test" aria-controls="p-test" data-tab="test" data-t="tab_test"></button>
+    </div>
+  </nav>
+  <section class="panel" id="p-bench" role="tabpanel" aria-labelledby="tab-bench"></section>
+  <section class="panel" id="p-order" role="tabpanel" aria-labelledby="tab-order" hidden></section>
+  <section class="panel" id="p-test" role="tabpanel" aria-labelledby="tab-test" hidden></section>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var store = {
+    get: function (k) { try { return window.localStorage.getItem(k); } catch (e) { return null; } },
+    set: function (k, v) { try { window.localStorage.setItem(k, v); } catch (e) {} }
+  };
+  function getJSON(k, d) { try { var v = JSON.parse(store.get(k) || "null"); return v == null ? d : v; } catch (e) { return d; } }
+  var lang = store.get("bz-lang") === "ru" ? "ru" : "en";
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var SUBMAP = { "₀":"0","₁":"1","₂":"2","₃":"3","₄":"4","₅":"5","₆":"6","₇":"7","₈":"8","₉":"9","ₙ":"n","₊":"+","₋":"−" };
+  function fmt(s) {
+    return String(s)
+      .replace(/[₀-₉ₙ₊₋]+/g, function (m) { return "<sub>" + m.split("").map(function (c) { return SUBMAP[c]; }).join("") + "</sub>"; })
+      .replace(/[⁺⁻]+/g, function (m) { return "<sup>" + m.split("").map(function (c) { return c === "⁺" ? "+" : "−"; }).join("") + "</sup>"; })
+      .replace(/SN2/g, "S<sub>N</sub>2");
+  }
+  function eqHtml(s) { return s.split(" ").map(function (tok) { return /[A-Za-z]/.test(tok) ? '<span class="nw">' + fmt(tok) + "</span>" : fmt(tok); }).join(" "); }
+  function L(o) { return typeof o === "string" ? o : (o[lang] || o.en); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+  /* ---------------- UI strings ---------------- */
+  var T = {
+    en: {
+      title: "Benzoic acid lab: pre-lab trainer", subtitle: "Learn what goes in, in what order, and why — before you enter the lab.",
+      tab_bench: "Virtual bench", tab_order: "Step order", tab_test: "Admission test",
+      e1_t: "Exp. 1: toluene + KMnO₄", e1_s: "side-chain oxidation", e2_t: "Exp. 2: Cannizzaro", e2_s: "benzaldehyde + conc. KOH",
+      done_badge: "done",
+      e1_lead: "Route A: toluene is oxidized by KMnO₄ at the benzylic position until the side chain becomes –COOH.",
+      e2_lead: "Route B: benzaldehyde (no α-H) disproportionates in conc. KOH into benzoate and benzyl alcohol.",
+      step: "Step {i} of {n}", mistakes: "Mistakes: {m}",
+      reagents: "Reagents", operations: "Operations",
+      whatif: "What happens if you do that?", correct: "Correct:", next: "Next step", finish: "Finish the experiment",
+      redox: "Redox:",
+      v_rbf: "round-bottom flask", v_sep: "separating funnel", v_beaker: "beaker", v_buchner: "Büchner funnel on a filter flask", v_mp: "melting-point apparatus",
+      f_cond: "reflux condenser", f_heat: "heating", f_warm: "water bath, warm", f_cold: "ice bath",
+      d_title: "{exp} complete", d_mist0: "No mistakes — you're ready for this experiment.", d_mist: "Mistakes on the way: {m}. Read them once more below.",
+      d_whatifs: "What would have happened", d_recap: "The correct sequence", d_again: "Run again", d_other: "Other experiment", d_test: "Admission test",
+      o_lead: "Tap the steps in the order you would do them. Tap a numbered step again to undo it.",
+      o_check: "Check order", o_retry: "Shuffle and retry", o_score: "{c} of {n} steps in the right place.", o_should: "Should be step {k}",
+      t_lead: "12 questions on theory, procedure and safety. Your result card at the end shows whether you are admitted.",
+      t_name: "Your name and group", t_name_ph: "e.g. Aigerim S., group 301", t_start: "Start the test",
+      t_rules: "Admission rules", t_rule1: "Test: at least {p} of {n} correct.", t_rule2: "Virtual bench: both experiments completed.",
+      q_count: "Question {i} of {n}", q_score: "Score: {s}", q_next: "Next question", q_finish: "See my result",
+      q_right: "Correct.", q_wrong: "Not quite.", q_review: "Review your mistakes", q_ans: "Answer:",
+      a_card: "Admission to the lab", a_yes: "Admitted", a_no: "Not admitted yet",
+      a_test: "Test: {s} of {n} (pass mark {p})", a_e1: "Virtual bench, Exp. 1 completed", a_e2: "Virtual bench, Exp. 2 completed",
+      a_e_m: "{m} mistakes on the last run", a_notdone: "not completed", a_order: "Step order: Exp. 1 — {a}, Exp. 2 — {b}", a_na: "not tried",
+      a_attempt: "Test attempt {k}", a_show: "Show this card to your teacher.", a_retake: "Retake the test", a_noname: "(no name entered)",
+      a_fix: "Complete the missing items and retake the test."
+    },
+    ru: {
+      title: "Бензойная кислота: допуск к лабораторной", subtitle: "Выучите, что добавлять, в каком порядке и почему, — до входа в лабораторию.",
+      tab_bench: "Виртуальный стол", tab_order: "Порядок шагов", tab_test: "Тест-допуск",
+      e1_t: "Опыт 1: толуол + KMnO₄", e1_s: "окисление боковой цепи", e2_t: "Опыт 2: Канниццаро", e2_s: "бензальдегид + конц. KOH",
+      done_badge: "пройден",
+      e1_lead: "Путь A: KMnO₄ окисляет толуол по бензильному положению, пока боковая цепь не превратится в –COOH.",
+      e2_lead: "Путь B: бензальдегид (без α-H) в конц. KOH диспропорционирует на бензоат и бензиловый спирт.",
+      step: "Шаг {i} из {n}", mistakes: "Ошибок: {m}",
+      reagents: "Реактивы", operations: "Операции",
+      whatif: "Что будет, если так сделать?", correct: "Верно:", next: "Следующий шаг", finish: "Завершить опыт",
+      redox: "ОВР:",
+      v_rbf: "круглодонная колба", v_sep: "делительная воронка", v_beaker: "стакан", v_buchner: "воронка Бюхнера на колбе Бунзена", v_mp: "прибор для т. пл.",
+      f_cond: "обратный холодильник", f_heat: "нагрев", f_warm: "тёплая водяная баня", f_cold: "ледяная баня",
+      d_title: "{exp}: пройден", d_mist0: "Без ошибок — к этому опыту вы готовы.", d_mist: "Ошибок по ходу: {m}. Перечитайте их ниже.",
+      d_whatifs: "Что случилось бы", d_recap: "Правильная последовательность", d_again: "Пройти заново", d_other: "Другой опыт", d_test: "Тест-допуск",
+      o_lead: "Нажимайте на шаги в том порядке, в котором вы бы их выполняли. Повторное нажатие отменяет номер.",
+      o_check: "Проверить порядок", o_retry: "Перемешать заново", o_score: "На своём месте {c} из {n} шагов.", o_should: "Должен быть шаг {k}",
+      t_lead: "12 вопросов по теории, ходу работы и технике безопасности. В конце — карточка допуска с результатом.",
+      t_name: "Фамилия, имя и группа", t_name_ph: "например, Айгерим С., группа 301", t_start: "Начать тест",
+      t_rules: "Условия допуска", t_rule1: "Тест: не меньше {p} из {n} верных ответов.", t_rule2: "Виртуальный стол: оба опыта пройдены.",
+      q_count: "Вопрос {i} из {n}", q_score: "Баллы: {s}", q_next: "Следующий вопрос", q_finish: "Мой результат",
+      q_right: "Верно.", q_wrong: "Не совсем.", q_review: "Разбор ошибок", q_ans: "Ответ:",
+      a_card: "Допуск к лабораторной работе", a_yes: "Допущен(а)", a_no: "Пока не допущен(а)",
+      a_test: "Тест: {s} из {n} (порог {p})", a_e1: "Виртуальный стол, опыт 1 пройден", a_e2: "Виртуальный стол, опыт 2 пройден",
+      a_e_m: "ошибок в последнем прохождении: {m}", a_notdone: "не пройден", a_order: "Порядок шагов: опыт 1 — {a}, опыт 2 — {b}", a_na: "не выполнялся",
+      a_attempt: "Попытка теста № {k}", a_show: "Покажите эту карточку преподавателю.", a_retake: "Пройти тест заново", a_noname: "(имя не указано)",
+      a_fix: "Выполните недостающие пункты и пройдите тест заново."
+    }
+  };
+  function tr(k, vars) {
+    var s = (T[lang] && T[lang][k]) || T.en[k] || k;
+    if (vars) Object.keys(vars).forEach(function (v) { s = s.split("{" + v + "}").join(vars[v]); });
+    return s;
+  }
+
+  /* ---------------- shelf ---------------- */
+  var ITEMS = [
+    { id: "kmno4", g: "r", t: { en: "KMnO₄ solution (3–5%)", ru: "Раствор KMnO₄ (3–5%)" } },
+    { id: "koh", g: "r", t: { en: "Conc. KOH (≈50%)", ru: "Конц. KOH (≈50%)" } },
+    { id: "hcl", g: "r", t: { en: "Conc. HCl", ru: "Конц. HCl" } },
+    { id: "nahso3", g: "r", t: { en: "NaHSO₃ (solid)", ru: "NaHSO₃ (твёрдый)" } },
+    { id: "ether", g: "r", t: { en: "Diethyl ether", ru: "Диэтиловый эфир" } },
+    { id: "reflux", g: "o", t: { en: "Reflux", ru: "Кипятить с обратным холодильником" } },
+    { id: "shake", g: "o", t: { en: "Shake, warm gently", ru: "Встряхивать, слегка подогреть" } },
+    { id: "ice", g: "o", t: { en: "Cool in ice bath", ru: "Охладить на льду" } },
+    { id: "filter", g: "o", t: { en: "Vacuum filtration", ru: "Фильтрование под вакуумом" } },
+    { id: "recryst", g: "o", t: { en: "Recrystallize from hot water", ru: "Перекристаллизовать из горячей воды" } },
+    { id: "mp", g: "o", t: { en: "Measure melting point", ru: "Измерить т. пл." } }
+  ];
+  function item(id) { for (var i = 0; i < ITEMS.length; i++) if (ITEMS[i].id === id) return ITEMS[i]; return null; }
+
+  /* ---------------- vessel states ---------------- */
+  var LIQ = { tol: "rgba(212,226,236,0.95)", purple: "#7b2d8f", pale: "rgba(200,219,234,0.92)", ald: "#ecd27e", koh: "rgba(190,210,230,0.95)",
+    milky: "rgba(236,232,220,0.97)", eth: "rgba(236,246,253,0.96)", brown: "#6f4a2c", white: "#ffffff" };
+  var LBL = {
+    toluene: { en: "toluene", ru: "толуол" },
+    kmno4sol: { en: "KMnO₄ solution (purple)", ru: "раствор KMnO₄ (фиолетовый)" },
+    solfaded: { en: "solution, purple gone", ru: "раствор, окраска исчезла" },
+    tol_left: { en: "unreacted toluene", ru: "непрореагировавший толуол" },
+    mno2: { en: "MnO₂ (brown solid)", ru: "MnO₂ (бурый осадок)" },
+    persists: { en: "purple persists (excess KMnO₄)", ru: "окраска держится (избыток KMnO₄)" },
+    benzoatesol: { en: "colourless solution: potassium benzoate", ru: "бесцветный раствор: бензоат калия" },
+    filtrate: { en: "clear filtrate: potassium benzoate", ru: "прозрачный фильтрат: бензоат калия" },
+    mno2_cake: { en: "MnO₂ on the filter → Mn waste container", ru: "MnO₂ на фильтре → контейнер для Mn-отходов" },
+    ba_ppt: { en: "benzoic acid (white precipitate)", ru: "бензойная кислота (белый осадок)" },
+    mother: { en: "mother liquor (water, KCl)", ru: "маточный раствор (вода, KCl)" },
+    crude: { en: "crude benzoic acid on the filter", ru: "сырая бензойная кислота на фильтре" },
+    discard: { en: "filtrate (goes to waste)", ru: "фильтрат (в отходы)" },
+    pure: { en: "pure benzoic acid crystals", ru: "чистые кристаллы бензойной кислоты" },
+    water_imp: { en: "water with the impurities", ru: "вода с примесями" },
+    benzald: { en: "benzaldehyde", ru: "бензальдегид" },
+    kohsol: { en: "conc. KOH solution", ru: "конц. раствор KOH" },
+    benzald_oil: { en: "benzaldehyde (oily layer)", ru: "бензальдегид (маслянистый слой)" },
+    onephase: { en: "one phase: potassium benzoate + benzyl alcohol", ru: "одна фаза: бензоат калия + бензиловый спирт" },
+    aq: { en: "lower, aqueous: potassium benzoate", ru: "нижний, водный: бензоат калия" },
+    eth: { en: "upper, ether: benzyl alcohol", ru: "верхний, эфирный: бензиловый спирт" },
+    aq_only: { en: "aqueous layer: potassium benzoate", ru: "водный слой: бензоат калия" },
+    eth_side: { en: "ether layer with benzyl alcohol, set aside", ru: "эфирный слой с бензиловым спиртом — отставлен" },
+    mpval: { en: "sharp melting, pure benzoic acid", ru: "чёткое плавление, чистая бензойная кислота" }
+  };
+  function Ly(c, h, l, susp) { return { c: c, h: h, l: l, susp: susp }; }
+  var MNO2_SIDE = { c: "brown", l: "mno2_cake" }, ETH_SIDE = { c: "eth", l: "eth_side" };
+
+  var S1 = [
+    { v: "rbf", layers: [Ly("tol", 34, "toluene")] },
+    { v: "rbf", layers: [Ly("purple", 64, "kmno4sol"), Ly("tol", 26, "toluene")] },
+    { v: "rbf", cond: 1, heat: 1, ppt: Ly("brown", 10, "mno2"), layers: [Ly("pale", 62, "solfaded", "brown"), Ly("tol", 10, "tol_left")] },
+    { v: "rbf", cond: 1, heat: 1, ppt: Ly("brown", 14, "mno2"), layers: [Ly("purple", 74, "persists", "brown")] },
+    { v: "rbf", ppt: Ly("brown", 16, "mno2"), layers: [Ly("pale", 72, "benzoatesol", "brown")] },
+    { v: "beaker", layers: [Ly("pale", 80, "filtrate")], side: [MNO2_SIDE] },
+    { v: "beaker", ppt: Ly("white", 10, "ba_ppt"), layers: [Ly("pale", 72, "mother", "white")], side: [MNO2_SIDE] },
+    { v: "beaker", cold: 1, ppt: Ly("white", 20, "ba_ppt"), layers: [Ly("pale", 62, "mother")], side: [MNO2_SIDE] },
+    { v: "buchner", cake: Ly("white", 18, "crude"), filtrate: Ly("pale", 18, "discard"), side: [MNO2_SIDE] },
+    { v: "beaker", ppt: Ly("xtal", 16, "pure"), layers: [Ly("pale", 58, "water_imp")], side: [MNO2_SIDE] },
+    { v: "mp" }
+  ];
+  var S2 = [
+    { v: "rbf", layers: [Ly("ald", 30, "benzald")] },
+    { v: "rbf", layers: [Ly("koh", 56, "kohsol"), Ly("ald", 26, "benzald_oil")] },
+    { v: "rbf", warm: 1, layers: [Ly("milky", 84, "onephase")] },
+    { v: "rbf", cold: 1, layers: [Ly("milky", 84, "onephase")] },
+    { v: "sep", layers: [Ly("koh", 58, "aq"), Ly("eth", 42, "eth")] },
+    { v: "beaker", layers: [Ly("koh", 72, "aq_only")], side: [ETH_SIDE] },
+    { v: "beaker", ppt: Ly("white", 10, "ba_ppt"), layers: [Ly("pale", 72, "mother", "white")], side: [ETH_SIDE] },
+    { v: "beaker", cold: 1, ppt: Ly("white", 20, "ba_ppt"), layers: [Ly("pale", 62, "mother")], side: [ETH_SIDE] },
+    { v: "buchner", cake: Ly("white", 18, "crude"), filtrate: Ly("pale", 18, "discard"), side: [ETH_SIDE] },
+    { v: "beaker", ppt: Ly("xtal", 16, "pure"), layers: [Ly("pale", 58, "water_imp")], side: [ETH_SIDE] },
+    { v: "mp" }
+  ];
+
+  function patternDefs() {
+    return '<defs>' +
+      '<pattern id="pz-brown" width="9" height="9" patternUnits="userSpaceOnUse"><circle cx="2" cy="3" r="1.5" fill="' + LIQ.brown + '"/><circle cx="6.5" cy="7" r="1.2" fill="' + LIQ.brown + '"/></pattern>' +
+      '<pattern id="pz-white" width="10" height="10" patternUnits="userSpaceOnUse"><rect x="2" y="2" width="2.4" height="2.4" fill="#fff" stroke="#8d99a5" stroke-width=".5"/><rect x="6.5" y="6.5" width="2" height="2" fill="#fff" stroke="#8d99a5" stroke-width=".5"/></pattern>' +
+      '<pattern id="pz-brownppt" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="' + LIQ.brown + '"/><circle cx="2" cy="2" r="1" fill="#8a6443"/><circle cx="5" cy="5" r=".8" fill="#553620"/></pattern>' +
+      '<pattern id="pz-whiteppt" width="8" height="6" patternUnits="userSpaceOnUse"><rect width="8" height="6" fill="#f7f9fb"/><path d="M1 5 L3 1 L5 5 Z" fill="#fff" stroke="#9aa6b2" stroke-width=".5"/><path d="M5 5.5 L6.5 2.5 L8 5.5 Z" fill="#fff" stroke="#9aa6b2" stroke-width=".5"/></pattern>' +
+      '<pattern id="pz-xtal" width="12" height="16" patternUnits="userSpaceOnUse"><rect width="12" height="16" fill="rgba(200,219,234,0.6)"/><path d="M2 15 L4 2 L6 15 Z" fill="#fff" stroke="#9aa6b2" stroke-width=".5"/><path d="M7 15 L9.5 5 L11 15 Z" fill="#fff" stroke="#9aa6b2" stroke-width=".5"/></pattern>' +
+      '</defs>';
+  }
+  function fillFor(ly) {
+    if (ly.c === "brown") return "url(#pz-brownppt)";
+    if (ly.c === "white") return "url(#pz-whiteppt)";
+    if (ly.c === "xtal") return "url(#pz-xtal)";
+    return LIQ[ly.c];
+  }
+  function stackRects(st, bottom) {
+    var out = "", y = bottom;
+    if (st.ppt) { y -= st.ppt.h; out += '<rect class="liq" x="0" y="' + y + '" width="220" height="' + (st.ppt.h + 12) + '" fill="' + fillFor(st.ppt) + '"/>'; }
+    (st.layers || []).forEach(function (ly) {
+      y -= ly.h;
+      out += '<g class="liq"><rect x="0" y="' + y + '" width="220" height="' + ly.h + '" fill="' + LIQ[ly.c] + '"/>' +
+        (ly.susp ? '<rect x="0" y="' + y + '" width="220" height="' + ly.h + '" fill="url(#pz-' + ly.susp + ')"/>' : "") +
+        '<line x1="0" y1="' + y + '" x2="220" y2="' + y + '" stroke="rgba(0,0,0,0.18)" stroke-width="1"/></g>';
+    });
+    return out;
+  }
+  function heatSvg(y, color) {
+    var p = "";
+    [80, 110, 140].forEach(function (x) { p += '<path class="heatw" d="M' + x + ' ' + (y + 14) + ' q -6 -6 0 -12 q 6 -6 0 -12" fill="none" stroke="' + color + '" stroke-width="3" stroke-linecap="round"/>'; });
+    return p;
+  }
+  function vesselSvg(st, anim) {
+    var s = '<svg viewBox="0 0 220 250" role="img" class="' + (anim && !reduceMotion ? "anim" : "") + '" aria-hidden="true">' + patternDefs();
+    var line = 'fill="none" stroke="var(--glass-line)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"';
+    if (st.v === "rbf") {
+      var body = "M95,52 L95,101.8 A62,62 0 1 0 125,101.8 L125,52";
+      if (st.cold) s += '<rect x="26" y="150" width="168" height="96" rx="12" fill="var(--ice)" stroke="var(--ice-line)" stroke-width="1.5"/>';
+      if (st.warm) s += '<rect x="26" y="165" width="168" height="81" rx="12" fill="rgba(224,102,46,0.13)" stroke="rgba(224,102,46,0.45)" stroke-width="1.5"/>';
+      s += '<clipPath id="cz"><path d="' + body + ' Z"/></clipPath><path d="' + body + ' Z" fill="var(--glass)"/>';
+      s += '<g clip-path="url(#cz)">' + stackRects(st, 224) + "</g>";
+      s += '<path d="' + body + '" ' + line + '/>';
+      if (st.cond) {
+        s += '<rect x="102" y="4" width="16" height="48" fill="var(--glass)" stroke="var(--glass-line)" stroke-width="2.5"/>' +
+          '<rect x="96" y="10" width="28" height="34" rx="4" fill="rgba(110,170,225,0.18)" stroke="var(--glass-line)" stroke-width="1.5"/>' +
+          '<line x1="124" y1="16" x2="136" y2="16" stroke="var(--glass-line)" stroke-width="2"/><line x1="96" y1="38" x2="84" y2="38" stroke="var(--glass-line)" stroke-width="2"/>';
+      }
+      if (st.heat) s += heatSvg(228, "var(--heat)");
+    } else if (st.v === "sep") {
+      var sb = "M102,50 C60,64 50,98 58,122 L104,192 L116,192 L162,122 C170,98 160,64 118,50 Z";
+      s += '<clipPath id="cz"><path d="' + sb + '"/></clipPath><path d="' + sb + '" fill="var(--glass)"/>';
+      s += '<g clip-path="url(#cz)">' + stackRects(st, 192) + "</g>";
+      s += '<path d="' + sb + '" ' + line + '/>' +
+        '<path d="M102,50 L102,34 M118,50 L118,34" ' + line + '/><rect x="99" y="26" width="22" height="9" rx="2" fill="var(--carbon)"/>' +
+        '<path d="M104,192 L104,238 M116,192 L116,238" ' + line + '/><rect x="94" y="204" width="32" height="7" rx="2" fill="var(--carbon)"/>';
+    } else if (st.v === "beaker") {
+      var bb = "M50,70 L50,222 Q50,230 58,230 L162,230 Q170,230 170,222 L170,70";
+      if (st.cold) s += '<rect x="22" y="150" width="176" height="96" rx="12" fill="var(--ice)" stroke="var(--ice-line)" stroke-width="1.5"/>';
+      s += '<clipPath id="cz"><path d="' + bb + ' Z"/></clipPath><path d="' + bb + ' Z" fill="var(--glass)"/>';
+      s += '<g clip-path="url(#cz)">' + stackRects(st, 230) + "</g>";
+      s += '<path d="' + bb + '" ' + line + '/><path d="M50,70 L44,64" ' + line + '/>';
+    } else if (st.v === "buchner") {
+      var fb = "M56,40 L56,96 L164,96 L164,40";
+      s += '<path d="' + fb + ' Z" fill="var(--glass)"/>';
+      s += '<rect class="liq" x="57" y="' + (96 - st.cake.h) + '" width="106" height="' + st.cake.h + '" fill="url(#pz-whiteppt)"/>';
+      s += '<path d="' + fb + '" ' + line + '/><line x1="58" y1="96" x2="162" y2="96" stroke="var(--glass-line)" stroke-width="2" stroke-dasharray="4 3"/>' +
+        '<path d="M56,96 L100,122 L100,150 M164,96 L120,122 L120,150" ' + line + '/>';
+      var fl = "M92,146 L92,168 L56,236 L164,236 L128,168 L128,146";
+      s += '<clipPath id="cz"><path d="' + fl + ' Z"/></clipPath><path d="' + fl + ' Z" fill="var(--glass)"/>' +
+        '<g clip-path="url(#cz)"><rect class="liq" x="0" y="' + (236 - st.filtrate.h) + '" width="220" height="' + st.filtrate.h + '" fill="' + LIQ.pale + '"/></g>' +
+        '<path d="' + fl + '" ' + line + '/><path d="M128,176 L152,168" ' + line + '/>' +
+        '<rect x="88" y="136" width="44" height="12" rx="3" fill="var(--carbon)"/>';
+    } else {
+      s += '<rect x="92" y="14" width="22" height="190" rx="11" fill="var(--glass)" stroke="var(--glass-line)" stroke-width="2.5"/>' +
+        '<rect class="liq" x="99" y="64" width="8" height="150" fill="#d7263d"/><circle cx="103" cy="214" r="17" fill="#d7263d"/>' +
+        '<g stroke="var(--glass-line)" stroke-width="1.5">' + [40, 64, 88, 112, 136, 160].map(function (y) { return '<line x1="114" y1="' + y + '" x2="122" y2="' + y + '"/>'; }).join("") + "</g>" +
+        '<rect x="128" y="150" width="7" height="70" rx="3" fill="var(--glass)" stroke="var(--glass-line)" stroke-width="1.5"/>' +
+        '<rect x="129.5" y="206" width="4" height="12" fill="#fff" stroke="#9aa6b2" stroke-width=".5"/>';
+    }
+    return s + "</svg>";
+  }
+  function captionFor(st) {
+    var parts = [tr("v_" + st.v)];
+    if (st.cond) parts.push(tr("f_cond"));
+    if (st.heat) parts.push(tr("f_heat"));
+    if (st.warm) parts.push(tr("f_warm"));
+    if (st.cold) parts.push(tr("f_cold"));
+    return parts.join(", ");
+  }
+  function swatch(c) {
+    var bg = c === "brown" ? LIQ.brown : c === "white" || c === "xtal" ? "#ffffff" : LIQ[c];
+    return '<span class="sw" style="background:' + bg + '"></span>';
+  }
+  function legendFor(st) {
+    if (st.v === "mp") return '<div class="mpread">122–123 °C</div><p style="margin:4px 0 0;font-size:14px">' + L(LBL.mpval) + "</p>";
+    var items = [];
+    var layers = (st.layers || []).slice().reverse();
+    layers.forEach(function (ly) { items.push("<li>" + swatch(ly.c) + "<span>" + fmt(L(LBL[ly.l])) + "</span></li>"); });
+    if (st.ppt) items.push("<li>" + swatch(st.ppt.c) + "<span>" + fmt(L(LBL[st.ppt.l])) + "</span></li>");
+    if (st.cake) items.push("<li>" + swatch("white") + "<span>" + fmt(L(LBL[st.cake.l])) + "</span></li>");
+    if (st.filtrate) items.push("<li>" + swatch("pale") + "<span>" + fmt(L(LBL[st.filtrate.l])) + "</span></li>");
+    (st.side || []).forEach(function (sd) { items.push('<li class="side">' + swatch(sd.c) + "<span>" + fmt(L(LBL[sd.l])) + "</span></li>"); });
+    return '<ul class="legend">' + items.join("") + "</ul>";
+  }
+
+  /* ---------------- experiments ---------------- */
+  var TAIL = [
+    { correct: "ice",
+      p: { en: "White crystals have appeared in the warm solution. What next?", ru: "В тёплом растворе появились белые кристаллы. Что дальше?" },
+      obs: { en: "In the ice bath more crystals come out: benzoic acid is much less soluble in cold water than in hot.", ru: "На льду выпадает больше кристаллов: в холодной воде бензойная кислота растворяется гораздо хуже, чем в горячей." },
+      wrong: {
+        filter: { en: "Filtering now loses product — a lot of benzoic acid is still dissolved in the warm solution. Cool it first.", ru: "Фильтровать сейчас — терять продукт: много бензойной кислоты ещё растворено в тёплом растворе. Сначала охладите." },
+        hcl: { en: "It's already at pH ≈ 2 — more acid adds nothing.", ru: "pH уже ≈ 2 — лишняя кислота ничего не даст." },
+        recryst: { en: "Collect the crude crystals first.", ru: "Сначала соберите сырые кристаллы." }
+      } },
+    { correct: "filter", rc: { en: "Vacuum filtration — collect the crystals, wash with cold water", ru: "Фильтрование — собрать кристаллы, промыть холодной водой" }, 
+      p: { en: "The cold mixture is full of white crystals. What next?", ru: "Холодная смесь полна белых кристаллов. Что дальше?" },
+      obs: { en: "Collect the crystals on a Büchner funnel and wash with a little cold water — cold, so the product doesn't redissolve.", ru: "Соберите кристаллы на воронке Бюхнера и промойте небольшим количеством холодной воды — холодной, чтобы продукт не растворился." },
+      wrong: {
+        recryst: { en: "Separate the crystals from the mother liquor first, then recrystallize.", ru: "Сначала отделите кристаллы от маточного раствора, потом перекристаллизуйте." },
+        mp: { en: "The crystals are still wet and in solution — isolate and dry them first.", ru: "Кристаллы ещё мокрые и в растворе — сначала выделите и высушите их." }
+      } },
+    { correct: "recryst",
+      p: { en: "You have crude benzoic acid on the filter. What next?", ru: "На фильтре сырая бензойная кислота. Что дальше?" },
+      obs: { en: "Dissolve it in the minimum of hot water and let it cool slowly: pure crystals grow while impurities stay in solution. Filter and dry.", ru: "Растворите в минимуме горячей воды и медленно охладите: растут чистые кристаллы, а примеси остаются в растворе. Отфильтруйте и высушите." },
+      wrong: {
+        mp: { en: "You can, but a crude product melts lower and over a broad range. Purify it first.", ru: "Можно, но сырой продукт плавится ниже и в широком интервале. Сначала очистите." },
+        ether: { en: "In this lab benzoic acid is recrystallized from hot water, not from ether.", ru: "В этой работе бензойную кислоту перекристаллизовывают из горячей воды, а не из эфира." }
+      } },
+    { correct: "mp",
+      p: { en: "Pure, dry crystals. How do you confirm what you made?", ru: "Чистые сухие кристаллы. Как подтвердить, что вы получили?" },
+      obs: { en: "Heated slowly (1–2 °C/min), the sample melts sharply at 122–123 °C — pure benzoic acid.", ru: "При медленном нагреве (1–2 °C/мин) образец плавится чётко при 122–123 °C — чистая бензойная кислота." },
+      why: { en: "A lower or broader range would mean impurities and another recrystallization.", ru: "Более низкая или растянутая температура плавления означала бы примеси и повторную перекристаллизацию." } }
+  ];
+  var ACID_EQ = "C₆H₅COOK + HCl → C₆H₅COOH↓ + KCl";
+
+  var EXP = {
+    e1: {
+      states: S1, acidAt: 5,
+      steps: [
+        { correct: "kmno4",
+          p: { en: "Your flask holds toluene. What goes in first?", ru: "В колбе толуол. Что добавить первым?" },
+          obs: { en: "Two layers: colourless toluene floats on the purple permanganate solution — toluene doesn't mix with water and is lighter.", ru: "Два слоя: бесцветный толуол плавает на фиолетовом растворе перманганата — он не смешивается с водой и легче её." },
+          wrong: {
+            hcl: { en: "Nothing useful: toluene doesn't react with HCl. You need an oxidant first.", ru: "Ничего полезного: толуол не реагирует с HCl. Сначала нужен окислитель." },
+            koh: { en: "Toluene doesn't react with base. You need an oxidant.", ru: "Толуол не реагирует со щёлочью. Нужен окислитель." },
+            nahso3: { en: "NaHSO₃ is a reducing agent — there's nothing to reduce yet.", ru: "NaHSO₃ — восстановитель, а восстанавливать пока нечего." },
+            reflux: { en: "Heating toluene alone just boils it (bp 111 °C). No oxidant, no reaction.", ru: "Без окислителя толуол просто кипит (т. кип. 111 °C). Нет окислителя — нет реакции." },
+            shake: { en: "Shaking toluene alone changes nothing — there's no oxidant.", ru: "Встряхивание одного толуола ничего не даст — нет окислителя." }
+          } },
+        { correct: "reflux",
+          p: { en: "Toluene sits on top of purple KMnO₄. How do you start the oxidation?", ru: "Толуол над фиолетовым KMnO₄. Как запустить окисление?" },
+          obs: { en: "The purple colour fades and brown MnO₂ appears: permanganate is used up as it oxidizes the CH₃ group.", ru: "Фиолетовая окраска бледнеет, появляется бурый MnO₂: перманганат расходуется, окисляя группу CH₃." },
+          eq: "C₆H₅CH₃ + 2 KMnO₄ → C₆H₅COOK + 2 MnO₂↓ + KOH + H₂O",
+          redox: { en: "the CH₃ carbon is oxidized (−3 → +3); Mn is reduced (+7 → +4).", ru: "углерод CH₃ окисляется (−3 → +3), Mn восстанавливается (+7 → +4)." },
+          why: { en: "The reflux condenser returns toluene (bp 111 °C) to the flask during the long heating.", ru: "Обратный холодильник возвращает толуол (т. кип. 111 °C) в колбу при долгом нагревании." },
+          wrong: {
+            hcl: { en: "Danger: conc. HCl + KMnO₄ releases chlorine gas (Cl₂), which is toxic. Never mix them.", ru: "Опасно: конц. HCl + KMnO₄ выделяют хлор (Cl₂) — ядовитый газ. Их нельзя смешивать." },
+            shake: { en: "At room temperature the oxidation is far too slow. It needs prolonged heating under reflux.", ru: "При комнатной температуре окисление идёт слишком медленно. Нужно долгое кипячение с обратным холодильником." },
+            ice: { en: "Cooling slows the reaction down — the oxidation needs heat.", ru: "Охлаждение замедлит реакцию, а окислению нужно нагревание." },
+            nahso3: { en: "Bisulfite would destroy the permanganate before it oxidizes anything.", ru: "Бисульфит уничтожит перманганат раньше, чем тот что-то окислит." },
+            filter: { en: "Nothing has reacted yet — there's no solid to filter.", ru: "Ещё ничего не прореагировало — фильтровать нечего." },
+            koh: { en: "Not needed: the mixture turns basic on its own (KOH forms in the oxidation).", ru: "Не нужно: смесь сама становится щелочной (в ходе окисления образуется KOH)." }
+          } },
+        { correct: "kmno4", rc: { en: "More KMnO₄ in portions, until the purple persists", ru: "Ещё KMnO₄ порциями, пока окраска не перестанет исчезать" }, 
+          p: { en: "After reflux the purple colour is gone, but oily drops of toluene are still visible. What now?", ru: "После кипячения фиолетовая окраска пропала, но видны маслянистые капли толуола. Что теперь?" },
+          obs: { en: "You add KMnO₄ in portions and keep refluxing. Now the purple colour stays: all the toluene is oxidized and permanganate is in excess.", ru: "Вы добавляете KMnO₄ порциями и продолжаете кипятить. Теперь окраска сохраняется: весь толуол окислен, перманганат в избытке." },
+          why: { en: "Purple gone = the oxidant ran out, not the toluene. Purple that persists = the oxidation is complete.", ru: "Окраска исчезла — кончился окислитель, а не толуол. Окраска держится — окисление закончено." },
+          wrong: {
+            filter: { en: "Too early: the purple vanished because KMnO₄ ran out. Unreacted toluene would pass into the filtrate, and the yield drops.", ru: "Рано: окраска исчезла, потому что кончился KMnO₄. Непрореагировавший толуол уйдёт в фильтрат, выход упадёт." },
+            reflux: { en: "Heating longer won't help — there's no permanganate left to oxidize the rest of the toluene.", ru: "Дольше кипятить бесполезно — перманганата не осталось, окислять остаток толуола нечем." },
+            hcl: { en: "Too early, and risky: hot conc. HCl with MnO₂ can release chlorine. The oxidation isn't finished either.", ru: "Рано и опасно: горячая конц. HCl с MnO₂ может выделять хлор. К тому же окисление не закончено." },
+            nahso3: { en: "Bisulfite destroys permanganate — but right now you need more of it, not less.", ru: "Бисульфит уничтожает перманганат, а сейчас его нужно больше, а не меньше." }
+          } },
+        { correct: "nahso3", rc: { en: "NaHSO₃ — destroy the excess KMnO₄", ru: "NaHSO₃ — уничтожить избыток KMnO₄" }, 
+          p: { en: "The purple colour now persists after prolonged heating. Next step?", ru: "Фиолетовая окраска держится после долгого кипячения. Следующий шаг?" },
+          obs: { en: "A little solid NaHSO₃ reduces the excess permanganate to MnO₂: the purple disappears and only the brown solid remains.", ru: "Немного твёрдого NaHSO₃ восстанавливает избыток перманганата до MnO₂: окраска исчезает, остаётся только бурый осадок." },
+          why: { en: "Excess KMnO₄ would pass through the filter and later react with HCl to give Cl₂.", ru: "Избыток KMnO₄ прошёл бы через фильтр, а потом с HCl дал бы Cl₂." },
+          wrong: {
+            filter: { en: "The filtrate would still be purple: dissolved KMnO₄ passes through the filter and gives Cl₂ once you add HCl. Destroy the excess first.", ru: "Фильтрат остался бы фиолетовым: растворённый KMnO₄ проходит через фильтр и с HCl даст Cl₂. Сначала уничтожьте избыток." },
+            hcl: { en: "Danger: excess KMnO₄ + conc. HCl → Cl₂, and the MnO₂ is still in the flask.", ru: "Опасно: избыток KMnO₄ + конц. HCl → Cl₂, и MnO₂ всё ещё в колбе." },
+            kmno4: { en: "The oxidation is already complete — more permanganate is just more to destroy.", ru: "Окисление уже закончено — лишний перманганат придётся уничтожать." },
+            ice: { en: "Cooling removes nothing: MnO₂ is still suspended and the excess KMnO₄ is still there.", ru: "Охлаждение ничего не удаляет: MnO₂ во взвеси, избыток KMnO₄ на месте." }
+          } },
+        { correct: "filter", rc: { en: "Vacuum filtration while hot — remove MnO₂", ru: "Фильтрование горячей смеси — убрать MnO₂" }, 
+          p: { en: "Brown MnO₂ is suspended in a colourless solution. What next?", ru: "Бурый MnO₂ во взвеси в бесцветном растворе. Что дальше?" },
+          obs: { en: "Filter while hot. Brown MnO₂ stays on the filter; the clear filtrate holds potassium benzoate, which dissolves in water.", ru: "Фильтруйте горячим. Бурый MnO₂ остаётся на фильтре, а в прозрачном фильтрате — растворимый бензоат калия." },
+          why: { en: "Remove MnO₂ now, while the product is still a dissolved salt. MnO₂ goes to the manganese waste container.", ru: "Убрать MnO₂ нужно сейчас, пока продукт — растворённая соль. MnO₂ — в контейнер для марганцевых отходов." },
+          wrong: {
+            hcl: { en: "Benzoic acid would precipitate together with brown MnO₂ — two solids you can't separate by filtration. Filter first.", ru: "Бензойная кислота выпала бы вместе с бурым MnO₂ — два осадка фильтрованием не разделить. Сначала фильтруйте." },
+            ice: { en: "Cooling gains nothing: the benzoate stays dissolved anyway, and a cold mixture filters more slowly. Filter it hot.", ru: "Охлаждение ничего не даёт: бензоат всё равно растворён, а холодная смесь фильтруется медленнее. Фильтруйте горячей." },
+            recryst: { en: "There are no crystals yet — the product is still dissolved as a salt.", ru: "Кристаллов ещё нет — продукт пока растворён в виде соли." }
+          } },
+        { correct: "hcl", rc: { en: "Conc. HCl to pH ≈ 2", ru: "Конц. HCl до pH ≈ 2" }, 
+          p: { en: "You have a clear, colourless filtrate. How do you get the product out?", ru: "У вас прозрачный бесцветный фильтрат. Как выделить продукт?" },
+          obs: { en: "In a fume hood, add conc. HCl slowly to pH ≈ 2: a white precipitate of benzoic acid forms.", ru: "В вытяжном шкафу медленно добавляйте конц. HCl до pH ≈ 2: выпадает белый осадок бензойной кислоты." },
+          eq: ACID_EQ,
+          why: { en: "The benzoate salt is soluble; the free acid is poorly soluble in cold water.", ru: "Бензоат — растворимая соль, а свободная кислота плохо растворима в холодной воде." },
+          wrong: {
+            ice: { en: "Cooling a benzoate solution precipitates nothing — the salt is soluble. Acidify first.", ru: "При охлаждении раствора бензоата ничего не выпадет — соль растворима. Сначала подкислите." },
+            filter: { en: "Nothing to filter: the product is still dissolved as potassium benzoate.", ru: "Фильтровать нечего: продукт ещё растворён в виде бензоата калия." },
+            koh: { en: "Base keeps the product as soluble benzoate — the opposite of what you need.", ru: "Щёлочь оставит продукт в виде растворимого бензоата — нужно обратное." },
+            ether: { en: "Ether won't extract the benzoate salt — it stays in water. Acidify instead.", ru: "Эфир не извлечёт соль бензоат — она остаётся в воде. Нужно подкислить." }
+          } }
+      ].concat(TAIL),
+      generic: {
+        kmno4: { en: "The oxidation is behind you — extra permanganate would only have to be destroyed again.", ru: "Окисление позади — лишний перманганат придётся снова уничтожать." },
+        koh: { en: "KOH isn't part of Route A and doesn't help at this stage.", ru: "KOH не используется в пути A и на этом этапе не поможет." },
+        nahso3: { en: "Bisulfite is only for destroying the excess permanganate at the end of the oxidation.", ru: "Бисульфит нужен только для уничтожения избытка перманганата в конце окисления." },
+        ether: { en: "Diethyl ether isn't used in Route A — and it's highly flammable next to hot equipment.", ru: "Диэтиловый эфир в пути A не используется — и он легко воспламеняется рядом с нагревом." },
+        reflux: { en: "No more heating is needed at this stage.", ru: "На этом этапе нагревание уже не нужно." }
+      }
+    },
+    e2: {
+      states: S2, acidAt: 5,
+      steps: [
+        { correct: "koh",
+          p: { en: "Your flask holds benzaldehyde. What goes in first?", ru: "В колбе бензальдегид. Что добавить первым?" },
+          obs: { en: "Two layers: oily benzaldehyde floats on the dense, concentrated KOH solution.", ru: "Два слоя: маслянистый бензальдегид плавает на плотном концентрированном растворе KOH." },
+          why: { en: "The Cannizzaro reaction needs concentrated base.", ru: "Для реакции Канниццаро нужна концентрированная щёлочь." },
+          wrong: {
+            kmno4: { en: "KMnO₄ would simply oxidize benzaldehyde to benzoic acid — no benzyl alcohol, and that's a different experiment. Cannizzaro needs no external oxidant.", ru: "KMnO₄ просто окислит бензальдегид до бензойной кислоты — бензилового спирта не будет, и это другой опыт. Реакции Канниццаро внешний окислитель не нужен." },
+            nahso3: { en: "Bisulfite adds to the aldehyde group (a bisulfite adduct) and ties up the benzaldehyde — no Cannizzaro.", ru: "Бисульфит присоединяется к альдегидной группе (бисульфитное производное) и связывает бензальдегид — реакции Канниццаро не будет." },
+            hcl: { en: "Acid can't start the Cannizzaro reaction — it needs concentrated base.", ru: "Кислота не запустит реакцию Канниццаро — нужна концентрированная щёлочь." },
+            ether: { en: "Ether would just dissolve and dilute the benzaldehyde. It's used later, for extraction.", ru: "Эфир просто растворит и разбавит бензальдегид. Он понадобится позже, для экстракции." },
+            shake: { en: "Shaking benzaldehyde alone does nothing — the base is missing.", ru: "Встряхивание одного бензальдегида ничего не даст — нет щёлочи." },
+            reflux: { en: "Heating benzaldehyde alone does nothing useful — the base is missing.", ru: "Нагрев одного бензальдегида ничего полезного не даст — нет щёлочи." }
+          } },
+        { correct: "shake",
+          p: { en: "Oily benzaldehyde sits on top of conc. KOH. How do you run the reaction?", ru: "Маслянистый бензальдегид над конц. KOH. Как провести реакцию?" },
+          obs: { en: "Shake or stir vigorously, warming gently on a water bath. The oily layer disappears as benzaldehyde turns into potassium benzoate and benzyl alcohol.", ru: "Энергично встряхивайте или перемешивайте, слегка подогревая на водяной бане. Маслянистый слой исчезает: бензальдегид превращается в бензоат калия и бензиловый спирт." },
+          eq: "2 C₆H₅CHO + KOH → C₆H₅COOK + C₆H₅CH₂OH",
+          redox: { en: "one CHO carbon is oxidized (+1 → +3, to COO⁻), the other is reduced (+1 → −1, to CH₂OH) — a disproportionation.", ru: "один углерод CHO окисляется (+1 → +3, в COO⁻), другой восстанавливается (+1 → −1, в CH₂OH) — это диспропорционирование." },
+          why: { en: "Benzaldehyde has no α-hydrogen, so it can't do an aldol reaction; in conc. base it undergoes Cannizzaro instead.", ru: "У бензальдегида нет α-водорода, поэтому альдольная реакция невозможна — в конц. щёлочи идёт реакция Канниццаро." },
+          wrong: {
+            ether: { en: "Too early: ether would pull the benzaldehyde away from the base and the reaction would stall.", ru: "Рано: эфир уведёт бензальдегид от щёлочи, и реакция остановится." },
+            hcl: { en: "Acid would neutralize the KOH and stop the reaction before it starts.", ru: "Кислота нейтрализует KOH и остановит реакцию, не дав ей начаться." },
+            ice: { en: "Cooling slows everything down — the two layers need vigorous mixing and gentle warmth.", ru: "Охлаждение всё замедлит — слоям нужно энергичное перемешивание и лёгкое тепло." },
+            filter: { en: "Nothing to filter — just two liquid layers.", ru: "Фильтровать нечего — только два жидких слоя." }
+          } },
+        { correct: "ice", rc: { en: "Cool before the extraction", ru: "Охладить перед экстракцией" }, 
+          p: { en: "The oily layer is gone and the mixture is warm. What next?", ru: "Маслянистого слоя нет, смесь тёплая. Что дальше?" },
+          obs: { en: "Cool the mixture before the extraction.", ru: "Охладите смесь перед экстракцией." },
+          why: { en: "Diethyl ether boils at 35 °C. Poured into a warm mixture it would boil off — pressure in the separating funnel and a fire risk.", ru: "Диэтиловый эфир кипит при 35 °C. В тёплой смеси он вскипит — давление в делительной воронке и риск пожара." },
+          wrong: {
+            ether: { en: "The mixture is still warm. Ether (bp 35 °C) would boil off, building pressure in the funnel next to a heat source. Cool first.", ru: "Смесь ещё тёплая. Эфир (т. кип. 35 °C) вскипит и создаст давление в воронке рядом с нагревом. Сначала охладите." },
+            hcl: { en: "If you acidify now, benzoic acid precipitates — and ether would later dissolve it together with the benzyl alcohol. Separate first, acidify later.", ru: "Если подкислить сейчас, выпадет бензойная кислота — а эфир потом растворит её вместе с бензиловым спиртом. Сначала разделите, потом подкисляйте." },
+            filter: { en: "Nothing to filter — both products are dissolved.", ru: "Фильтровать нечего — оба продукта в растворе." }
+          } },
+        { correct: "ether", rc: { en: "Diethyl ether — extract the benzyl alcohol (two portions)", ru: "Диэтиловый эфир — экстрагировать бензиловый спирт (двумя порциями)" }, 
+          p: { en: "The mixture has cooled. How do you remove the benzyl alcohol?", ru: "Смесь остыла. Как удалить бензиловый спирт?" },
+          obs: { en: "In a separating funnel, extract with diethyl ether (two portions). Ether is less dense than water, so it forms the upper layer.", ru: "В делительной воронке экстрагируйте диэтиловым эфиром (двумя порциями). Эфир легче воды, поэтому он образует верхний слой." },
+          why: { en: "Benzyl alcohol dissolves in ether; potassium benzoate is a salt and stays in the water.", ru: "Бензиловый спирт растворяется в эфире, а бензоат калия — соль и остаётся в воде." },
+          wrong: {
+            hcl: { en: "If you acidify now, benzoic acid precipitates — and ether would dissolve it together with the benzyl alcohol. Extract first.", ru: "Если подкислить сейчас, выпадет бензойная кислота — и эфир растворит её вместе с бензиловым спиртом. Сначала экстракция." },
+            filter: { en: "Filtration can't separate two dissolved substances — this needs an extraction.", ru: "Фильтрованием не разделить два растворённых вещества — нужна экстракция." }
+          } },
+        { type: "choice", correct: "lower",
+          p: { en: "Two layers in the funnel. Which one do you acidify to get benzoic acid?", ru: "В воронке два слоя. Какой подкислить, чтобы получить бензойную кислоту?" },
+          options: [{ id: "upper", t: { en: "Upper layer (ether)", ru: "Верхний слой (эфир)" } }, { id: "lower", t: { en: "Lower layer (water)", ru: "Нижний слой (водный)" } }],
+          obs: { en: "Run off the lower aqueous layer — it holds potassium benzoate. Keep the ether layer aside: evaporating the ether leaves benzyl alcohol.", ru: "Слейте нижний водный слой — в нём бензоат калия. Эфирный слой отставьте: после отгонки эфира останется бензиловый спирт." },
+          wrong: {
+            upper: { en: "The ether layer holds benzyl alcohol — there's no benzoate in it, so nothing would precipitate.", ru: "В эфирном слое бензиловый спирт — бензоата там нет, ничего не выпадет." }
+          } },
+        { correct: "hcl", rc: { en: "Conc. HCl to pH ≈ 2", ru: "Конц. HCl до pH ≈ 2" }, 
+          p: { en: "You have the aqueous layer with potassium benzoate. What next?", ru: "У вас водный слой с бензоатом калия. Что дальше?" },
+          obs: { en: "In a fume hood, add conc. HCl slowly to pH ≈ 2: white benzoic acid precipitates. The mixture warms up because HCl also neutralizes the leftover KOH.", ru: "В вытяжном шкафу медленно добавляйте конц. HCl до pH ≈ 2: выпадает белая бензойная кислота. Смесь разогревается — HCl нейтрализует и остаток KOH." },
+          eq: ACID_EQ,
+          why: { en: "The benzoate salt is soluble; the free acid is poorly soluble in cold water.", ru: "Бензоат — растворимая соль, а свободная кислота плохо растворима в холодной воде." },
+          wrong: {
+            ice: { en: "Cooling a benzoate solution precipitates nothing — the salt is soluble. Acidify first.", ru: "При охлаждении раствора бензоата ничего не выпадет — соль растворима. Сначала подкислите." },
+            filter: { en: "Nothing to filter: the product is still dissolved as potassium benzoate.", ru: "Фильтровать нечего: продукт ещё растворён в виде бензоата калия." },
+            ether: { en: "The extraction is done. Now the benzoate has to become the free acid.", ru: "Экстракция закончена. Теперь бензоат нужно превратить в свободную кислоту." }
+          } }
+      ].concat(TAIL),
+      generic: {
+        kmno4: { en: "No external oxidant in the Cannizzaro route — benzaldehyde oxidizes itself. KMnO₄ would also oxidize your benzyl alcohol.", ru: "В реакции Канниццаро внешний окислитель не нужен — бензальдегид окисляет сам себя. KMnO₄ к тому же окислит бензиловый спирт." },
+        koh: { en: "The base is already in — more KOH doesn't help at this stage.", ru: "Щёлочь уже добавлена — ещё KOH на этом этапе не поможет." },
+        nahso3: { en: "Bisulfite isn't used in Route B — it adds to aldehydes and would tie up benzaldehyde.", ru: "Бисульфит не используется в пути B — он присоединяется к альдегидам и связал бы бензальдегид." },
+        ether: { en: "Ether is only for extracting benzyl alcohol — after the reaction, from the cooled mixture.", ru: "Эфир нужен только для экстракции бензилового спирта — после реакции, из охлаждённой смеси." },
+        reflux: { en: "No reflux in this route: vigorous shaking with gentle warming is enough.", ru: "Кипячение с холодильником здесь не нужно: достаточно энергичного встряхивания и лёгкого подогрева." }
+      }
+    }
+  };
+  var GEN_COMMON = {
+    hcl_early: { en: "Not yet: acidify only when the product is a clean, dissolved salt with nothing else to remove.", ru: "Рано: подкисляют, только когда продукт — чистый раствор соли и больше ничего удалять не нужно." },
+    hcl_late: { en: "The solution is already acidic — more HCl adds nothing.", ru: "Раствор уже кислый — лишняя HCl ничего не даст." },
+    shake: { en: "Shaking isn't what this stage needs.", ru: "На этом этапе встряхивание не нужно." },
+    ice: { en: "Cooling doesn't help at this stage.", ru: "На этом этапе охлаждение не поможет." },
+    filter: { en: "There's nothing useful to filter off at this stage.", ru: "На этом этапе отфильтровывать нечего." },
+    recryst: { en: "Recrystallization comes at the end, once you have crude crystals.", ru: "Перекристаллизация — в конце, когда есть сырые кристаллы." },
+    mp: { en: "The melting point is the last check, on the dry, purified product.", ru: "Температура плавления — последняя проверка сухого очищенного продукта." }
+  };
+  function wrongText(ex, stepIdx, id) {
+    var E = EXP[ex], st = E.steps[stepIdx];
+    if (st.wrong && st.wrong[id]) return st.wrong[id];
+    if (id === "hcl") return stepIdx < E.acidAt ? GEN_COMMON.hcl_early : GEN_COMMON.hcl_late;
+    if (E.generic[id]) return E.generic[id];
+    return GEN_COMMON[id] || GEN_COMMON.filter;
+  }
+
+  /* ---------------- bench engine ---------------- */
+  function freshRun() { return { i: 0, phase: "ask", tried: [], lastWrong: null, mistakes: [], done: false, anim: false }; }
+  var bench = { ex: store.get("bz-ex") === "e2" ? "e2" : "e1", runs: { e1: freshRun(), e2: freshRun() } };
+  var results = getJSON("bz-results", { e1: null, e2: null });
+
+  function stateNow(ex, run) {
+    var S = EXP[ex].states;
+    return run.phase === "obs" || run.done ? S[run.i + 1] : S[run.i];
+  }
+  function renderBench(scrollTo) {
+    var root = document.getElementById("p-bench"), ex = bench.ex, E = EXP[ex], run = bench.runs[ex], N = E.steps.length;
+    var h = '<div class="seg" role="group">' + ["e1", "e2"].map(function (k) {
+      return '<button type="button" data-ex="' + k + '" aria-pressed="' + (k === ex) + '">' + (results[k] ? '<span class="st">✓ ' + tr("done_badge") + "</span>" : "") +
+        "<b>" + fmt(tr(k + "_t")) + "</b><span>" + fmt(tr(k + "_s")) + "</span></button>";
+    }).join("") + "</div>";
+    h += '<p class="lead">' + fmt(tr(ex + "_lead")) + "</p>";
+    var st = stateNow(ex, run);
+    var stepShown = run.done ? N : Math.min(run.i + 1, N);
+    var prog = (run.i + (run.phase === "obs" || run.done ? 1 : 0)) / N * 100;
+    h += '<div class="card" id="vesselCard"><div class="meta"><span>' + tr("step", { i: stepShown, n: N }) + '</span><span class="' + (run.mistakes.length ? "mist" : "") + '">' + tr("mistakes", { m: run.mistakes.length }) + "</span></div>" +
+      '<div class="progress"><i style="width:' + prog + '%"></i></div>' +
+      '<div class="vessel"><div>' + vesselSvg(st, run.anim) + '</div><div><div class="caption">' + captionFor(st) + "</div>" + legendFor(st) + "</div></div></div>";
+    if (run.done) {
+      h += doneCard(ex, run);
+    } else {
+      var step = E.steps[run.i];
+      h += '<div class="card" id="actCard">';
+      if (run.phase === "ask") {
+        h += '<p class="prompt">' + fmt(L(step.p)) + "</p>";
+        if (step.type === "choice") {
+          h += '<div class="choice">' + step.options.map(function (o) {
+            var tried = run.tried.indexOf(o.id) >= 0;
+            return '<button type="button" class="chip' + (tried ? " tried" : "") + '" data-pick="' + o.id + '"' + (tried ? " disabled" : "") + ">" + fmt(L(o.t)) + "</button>";
+          }).join("") + "</div>";
+        } else {
+          h += '<div class="shelf">' + ["r", "o"].map(function (g) {
+            return "<h3>" + tr(g === "r" ? "reagents" : "operations") + '</h3><div class="chips">' + ITEMS.filter(function (it) { return it.g === g; }).map(function (it) {
+              var tried = run.tried.indexOf(it.id) >= 0;
+              return '<button type="button" class="chip ' + g + (tried ? " tried" : "") + '" data-pick="' + it.id + '"' + (tried ? " disabled" : "") + ">" + fmt(L(it.t)) + "</button>";
+            }).join("") + "</div>";
+          }).join("") + "</div>";
+        }
+        if (run.lastWrong) {
+          var nm = step.type === "choice" ? L(step.options.filter(function (o) { return o.id === run.lastWrong; })[0].t) : L(item(run.lastWrong).t);
+          h += '<div class="whatif" id="whatif" aria-live="polite"><strong>' + tr("whatif") + " — " + fmt(nm) + "</strong>" + fmt(L(wrongText(ex, run.i, run.lastWrong))) + "</div>";
+        }
+      } else {
+        var cn = step.type === "choice" ? L(step.options.filter(function (o) { return o.id === step.correct; })[0].t) : L(item(step.correct).t);
+        h += '<div class="obs" aria-live="polite"><strong>' + tr("correct") + " " + fmt(cn) + "</strong>" + fmt(L(step.obs)) + "</div>";
+        if (step.eq) h += '<div class="eqn">' + eqHtml(step.eq) + "</div>";
+        if (step.redox) h += '<div class="redox"><b>' + tr("redox") + "</b> " + fmt(L(step.redox)) + "</div>";
+        if (step.why) h += '<p class="why">' + fmt(L(step.why)) + "</p>";
+        h += '<button type="button" class="btn full" data-act="next">' + (run.i === N - 1 ? tr("finish") : tr("next")) + "</button>";
+      }
+      h += "</div>";
+    }
+    root.innerHTML = h;
+    run.anim = false;
+    if (scrollTo) {
+      var el = document.getElementById(scrollTo);
+      if (el && el.scrollIntoView) el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: scrollTo === "vesselCard" ? "start" : "nearest" });
+    }
+  }
+  function doneCard(ex, run) {
+    var E = EXP[ex], m = run.mistakes.length;
+    var h = '<div class="card done"><h2>' + fmt(tr("d_title", { exp: tr(ex + "_t") })) + "</h2><p>" + (m ? tr("d_mist", { m: m }) : tr("d_mist0")) + "</p>";
+    if (m) {
+      h += "<h3>" + tr("d_whatifs") + '</h3><ul class="mlist">' + run.mistakes.map(function (x) {
+        var step = E.steps[x.i];
+        var nm = step.type === "choice" ? L(step.options.filter(function (o) { return o.id === x.id; })[0].t) : L(item(x.id).t);
+        return "<li><b>" + tr("step", { i: x.i + 1, n: E.steps.length }) + ": " + fmt(nm) + "</b>" + fmt(L(wrongText(ex, x.i, x.id))) + "</li>";
+      }).join("") + "</ul>";
+    }
+    h += "<h3>" + tr("d_recap") + '</h3><ol class="recap">' + E.steps.map(function (s) {
+      return "<li>" + fmt(s.rc ? L(s.rc) : s.type === "choice" ? L(s.options.filter(function (o) { return o.id === s.correct; })[0].t) : L(item(s.correct).t)) + "</li>";
+    }).join("") + "</ol>";
+    h += '<div class="row2"><button type="button" class="btn ghost" data-act="again">' + tr("d_again") + '</button><button type="button" class="btn" data-act="' + (results[ex === "e1" ? "e2" : "e1"] ? "totest" : "other") + '">' +
+      (results[ex === "e1" ? "e2" : "e1"] ? tr("d_test") : tr("d_other")) + "</button></div></div>";
+    return h;
+  }
+  document.getElementById("p-bench").addEventListener("click", function (e) {
+    var b = e.target.closest("button");
+    if (!b || b.disabled) return;
+    var ex = bench.ex, run = bench.runs[ex], E = EXP[ex];
+    if (b.dataset.ex) { bench.ex = b.dataset.ex; store.set("bz-ex", bench.ex); renderBench(); return; }
+    if (b.dataset.pick && run.phase === "ask" && !run.done) {
+      var step = E.steps[run.i], id = b.dataset.pick;
+      if (id === step.correct) {
+        run.phase = "obs"; run.lastWrong = null; run.anim = true;
+        renderBench("vesselCard");
+      } else {
+        run.tried.push(id); run.lastWrong = id; run.mistakes.push({ i: run.i, id: id });
+        renderBench("whatif");
+      }
+      return;
+    }
+    var act = b.dataset.act;
+    if (act === "next") {
+      if (run.i === E.steps.length - 1) {
+        run.done = true;
+        results[ex] = { mistakes: run.mistakes.length, at: Date.now() };
+        store.set("bz-results", JSON.stringify(results));
+        renderBench("vesselCard");
+      } else {
+        run.i++; run.phase = "ask"; run.tried = []; run.lastWrong = null;
+        renderBench("actCard");
+      }
+    } else if (act === "again") {
+      bench.runs[ex] = freshRun(); renderBench("vesselCard");
+    } else if (act === "other") {
+      bench.ex = ex === "e1" ? "e2" : "e1"; store.set("bz-ex", bench.ex); renderBench(); window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+    } else if (act === "totest") {
+      setTab("test"); window.scrollTo({ top: 0 });
+    }
+  });
+
+  /* ---------------- step order ---------------- */
+  var ORDER = {
+    e1: [
+      { en: "Reflux toluene with aqueous KMnO₄", ru: "Кипятить толуол с водным раствором KMnO₄ (обратный холодильник)" },
+      { en: "Add more KMnO₄ in portions until the purple colour persists", ru: "Добавлять KMnO₄ порциями, пока фиолетовая окраска не перестанет исчезать" },
+      { en: "Add a little NaHSO₃ to destroy the excess KMnO₄", ru: "Добавить немного NaHSO₃, чтобы уничтожить избыток KMnO₄" },
+      { en: "Filter the hot mixture to remove brown MnO₂", ru: "Отфильтровать горячую смесь от бурого MnO₂" },
+      { en: "Acidify the filtrate with conc. HCl to pH ≈ 2", ru: "Подкислить фильтрат конц. HCl до pH ≈ 2" },
+      { en: "Cool in an ice bath", ru: "Охладить на ледяной бане" },
+      { en: "Filter off the benzoic acid and wash with cold water", ru: "Отфильтровать бензойную кислоту и промыть холодной водой" },
+      { en: "Recrystallize from hot water", ru: "Перекристаллизовать из горячей воды" },
+      { en: "Dry and measure the melting point", ru: "Высушить и измерить температуру плавления" }
+    ],
+    e2: [
+      { en: "Mix benzaldehyde with conc. KOH", ru: "Смешать бензальдегид с конц. KOH" },
+      { en: "Shake vigorously with gentle warming until the oily layer disappears", ru: "Энергично встряхивать при лёгком нагреве, пока не исчезнет маслянистый слой" },
+      { en: "Cool the mixture", ru: "Охладить смесь" },
+      { en: "Extract with diethyl ether (two portions); set the ether layer aside", ru: "Экстрагировать диэтиловым эфиром (двумя порциями); эфирный слой отставить" },
+      { en: "Acidify the aqueous layer with conc. HCl to pH ≈ 2", ru: "Подкислить водный слой конц. HCl до pH ≈ 2" },
+      { en: "Cool in an ice bath", ru: "Охладить на ледяной бане" },
+      { en: "Filter off the benzoic acid and wash with cold water", ru: "Отфильтровать бензойную кислоту и промыть холодной водой" },
+      { en: "Recrystallize from hot water", ru: "Перекристаллизовать из горячей воды" },
+      { en: "Dry and measure the melting point", ru: "Высушить и измерить температуру плавления" }
+    ]
+  };
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function freshOrder(ex) {
+    var idx = ORDER[ex].map(function (_, k) { return k; }), sh;
+    do { sh = shuffle(idx); } while (sh.every(function (v, k) { return v === k; }));
+    return { shown: sh, picks: [], checked: false };
+  }
+  var ord = { ex: "e1", e1: freshOrder("e1"), e2: freshOrder("e2") };
+  var orderRes = getJSON("bz-order", { e1: null, e2: null });
+
+  function renderOrder() {
+    var root = document.getElementById("p-order"), ex = ord.ex, o = ord[ex], n = ORDER[ex].length;
+    var h = '<div class="seg" role="group">' + ["e1", "e2"].map(function (k) {
+      return '<button type="button" data-oex="' + k + '" aria-pressed="' + (k === ex) + '">' + (orderRes[k] != null ? '<span class="st">' + orderRes[k] + "/" + ORDER[k].length + "</span>" : "") +
+        "<b>" + fmt(tr(k + "_t")) + "</b><span>" + fmt(tr(k + "_s")) + "</span></button>";
+    }).join("") + "</div>";
+    h += '<p class="lead">' + tr("o_lead") + '</p><ol class="olist">';
+    o.shown.forEach(function (k) {
+      var pos = o.picks.indexOf(k), cls = "ocard", extra = "";
+      if (o.checked) {
+        if (pos === k) cls += " good"; else { cls += " badpos"; extra = '<span class="should">' + tr("o_should", { k: k + 1 }) + "</span>"; }
+      } else if (pos >= 0) cls += " set";
+      h += '<li><button type="button" class="' + cls + '" data-ok="' + k + '"' + (o.checked ? " disabled" : "") + '><span class="n">' + (pos >= 0 ? pos + 1 : "") + "</span><span>" + fmt(L(ORDER[ex][k])) + extra + "</span></button></li>";
+    });
+    h += "</ol>";
+    if (o.checked) {
+      var c = o.picks.filter(function (k, i) { return k === i; }).length;
+      h += '<p class="oscore">' + tr("o_score", { c: c, n: n }) + '</p><button type="button" class="btn full" data-oact="retry">' + tr("o_retry") + "</button>";
+    } else {
+      h += '<button type="button" class="btn full" data-oact="check"' + (o.picks.length === n ? "" : " disabled") + ">" + tr("o_check") + "</button>";
+    }
+    root.innerHTML = h;
+  }
+  document.getElementById("p-order").addEventListener("click", function (e) {
+    var b = e.target.closest("button");
+    if (!b || b.disabled) return;
+    var o = ord[ord.ex];
+    if (b.dataset.oex) { ord.ex = b.dataset.oex; renderOrder(); return; }
+    if (b.dataset.ok !== undefined && !o.checked) {
+      var k = +b.dataset.ok, pos = o.picks.indexOf(k);
+      if (pos >= 0) o.picks.splice(pos, 1); else o.picks.push(k);
+      renderOrder(); return;
+    }
+    if (b.dataset.oact === "check") {
+      o.checked = true;
+      var c = o.picks.filter(function (k, i) { return k === i; }).length;
+      orderRes[ord.ex] = c; store.set("bz-order", JSON.stringify(orderRes));
+      renderOrder();
+    } else if (b.dataset.oact === "retry") {
+      ord[ord.ex] = freshOrder(ord.ex); renderOrder();
+      window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+    }
+  });
+
+  /* ---------------- admission test ---------------- */
+  var PASS = 10;
+  var Q = [
+    { q: { en: "Which sequence shows a carbon being oxidized step by step?", ru: "В какой последовательности углерод окисляется шаг за шагом?" },
+      o: ["R–CH₂OH → R–CHO → R–COOH", "R–COOH → R–CHO → R–CH₂OH", "R–CHO → R–CH₂OH → R–COOH", "R₂C=O → R₂CH–OH → R–COOH"],
+      e: { en: "Each step replaces a C–H bond with a C–O bond: primary alcohol → aldehyde → acid, two electrons per step.", ru: "На каждом шаге связь C–H заменяется связью C–O: первичный спирт → альдегид → кислота, по два электрона на шаг." } },
+    { q: { en: "Why do ketones resist further oxidation?", ru: "Почему кетоны устойчивы к дальнейшему окислению?" },
+      o: [{ en: "The carbonyl carbon has no C–H left; going further means breaking a C–C bond", ru: "У карбонильного углерода не осталось C–H; дальше пришлось бы рвать связь C–C" },
+          { en: "They are stabilized by aromatic resonance", ru: "Их стабилизирует ароматическое сопряжение" },
+          { en: "Their oxygen has no lone pairs", ru: "У их кислорода нет неподелённых пар" },
+          { en: "They are insoluble in water", ru: "Они нерастворимы в воде" }],
+      e: { en: "An aldehyde still has one C–H on the carbonyl carbon, so it is easily oxidized to an acid. A ketone doesn't.", ru: "У альдегида на карбонильном углероде ещё есть C–H, поэтому он легко окисляется до кислоты. У кетона — нет." } },
+    { q: { en: "Butylbenzene is refluxed with excess KMnO₄. What forms?", ru: "Бутилбензол кипятят с избытком KMnO₄. Что образуется?" },
+      o: [{ en: "Benzoic acid", ru: "Бензойная кислота" }, { en: "4-Phenylbutanoic acid", ru: "4-Фенилбутановая кислота" }, { en: "Phenylacetic acid", ru: "Фенилуксусная кислота" }, { en: "Benzaldehyde", ru: "Бензальдегид" }],
+      e: { en: "Oxidation starts at the benzylic C–H and consumes the whole side chain, leaving a single –COOH on the ring, whatever the chain length.", ru: "Окисление начинается с бензильной связи C–H и «съедает» всю боковую цепь, оставляя на кольце одну –COOH независимо от длины цепи." } },
+    { q: { en: "Which aldehyde can undergo the Cannizzaro reaction?", ru: "Какой альдегид вступает в реакцию Канниццаро?" },
+      o: [{ en: "Benzaldehyde, C₆H₅CHO", ru: "Бензальдегид, C₆H₅CHO" }, { en: "Acetaldehyde, CH₃CHO", ru: "Уксусный альдегид, CH₃CHO" }, { en: "Propanal, CH₃CH₂CHO", ru: "Пропаналь, CH₃CH₂CHO" }, { en: "Phenylacetaldehyde, C₆H₅CH₂CHO", ru: "Фенилуксусный альдегид, C₆H₅CH₂CHO" }],
+      e: { en: "Only aldehydes without an α-hydrogen. The others have α-H, so in base they undergo aldol condensation instead.", ru: "Только альдегиды без α-водорода. У остальных есть α-H, и в щёлочи они вступают в альдольную конденсацию." } },
+    { q: { en: "In the Cannizzaro reaction of benzaldehyde, which product is formed by reduction?", ru: "Какой продукт реакции Канниццаро бензальдегида образуется при восстановлении?" },
+      o: [{ en: "Benzyl alcohol", ru: "Бензиловый спирт" }, { en: "Potassium benzoate", ru: "Бензоат калия" }, { en: "Benzoic acid", ru: "Бензойная кислота" }, { en: "Toluene", ru: "Толуол" }],
+      e: { en: "CHO → CH₂OH is a reduction (C: +1 → −1). The other molecule is oxidized to benzoate.", ru: "CHO → CH₂OH — восстановление (C: +1 → −1). Другая молекула окисляется до бензоата." } },
+    { q: { en: "Experiment 1: what does a purple colour that persists after prolonged reflux tell you?", ru: "Опыт 1: о чём говорит фиолетовая окраска, которая держится после долгого кипячения?" },
+      o: [{ en: "The oxidation is complete; KMnO₄ is in excess", ru: "Окисление закончено, KMnO₄ в избытке" }, { en: "The reaction hasn't started yet", ru: "Реакция ещё не началась" }, { en: "The MnO₂ has dissolved", ru: "MnO₂ растворился" }, { en: "The product itself is purple", ru: "Продукт сам фиолетовый" }],
+      e: { en: "While toluene remains, it keeps using up permanganate and the purple fades. Once the colour stays, nothing is left to oxidize.", ru: "Пока есть толуол, он расходует перманганат и окраска исчезает. Если окраска держится — окислять больше нечего." } },
+    { q: { en: "Why must MnO₂ be filtered off before you add HCl?", ru: "Почему MnO₂ нужно отфильтровать до добавления HCl?" },
+      o: [{ en: "Otherwise benzoic acid precipitates together with MnO₂ and can't be separated from it", ru: "Иначе бензойная кислота выпадет вместе с MnO₂ и их не разделить" },
+          { en: "HCl would reduce the benzoic acid", ru: "HCl восстановит бензойную кислоту" },
+          { en: "MnO₂ would oxidize the benzoic acid further", ru: "MnO₂ окислит бензойную кислоту дальше" },
+          { en: "Vacuum filtration only works in acid", ru: "Фильтрование под вакуумом работает только в кислоте" }],
+      e: { en: "Two solids can't be separated by filtration. Hot conc. HCl with MnO₂ can also release chlorine.", ru: "Два осадка фильтрованием не разделить. К тому же горячая конц. HCl с MnO₂ может выделять хлор." } },
+    { q: { en: "Why is a little NaHSO₃ added before filtering in Experiment 1?", ru: "Зачем в опыте 1 перед фильтрованием добавляют немного NaHSO₃?" },
+      o: [{ en: "To destroy the excess KMnO₄, which would otherwise give toxic Cl₂ with HCl", ru: "Чтобы уничтожить избыток KMnO₄, иначе с HCl он даст ядовитый Cl₂" }, { en: "To neutralize the KOH", ru: "Чтобы нейтрализовать KOH" }, { en: "To dissolve the benzoic acid", ru: "Чтобы растворить бензойную кислоту" }, { en: "To speed up the oxidation", ru: "Чтобы ускорить окисление" }],
+      e: { en: "Bisulfite reduces the leftover permanganate, so the filtrate is colourless and safe to acidify.", ru: "Бисульфит восстанавливает остаток перманганата: фильтрат бесцветный, и его безопасно подкислять." } },
+    { q: { en: "Experiment 2: why is diethyl ether added after the reaction?", ru: "Опыт 2: зачем после реакции добавляют диэтиловый эфир?" },
+      o: [{ en: "To extract benzyl alcohol while potassium benzoate stays in the water", ru: "Чтобы извлечь бензиловый спирт, а бензоат калия остался в воде" }, { en: "To oxidize the leftover benzaldehyde", ru: "Чтобы окислить остаток бензальдегида" }, { en: "To neutralize the KOH", ru: "Чтобы нейтрализовать KOH" }, { en: "To precipitate benzoic acid", ru: "Чтобы осадить бензойную кислоту" }],
+      e: { en: "Benzyl alcohol dissolves in ether; the benzoate salt stays in the aqueous layer until you acidify it.", ru: "Бензиловый спирт растворяется в эфире, а соль бензоат остаётся в водном слое до подкисления." } },
+    { q: { en: "In the separating funnel, where is the ether layer?", ru: "Где в делительной воронке эфирный слой?" },
+      o: [{ en: "On top — ether is less dense than water", ru: "Сверху — эфир легче воды" }, { en: "At the bottom — ether is denser", ru: "Снизу — эфир тяжелее" }, { en: "There is only one layer", ru: "Слой только один" }, { en: "It depends on how much ether you add", ru: "Зависит от количества эфира" }],
+      e: { en: "Diethyl ether has a density of about 0.71 g/mL, so it floats on the aqueous layer.", ru: "Плотность диэтилового эфира около 0,71 г/мл, поэтому он плавает над водным слоем." } },
+    { q: { en: "Your benzoic acid melts at 114–119 °C. What do you conclude?", ru: "Ваша бензойная кислота плавится при 114–119 °C. Какой вывод?" },
+      o: [{ en: "It's impure — recrystallize it again", ru: "Она загрязнена — нужна повторная перекристаллизация" }, { en: "It's pure benzoic acid", ru: "Это чистая бензойная кислота" }, { en: "It's benzyl alcohol", ru: "Это бензиловый спирт" }, { en: "The heating was too slow", ru: "Нагрев был слишком медленным" }],
+      e: { en: "Pure benzoic acid melts sharply at 122–123 °C. Impurities lower and broaden the range.", ru: "Чистая бензойная кислота плавится чётко при 122–123 °C. Примеси понижают и растягивают интервал." } },
+    { q: { en: "Why may you use only fresh, properly stored diethyl ether?", ru: "Почему можно использовать только свежий, правильно хранившийся диэтиловый эфир?" },
+      o: [{ en: "Old ether can contain explosive peroxides", ru: "В старом эфире накапливаются взрывоопасные пероксиды" }, { en: "Old ether turns into an ester", ru: "Старый эфир превращается в сложный эфир" }, { en: "Old ether absorbs CO₂ and becomes acidic", ru: "Старый эфир поглощает CO₂ и становится кислым" }, { en: "Old ether loses its smell", ru: "Старый эфир теряет запах" }],
+      e: { en: "Ethers slowly react with air at the α-C–H bond to form peroxides, which concentrate as the ether evaporates.", ru: "Эфиры медленно реагируют с воздухом по связи α-C–H и образуют пероксиды, которые концентрируются при испарении." } }
+  ];
+  var LET = ["A", "B", "C", "D"];
+  var qs = null;
+  var nameVal = store.get("bz-name") || "";
+  function startTest() {
+    qs = { perm: Q.map(function (q) { return shuffle(q.o.map(function (_, k) { return k; })); }), i: 0, score: 0, ans: [], done: false, at: null };
+    var att = (parseInt(store.get("bz-attempts") || "0", 10) || 0) + 1;
+    store.set("bz-attempts", String(att));
+    qs.attempt = att;
+  }
+  function renderTest(focusNext) {
+    var root = document.getElementById("p-test"), n = Q.length;
+    if (!qs) {
+      root.innerHTML = '<div class="qcard"><p style="margin:0">' + tr("t_lead") + '</p><label class="field" for="nm">' + tr("t_name") + '</label>' +
+        '<input class="input" id="nm" type="text" autocomplete="name" placeholder="' + esc(tr("t_name_ph")) + '" value="' + esc(nameVal) + '">' +
+        '<p class="field" style="margin-top:14px">' + tr("t_rules") + '</p><ul class="rules"><li>' + tr("t_rule1", { p: PASS, n: n }) + "</li><li>" + tr("t_rule2") + "</li></ul>" +
+        '<button type="button" class="btn full" data-t-act="start">' + tr("t_start") + "</button></div>";
+      return;
+    }
+    if (qs.done) { root.innerHTML = resultHtml(); return; }
+    var q = Q[qs.i], perm = qs.perm[qs.i], chosen = qs.ans[qs.i], answered = chosen !== undefined;
+    var h = '<div class="qhead"><span>' + tr("q_count", { i: qs.i + 1, n: n }) + "</span><span>" + tr("q_score", { s: qs.score }) + "</span></div>" +
+      '<div class="bar"><i style="width:' + ((qs.i + (answered ? 1 : 0)) / n * 100) + '%"></i></div><div class="qcard"><h2>' + fmt(L(q.q)) + '</h2><div class="opts">' +
+      perm.map(function (k, pos) {
+        var c = "opt", mk = LET[pos];
+        if (answered) { if (k === 0) { c += " right"; mk = "✓"; } else if (k === chosen) { c += " wrong"; mk = "✕"; } else c += " dim"; }
+        return '<button type="button" class="' + c + '" data-opt="' + k + '"' + (answered ? " disabled" : "") + '><span class="mk">' + mk + "</span><span>" + fmt(L(q.o[k])) + "</span></button>";
+      }).join("") + "</div>";
+    if (answered) {
+      h += '<div class="explain"><strong>' + (chosen === 0 ? tr("q_right") : tr("q_wrong")) + "</strong>" + fmt(L(q.e)) + "</div>" +
+        '<button type="button" class="btn full" id="qnext" data-t-act="next">' + (qs.i === n - 1 ? tr("q_finish") : tr("q_next")) + "</button>";
+    }
+    root.innerHTML = h + "</div>";
+    if (focusNext) { var nb = document.getElementById("qnext"); if (nb) { nb.focus({ preventScroll: true }); nb.scrollIntoView && nb.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "nearest" }); } }
+  }
+  function resultHtml() {
+    var n = Q.length, pass = qs.score >= PASS, e1 = !!results.e1, e2 = !!results.e2, ok = pass && e1 && e2;
+    var d = new Date(qs.at || Date.now());
+    var when = d.toLocaleDateString(lang === "ru" ? "ru-RU" : "en-GB") + ", " + d.toLocaleTimeString(lang === "ru" ? "ru-RU" : "en-GB", { hour: "2-digit", minute: "2-digit" });
+    function row(okv, text, sub) { return '<li><span class="ck ' + (okv ? "y" : "n") + '">' + (okv ? "✓" : "✕") + "</span><span>" + text + (sub ? ' <span style="color:var(--muted)">(' + sub + ")</span>" : "") + "</span></li>"; }
+    var ordA = orderRes.e1 != null ? orderRes.e1 + "/" + ORDER.e1.length : tr("a_na"), ordB = orderRes.e2 != null ? orderRes.e2 + "/" + ORDER.e2.length : tr("a_na");
+    var h = '<div class="admit ' + (ok ? "yes" : "no") + '"><div class="when">' + tr("a_card") + "</div>" +
+      '<p class="who">' + (nameVal ? esc(nameVal) : '<span style="color:var(--muted)">' + tr("a_noname") + "</span>") + '</p><div class="when">' + when + " — " + tr("a_attempt", { k: qs.attempt }) + "</div>" +
+      '<div class="status">' + (ok ? tr("a_yes") : tr("a_no")) + '</div><ul class="checks">' +
+      row(pass, tr("a_test", { s: qs.score, n: n, p: PASS })) +
+      row(e1, tr("a_e1"), e1 ? tr("a_e_m", { m: results.e1.mistakes }) : tr("a_notdone")) +
+      row(e2, tr("a_e2"), e2 ? tr("a_e_m", { m: results.e2.mistakes }) : tr("a_notdone")) +
+      '<li><span class="ck i">·</span><span>' + fmt(tr("a_order", { a: ordA, b: ordB })) + "</span></li></ul>" +
+      '<p style="margin:12px 0 0;font-size:14px;color:var(--muted)">' + (ok ? tr("a_show") : tr("a_fix")) + "</p></div>";
+    var miss = Q.map(function (q, i) { return { q: q, i: i }; }).filter(function (x) { return qs.ans[x.i] !== 0; });
+    if (miss.length) {
+      h += '<h3 style="margin:18px 0 0;font-size:16px">' + tr("q_review") + '</h3><ul class="review">' + miss.map(function (x) {
+        return "<li><b>" + fmt(L(x.q.q)) + '</b><span class="ans">' + tr("q_ans") + " " + fmt(L(x.q.o[0])) + "</span><br>" + fmt(L(x.q.e)) + "</li>";
+      }).join("") + "</ul>";
+    }
+    return h + '<button type="button" class="btn full ghost" data-t-act="retake">' + tr("a_retake") + "</button>";
+  }
+  document.getElementById("p-test").addEventListener("input", function (e) {
+    if (e.target.id === "nm") { nameVal = e.target.value.slice(0, 80); store.set("bz-name", nameVal); }
+  });
+  document.getElementById("p-test").addEventListener("click", function (e) {
+    var b = e.target.closest("button");
+    if (!b || b.disabled) return;
+    var a = b.dataset.tAct;
+    if (a === "start") { startTest(); renderTest(); return; }
+    if (b.dataset.opt !== undefined && qs && qs.ans[qs.i] === undefined) {
+      var k = +b.dataset.opt; qs.ans[qs.i] = k; if (k === 0) qs.score++; renderTest(true); return;
+    }
+    if (a === "next") {
+      if (qs.i === Q.length - 1) { qs.done = true; qs.at = Date.now(); } else qs.i++;
+      renderTest();
+      var top = document.getElementById("p-test").getBoundingClientRect().top + window.pageYOffset - 12;
+      window.scrollTo({ top: Math.max(0, top), behavior: reduceMotion ? "auto" : "smooth" });
+    } else if (a === "retake") { qs = null; renderTest(); }
+  });
+
+  /* ---------------- shell ---------------- */
+  var tab = store.get("bz-tab") || "bench";
+  if (["bench", "order", "test"].indexOf(tab) < 0) tab = "bench";
+  function applyStatic() {
+    document.documentElement.lang = lang;
+    document.title = tr("title");
+    document.querySelectorAll("[data-t]").forEach(function (el) { el.innerHTML = fmt(tr(el.getAttribute("data-t"))); });
+    document.querySelectorAll(".lang button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.dataset.lang === lang)); });
+  }
+  function setTab(t) {
+    tab = t; store.set("bz-tab", t);
+    document.querySelectorAll(".tabbar button").forEach(function (b) { var on = b.dataset.tab === t; b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; });
+    ["bench", "order", "test"].forEach(function (p) { document.getElementById("p-" + p).hidden = p !== t; });
+    if (t === "test" && (!qs || qs.done)) renderTest();
+    if (t === "bench") renderBench();
+  }
+  function renderAll() { applyStatic(); renderBench(); renderOrder(); renderTest(); }
+  document.querySelector(".tabbar").addEventListener("click", function (e) { var b = e.target.closest("button[data-tab]"); if (b) setTab(b.dataset.tab); });
+  document.querySelector(".tabbar").addEventListener("keydown", function (e) {
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+    var tabs = ["bench", "order", "test"], i = (tabs.indexOf(tab) + (e.key === "ArrowRight" ? 1 : 2)) % 3;
+    setTab(tabs[i]); document.querySelector('.tabbar button[data-tab="' + tabs[i] + '"]').focus();
+  });
+  document.querySelector(".lang").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-lang]");
+    if (!b || b.dataset.lang === lang) return;
+    lang = b.dataset.lang; store.set("bz-lang", lang); renderAll();
+  });
+  renderAll();
+  setTab(tab);
+})();
+</script>
+</body>
+</html>
