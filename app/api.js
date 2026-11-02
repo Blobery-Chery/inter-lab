@@ -145,6 +145,24 @@ async function getSettings() {
   return { labs: {} };
 }
 
+/**
+ * Доступ к сайту целиком. Преподаватель в панели выбирает: «всем» или «только одобренным студентам».
+ * @returns {Promise<{status: 'open'|'approved'|'pending'|'denied'|'none', comment: string}>}
+ *   open — доступ открыт всем; none — студент ещё не подавал заявку.
+ *   При 'pending' | 'denied' | 'none' сайт показывает только экран заявки на доступ.
+ */
+async function getAccess() {
+  return { status: 'open', comment: '' };
+}
+
+/**
+ * Заявка на доступ к сайту (ФИО и группа берутся из профиля студента).
+ * @returns {Promise<{ok: boolean, status: 'open'|'approved'|'pending'|'denied'}>}
+ */
+async function requestAccess() {
+  return { ok: true, status: 'open' };
+}
+
 /** Отправить очередь неотправленного. В локальном режиме отправлять некуда. */
 async function flushOutbox() {
   const pending = read(K.outbox, []);
@@ -159,6 +177,8 @@ export const api = {
   getStatus,
   submitReport,
   getSettings,
+  getAccess,
+  requestAccess,
   flushOutbox,
 };
 
