@@ -81,3 +81,37 @@ test('Runner: замечания без повторов, подсказки 1�
   r.solve(); r.next(); r.solve(); r.next();
   assert.equal(run.status, 'done'); assert.deepEqual(progress.results['1'], { v: 0 });
 });
+
+test('перезапуск после аварии: наблюдения сорванной попытки не попадают в протокол (журнал их хранит)', async () => {
+  const { buildReport } = await import('../app/report.js');
+  const lab = miniLab(), exp = lab.experiments[0];
+  const progress = { runs: {}, attempts: {}, results: {}, clock: 0 };
+  const run = newRun(lab, exp, progress, 'dev');
+  const r = new Runner({ lab, exp, progress, run, types: {} });
+  r.log({ ru: 'до точки', kk: 'до точки', en: 'before' }, 'obs');
+  r.solve(); r.next(); r.solve(); r.next();             // шаг 2 — контрольная точка
+  r.log({ ru: 'сорванная', kk: 'сорванная', en: 'failed' }, 'obs');
+  r.remark({ key: 'boom', severity: 'critical', text: { ru: 'b', kk: 'b', en: 'b' } });
+  r.restart();
+  r.log({ ru: 'повтор', kk: 'повтор', en: 'repeat' }, 'obs');
+  r.solve(); r.next(); r.solve(); r.next();
+  const d = buildReport(lab, progress, { name: '', group: '' });
+  assert.deepEqual(d.exps[0].observations.map((x) => x.ru), ['до точки', 'повтор']);
+  assert.ok(d.journal.some((j) => j.text.ru === 'сорванная'), 'в полном журнале запись осталась');
+});
+
+test('контрольный режим помечает попытку и протокол; train не снимает отметку', async () => {
+  const { buildReport } = await import('../app/report.js');
+  const lab = miniLab(), exp = lab.experiments[0];
+  const progress = { runs: {}, attempts: {}, results: {}, clock: 0 };
+  const run = newRun(lab, exp, progress, 'dev');
+  new Runner({ lab, exp, progress, run, types: {}, mode: 'exam', hintsEnabled: false });
+  assert.equal(run.mode, 'exam');
+  new Runner({ lab, exp, progress, run, types: {}, mode: 'train', hintsEnabled: true });
+  assert.equal(run.mode, 'exam');
+  assert.equal(buildReport(lab, progress, { name: '', group: '' }).exam, true);
+  const p2 = { runs: {}, attempts: {}, results: {}, clock: 0 };
+  const run2 = newRun(lab, exp, p2, 'dev');
+  new Runner({ lab, exp, progress: p2, run: run2, types: {} });
+  assert.equal(buildReport(lab, p2, { name: '', group: '' }).exam, false);
+});

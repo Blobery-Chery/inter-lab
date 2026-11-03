@@ -202,13 +202,17 @@ const s6 = {
   controls: [
     { kind: 'toggle', id: 'stir', group: L('Колба и баня', 'Колба және монша', 'Flask and bath'), label: L('Перемешивать', 'Араластыру', 'Stir'), labelOn: L('Перемешивание: вкл.', 'Араластыру: қосулы', 'Stirring: on') },
     { kind: 'action', id: 'ice', once: false, group: L('Колба и баня', 'Колба және монша', 'Flask and bath'), label: L('Подсыпать лёд с солью', 'Тұзы бар мұз салу', 'Add ice and salt'), advance: 30, do(S) { S.Tb = Math.min(S.Tb, -8); S.bath.ice = true; S.bath.salt = true; }, log: L('В баню подсыпали лёд с солью', 'Моншаға тұзы бар мұз салынды', 'Ice and salt added to the bath') },
+    { kind: 'action', id: 'back', once: false, group: L('Колба и баня', 'Колба және монша', 'Flask and bath'), label: L('Вернуть колбу в баню', 'Колбаны моншаға қайтару', 'Put the flask back into the bath'), advance: 10,
+      disabled: (S) => S.bath.in !== false, do(S) { S.bath.in = true; }, log: L('Колба возвращена в охлаждающую баню', 'Колба салқындатқыш моншаға қайтарылды', 'Flask returned to the cooling bath') },
   ],
   tick(S, lc, dt, ctx) {
     const N = S.nit;
     S.Tb = Math.min(12, S.Tb + 0.004 * dt);
     const rel = Math.min(lc.pend, lc.pend * 0.35 * dt);
     lc.pend -= rel;
-    S.T += rel - (S.T - S.Tb) * Math.min(1, (lc.c.stir ? 0.03 : 0.012) * dt);
+    // колба вне бани (событие «вынуть колбу») остывает только на воздухе — теплота реакции не отводится
+    const out = S.bath.in === false;
+    S.T += rel - (S.T - (out ? 22 : S.Tb)) * Math.min(1, (out ? 0.0015 : lc.c.stir ? 0.03 : 0.012) * dt);
     if (N.t0 != null) { N.maxT = Math.max(N.maxT, S.T); if (S.T > 10) { N.E += (S.T - 10) * dt; N.hot += dt; } }
     if (S.T > 30 && !N.run) {
       N.run = 1; lc.rh = 0;
@@ -216,6 +220,7 @@ const s6 = {
     }
   },
   alerts(S) {
+    if (S.bath.in === false) return { text: L('Колба вне бани — теплота реакции не отводится. Верните колбу в баню.', 'Колба моншадан тыс — реакция жылуы әкетілмейді. Колбаны моншаға қайтарыңыз.', 'The flask is out of the bath — the heat of reaction is not removed. Put the flask back into the bath.'), kind: 'bad' };
     if (S.T > 20) return { text: L('Выше 20 °C: появляются бурые пары NO₂, идут окисление и динитрование. Прекратите прибавление и охлаждайте!', '20 °C-тан жоғары: қоңыр NO₂ булары пайда болады, тотығу мен динитрлеу жүреді. Қосуды тоқтатып, салқындатыңыз!', 'Above 20 °C: brown NO₂ fumes appear; oxidation and dinitration set in. Stop adding and cool!'), kind: 'bad' };
     if (S.T > 10) return { text: L('Температура выше 10 °C. Прекратите прибавление, перемешивайте, подсыпьте лёд с солью.', 'Температура 10 °C-тан жоғары. Қосуды тоқтатып, араластырыңыз, тұзы бар мұз салыңыз.', 'Temperature above 10 °C. Stop adding, keep stirring, add ice and salt.'), kind: 'warn' };
     return null;
@@ -228,12 +233,12 @@ const s6 = {
       { ok: true, label: L('Прекратить прибавление, перемешивать, подсыпать в баню лёд с солью', 'Қосуды тоқтатып, араластыру, моншаға тұзы бар мұз салу', 'Stop adding, stir, add ice and salt to the bath'), effect(S, lc) { lc.rh = 0; lc.c.stir = true; S.Tb = Math.min(S.Tb, -8); S.bath.salt = true; }, log: L('Прибавление остановлено, смесь перемешивается, в баню добавлен лёд с солью', 'Қосу тоқтатылды, қоспа араластырылуда, моншаға тұзы бар мұз қосылды', 'Addition stopped, the mixture is stirred, ice and salt added to the bath') },
       { ok: false, severity: 'major', label: L('Продолжать прибавление — скоро всё закончится', 'Қосуды жалғастыру — жақында бітеді', 'Keep adding — it will be over soon'), remark: L('прибавление продолжено при бурых парах и росте температуры', 'қоңыр булар мен температура өсуі кезінде қосу жалғастырылды', 'addition continued despite brown fumes and rising temperature'), effect(S, lc) { lc.pend += 3; } },
       { ok: false, severity: 'safety', label: L('Поднять экран шкафа, чтобы лучше рассмотреть пары', 'Буды жақсырақ көру үшін шкаф экранын көтеру', 'Raise the hood sash to see the fumes better'), remark: L('экран вытяжного шкафа поднят при выделении NO₂ (п. 4.4 правил ТБ)', 'NO₂ бөлінгенде тартпа шкаф экраны көтерілді (ҚТ ережелерінің 4.4-тармағы)', 'hood sash raised while NO₂ was evolved (safety rule 4.4)'), effect(S, lc) { lc.rh = 0; } },
-      { ok: false, severity: 'major', label: L('Вынуть колбу из бани и подождать', 'Колбаны моншадан алып, күту', 'Take the flask out of the bath and wait'), remark: L('колбу вынули из охлаждающей бани во время нитрования', 'нитрлеу кезінде колба салқындатқыш моншадан алынды', 'flask taken out of the cooling bath during the nitration'), effect(S, lc) { lc.rh = 0; S.T += 4; } },
+      { ok: false, severity: 'major', label: L('Вынуть колбу из бани и подождать', 'Колбаны моншадан алып, күту', 'Take the flask out of the bath and wait'), remark: L('колбу вынули из охлаждающей бани во время нитрования', 'нитрлеу кезінде колба салқындатқыш моншадан алынды', 'flask taken out of the cooling bath during the nitration'), effect(S, lc) { lc.rh = 0; S.T += 4; S.bath.in = false; } },
     ],
   }],
   chart: { label: L('Термограмма: температура в колбе во времени', 'Термограмма: колбадағы температураның уақытқа тәуелділігі', 'Thermogram: flask temperature over time'), value: (S) => S.T, min: -10, max: 40, band: [0, 10], limit: 10, every: 5, active: (S, lc) => S.nit.t0 != null && (S.nit.t1 == null || lc.added < 60 || (lc.chartT || 0) < (S.nit.t1 - S.nit.t0) + 90), empty: L('термограмма начнётся с первой капли', 'термограмма бірінші тамшыдан басталады', 'the thermogram starts with the first drop') },
   done: (S, lc) => lc.added >= 60 && S.T < 15 && { text: L('Прибавление закончено.', 'Қосу аяқталды.', 'Addition complete.') },
-  scene: (S, lc) => flaskScene(S, { bath: true, th: true, rod: true, stir: lc.c && lc.c.stir, pip: true, dropKey: lc.dropKey, vol: S.vAcid + 1 + lc.added * 0.05, color: lc.added ? 'var(--liq-y)' : null, fumes: Math.max(0, Math.min(0.9, (S.T - 14) / 12)) }),
+  scene: (S, lc) => flaskScene(S, { bath: S.bath.in !== false, th: true, rod: true, stir: lc.c && lc.c.stir, pip: true, dropKey: lc.dropKey, vol: S.vAcid + 1 + lc.added * 0.05, color: lc.added ? 'var(--liq-y)' : null, fumes: Math.max(0, Math.min(0.9, (S.T - 14) / 12)) }),
 };
 // Время прибавления в показаниях: считаем по часам опыта
 s6.readouts = (S, lc) => {
@@ -556,6 +561,28 @@ const s16 = {
   ],
   saveAs: 'calc1',
 };
+
+/* Подсказки шагов-процессов (сессия Q): вместо общих фраз типа — конкретно по методичке. */
+s4.hints = [
+  L('Охлаждающая смесь — лёд с солью: она холоднее, чем лёд с водой. Колба должна стоять в бане, раствор — перемешиваться.', 'Салқындатқыш қоспа — тұзы бар мұз: ол сулы мұздан суығырақ. Колба моншада тұруы, ерітінді араластырылуы тиіс.', 'The cooling mixture is ice with salt: it is colder than ice with water. The flask must sit in the bath and the solution must be stirred.'),
+  L('Без соли баня даёт около 0 °C и охлаждает медленно; без перемешивания раствор остывает вдвое медленнее. Цель — 5 °C и ниже.', 'Тұзсыз монша шамамен 0 °C береді және баяу салқындатады; араластырусыз ерітінді екі есе баяу суиды. Мақсат — 5 °C және одан төмен.', 'Without salt the bath gives about 0 °C and cools slowly; without stirring the solution cools half as fast. The target is 5 °C or below.'),
+  L('«Насыпать колотый лёд» → «Добавить соль NaCl» → «Поместить колбу в баню» → «Перемешивать» и ждать, пока раствор не охладится до 0–5 °C (ускорьте ход времени).', '«Уатылған мұз салу» → «NaCl тұзын қосу» → «Колбаны моншаға салу» → «Араластыру» және ерітінді 0–5 °C-қа дейін суығанша күту (уақыт жүрісін жылдамдатыңыз).', '“Add crushed ice” → “Add NaCl” → “Put the flask in the bath” → “Stir”, then wait until the solution is at 0–5 °C (speed up the clock).'),
+];
+s5.hints = [
+  L('Нитрующую смесь готовят так же, как разбавляют кислоты: более тяжёлую и вязкую серную кислоту наливают первой.', 'Нитрлеуші қоспаны қышқылдарды сұйылтқандай дайындайды: ауырырақ әрі тұтқырырақ күкірт қышқылын бірінші құяды.', 'The nitrating mixture is made the way acids are diluted: the heavier, more viscous sulfuric acid goes in first.'),
+  L('Нужно ровно 1,5 мл H₂SO₄ и 1,5 мл HNO₃ (по 3 порции по 0,5 мл). HNO₃ прибавляйте с паузами, давая смеси остыть, — иначе она разогреется.', 'Дәл 1,5 мл H₂SO₄ және 1,5 мл HNO₃ қажет (0,5 мл-ден 3 порция). HNO₃-ті қоспаның суынуына мүмкіндік беріп, үзіліспен қосыңыз — әйтпесе ол қызады.', 'You need exactly 1.5 mL of H₂SO₄ and 1.5 mL of HNO₃ (3 portions of 0.5 mL each). Add the HNO₃ with pauses so the mixture can cool, otherwise it warms up.'),
+  L('3 × «H₂SO₄ +0,5 мл», затем 3 × «HNO₃ +0,5 мл, по стенке» с паузами и ждать, пока смесь не охладится до 5 °C. Перепутали порядок или перелили — «Слить в отходы, приготовить заново».', '3 × «H₂SO₄ +0,5 мл», содан кейін үзіліспен 3 × «HNO₃ +0,5 мл, қабырға бойымен» және қоспа 5 °C-қа дейін суығанша күту. Ретін шатастырсаңыз не артық құйсаңыз — «Қалдыққа төгіп, қайта дайындау».', '3 × “H₂SO₄ +0.5 mL”, then 3 × “HNO₃ +0.5 mL, down the wall” with pauses, and wait until the mixture is at 5 °C. Wrong order or too much — “Discard into waste and start again”.'),
+];
+s7.hints = [
+  L('Реакции нужно время: сначала выдержка в ледяной бане, потом — при комнатной температуре.', 'Реакцияға уақыт керек: алдымен мұз моншасында ұстау, содан кейін — бөлме температурасында.', 'The reaction needs time: first in the ice bath, then at room temperature.'),
+  L('Методичка: 10–15 мин в бане, затем 10 мин при комнатной температуре. Короткая выдержка — часть бензойной кислоты не прореагирует, выход ниже.', 'Әдістеме: моншада 10–15 мин, содан кейін бөлме температурасында 10 мин. Қысқа ұстау — бензой қышқылының бір бөлігі әрекеттеспейді, шығым төмен.', 'The manual: 10–15 min in the bath, then 10 min at room temperature. A short hold leaves some benzoic acid unreacted and lowers the yield.'),
+  L('2–3 раза «В бане, перемешивая: +5 мин» (10–15 мин), затем 2 раза «Вынуть из бани: +5 мин при комн. т-ре» (10 мин).', '2–3 рет «Моншада, араластыра: +5 мин» (10–15 мин), содан кейін 2 рет «Моншадан алу: бөлме t-да +5 мин» (10 мин).', '“In the bath, stirring: +5 min” 2–3 times (10–15 min), then “Out of the bath: +5 min at room temp.” twice (10 min).'),
+];
+s13.hints = [
+  L('Вода нужна минимальная: столько, чтобы при кипении растворилось всё вещество. Лишняя вода оставит продукт в маточном растворе.', 'Су ең аз мөлшерде қажет: қайнаған кезде бүкіл зат еритіндей. Артық су өнімді аналық ерітіндіде қалдырады.', 'Use the minimum of water: just enough to dissolve all the solid at the boil. Extra water leaves product in the mother liquor.'),
+  L('Добавляйте воду порциями и нагревайте до кипения; маслянистые капли на дне — вещества ещё не растворено, добавьте 5 мл. Охлаждать — медленно, лёд — только потом.', 'Суды порциялап қосып, қайнағанша қыздырыңыз; түбіндегі майлы тамшылар — зат әлі ерімеген, 5 мл қосыңыз. Баяу суыту керек, мұз — тек содан кейін.', 'Add water in portions and heat to the boil; oily drops on the bottom mean undissolved solid — add 5 mL. Cool slowly, ice only afterwards.'),
+  L('Добавьте воду (около 33 мл на 1 г сырого продукта), «Плитка: включить», дождитесь «Раствор прозрачный», затем «Снять с плитки, остудить, затем лёд» и «Отфильтровать, промыть 2–3 мл ледяной воды». Резкое охлаждение даёт мелкие кристаллы с примесями.', 'Су қосыңыз (1 г шикі өнімге шамамен 33 мл), «Плита: қосу», «Ерітінді мөлдір» болғанша күтіңіз, содан кейін «Плитадан алып, суыту, содан кейін мұз» және «Сүзіп, 2–3 мл мұздай сумен жуу». Кенет суыту қоспалары бар ұсақ кристалдар береді.', 'Add water (about 33 mL per 1 g of crude product), “Hot plate: on”, wait for “The solution is clear”, then “Remove from heat, cool, then ice” and “Filter, wash with 2–3 mL of ice-cold water”. Shock cooling gives small, impure crystals.'),
+];
 
 export default {
   id: '1',

@@ -66,6 +66,8 @@ export class Runner {
   constructor({ lab, exp, progress, run, hooks = {}, hintsEnabled = true, mode = 'train', types = {} }) {
     this.lab = lab; this.exp = exp; this.progress = progress; this.run = run;
     this.hooks = hooks; this.hintsEnabled = hintsEnabled; this.mode = mode; this.types = types;
+    // контрольный режим «прилипает» к попытке: протокол помечается, если опыт хоть раз шёл без подсказок (?mode=exam или преподаватель выключил)
+    if (mode === 'exam' || !hintsEnabled) run.mode = 'exam'; else if (!run.mode) run.mode = 'train';
     this.rng = createRng(run.rng);
   }
 
@@ -148,6 +150,8 @@ export class Runner {
     const snap = this.run.checkpoints[cp] || this.run.checkpoints[0];
     this.run.state = deepClone(snap.state);
     for (const k of Object.keys(this.run.local)) if (+k >= cp) delete this.run.local[k];
+    // записи сорванной попытки с шагов ≥ контрольной точки остаются в журнале, но не идут в наблюдения протокола
+    for (const e of this.run.journal) if (e.step >= cp) e.void = 1;
     this.run.step = cp;
     this.run.status = 'active';
     this.run.failure = null;

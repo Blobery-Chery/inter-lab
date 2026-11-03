@@ -45,7 +45,7 @@ export function buildReport(lab, progress, student) {
       reagents: done && cfg.reagents ? cfg.reagents(res) : [],
       conditions: done && cfg.conditions ? cfg.conditions(res) : null,
       equations: cfg.equations || e.equation || [],
-      observations: run ? run.journal.filter((j) => j.kind === 'obs').map((j) => j.text) : [],
+      observations: run ? run.journal.filter((j) => j.kind === 'obs' && !j.void).map((j) => j.text) : [],
       calculations: done && cfg.calculations ? cfg.calculations(res) : [],
       conclusion: done && cfg.conclusion ? cfg.conclusion(res) : null,
     };
@@ -144,7 +144,7 @@ export function reportPayload(d, progress, mode, lang, text) {
   return {
     lab: d.lab.id,
     attempt: Math.max(1, ...Object.values(progress.attempts || {})),
-    mode, lang,
+    mode: d.exam ? 'exam' : mode, lang,
     grade: d.grade.grade, points: d.grade.points,
     remarks: d.remarks.map((r) => ({ step: tr(r.step), severity: r.severity, points: r.points, text: tr(r.text) }))
       .concat(d.grade.extra.map((r) => ({ step: t('resultPenalty'), severity: 'major', points: r.points, text: tr(r.text) }))),
