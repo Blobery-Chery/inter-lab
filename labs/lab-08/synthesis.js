@@ -401,15 +401,15 @@ export function makeSynthesis(kind, opts = {}) {
     parts: [
       { id: 'mantle', label: L('Колбонагреватель', 'Колба қыздырғыш', 'Heating mantle') },
       { id: 'burner', label: L('Газовая горелка', 'Газ жанарғысы', 'Gas burner') },
-      { id: 'dflask', label: L('Перегонная колба с эфиром', 'Эфирі бар айдау колбасы', 'Distillation flask with the ester') },
-      { id: 'th-ok', label: L('Термометр: шарик на уровне бокового отвода', 'Термометр: шары бүйір бұрма деңгейінде', 'Thermometer: bulb level with the side arm') },
-      { id: 'th-low', label: L('Термометр: шарик в жидкости', 'Термометр: шары сұйықта', 'Thermometer: bulb in the liquid') },
-      { id: 'th-high', label: L('Термометр: шарик выше отвода', 'Термометр: шары бұрмадан жоғары', 'Thermometer: bulb above the side arm') },
+      { id: 'dflask', label: L('Колба с высушенным эфиром', 'Кептірілген эфирі бар колба', 'Flask with the dried ester') },
+      { id: 'th-ok', label: L('Шарик на уровне бокового отвода', 'Шары бүйір бұрма деңгейінде', 'Bulb level with the side arm') },
+      { id: 'th-low', label: L('Шарик в жидкости', 'Шары сұйықта', 'Bulb in the liquid') },
+      { id: 'th-high', label: L('Шарик выше бокового отвода', 'Шары бүйір бұрмадан жоғары', 'Bulb above the side arm') },
       { id: 'liebig', label: L('Холодильник Либиха', 'Либих мұздатқышы', 'Liebig condenser') },
       { id: 'tap', label: L('Шланг от водопроводного крана', 'Су құбыры шүмегінен шланг', 'Hose from the water tap') },
       { id: 'drain', label: L('Шланг в раковину (слив)', 'Раковинаға шланг (ағызу)', 'Hose to the sink (outlet)') },
-      { id: 'recF', label: L('Приёмник для головной фракции', 'Бастапқы фракцияға арналған қабылдағыш', 'Receiver for the fore-run') },
-      { id: 'recW', label: L('Взвешенный приёмник', 'Өлшенген қабылдағыш', 'Pre-weighed receiver') },
+      { id: 'recF', label: L('Колба для головной фракции', 'Бастапқы фракцияға арналған колба', 'Flask for the fore-run') },
+      { id: 'recW', label: L('Взвешенная колба для продукта', 'Өнімге арналған өлшенген колба', 'Pre-weighed flask for the product') },
     ],
     slots: [
       { id: 'heat', label: L('Нагрев', 'Қыздыру', 'Heating'), accepts: 'mantle', x: 100, y: 214 },
@@ -466,7 +466,7 @@ export function makeSynthesis(kind, opts = {}) {
           if (v > 0 && S.dapp.heat === 'burner') ctx.remark({ key: 'dfire', severity: 'critical', text: L('перегонка ЛВЖ на открытом пламени', 'ТТС-ты ашық жалында айдау', 'distilling a flammable liquid over an open flame'), critical: { text: FIRE_D } });
           if (v > 0 && S.dapp.heat === 'none') { lc.c.pow = 0; ctx.rerender(); ctx.feedback(L('Под колбой нет нагревателя.', 'Колбаның астында қыздырғыш жоқ.', 'There is no heater under the flask.'), 'warn'); }
         } },
-      { kind: 'seg', id: 'rec', group: G.rec, label: G.rec, options: [['fore', L('головная фракция', 'бастапқы фракция', 'fore-run')], ['main', L('взвешенный приёмник', 'өлшенген қабылдағыш', 'pre-weighed receiver')]],
+      { kind: 'seg', id: 'rec', group: G.rec, label: G.rec, options: [['fore', L('головной', 'бастапқы', 'fore-run')], ['main', L('взвешенный', 'өлшенген', 'pre-weighed')]],
         onChange(S, lc, v, ctx) {
           if (S.dist.stopped || S.dist.rec === v) { if (lc.c.rec !== S.dist.rec) { lc.c.rec = S.dist.rec; ctx.rerender(); } return; }
           S.dist.rec = v;
@@ -552,7 +552,7 @@ export function makeSynthesis(kind, opts = {}) {
     hints: [
       T3((l) => ({ ru: `Кипелка → вода → нагрев «средне» (1–2 капли/с). Следите за термометром: до ${lo} °C — головная фракция, ${lo}–${hi} °C — продукт.`, kk: `Қайнату тасы → су → «орташа» қыздыру (1–2 тамшы/с). Термометрді қадағалаңыз: ${lo} °C-қа дейін — бастапқы фракция, ${lo}–${hi} °C — өнім.`, en: `Chip → water → heat “medium” (1–2 drops/s). Watch the thermometer: below ${lo} °C is the fore-run, ${lo}–${hi} °C is the product.` })[l]),
       T3((l) => ({ ru: `Подставьте взвешенный приёмник, когда термометр покажет ${lo} °C. Если температура не доходит до ${lo} °C или сразу выше ${hi} °C — проверьте, где шарик термометра. Остановитесь, когда в колбе останется ~1 мл.`, kk: `Термометр ${lo} °C көрсеткенде өлшенген қабылдағышты қойыңыз. Температура ${lo} °C-қа жетпесе немесе бірден ${hi} °C-тан жоғары болса — термометр шарының қайда екенін тексеріңіз. Колбада ~1 мл қалғанда тоқтаңыз.`, en: `Switch to the pre-weighed receiver when the thermometer reads ${lo} °C. If it never reaches ${lo} °C or is above ${hi} °C straight away, check where the thermometer bulb is. Stop when ~1 mL is left in the flask.` })[l]),
-      L('«Бросить кипелку» → «Пустить воду» → нагрев «средне» → при нижней границе фракции «взвешенный приёмник» → когда в колбе ~1 мл, «Прекратить перегонку».', '«Қайнату тасын салу» → «Су жіберу» → «орташа» қыздыру → фракцияның төменгі шегінде «өлшенген қабылдағыш» → колбада ~1 мл қалғанда «Айдауды тоқтату».', '“Drop a chip” → “Turn on the water” → heat “medium” → at the lower limit of the fraction “pre-weighed receiver” → with ~1 mL left, “Stop the distillation”.'),
+      L('«Бросить кипелку» → «Пустить воду» → нагрев «средне» → при нижней границе фракции «Приёмник: взвешенный» → когда в колбе ~1 мл, «Прекратить перегонку».', '«Қайнату тасын салу» → «Су жіберу» → «орташа» қыздыру → фракцияның төменгі шегінде «Қабылдағыш: өлшенген» → колбада ~1 мл қалғанда «Айдауды тоқтату».', '“Drop a chip” → “Turn on the water” → heat “medium” → at the lower limit of the fraction “Receiver: pre-weighed” → with ~1 mL left, “Stop the distillation”.'),
     ],
   };
 

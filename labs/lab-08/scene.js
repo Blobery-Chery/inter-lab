@@ -88,9 +88,9 @@ export function funnelScene(F) {
   s += beaker({ id: 'wst', x: cx - 32, y: 196, w: 64, hh: 34, frac: Math.min(0.9, (F.waste || 0) / 90), label: null });
   s += text(cx, 246, L('стакан для водного слоя', 'сулы қабатқа арналған стақан', 'beaker for the aqueous layer'));
   if (F.prod) s += conical({ id: 'cfp', cx: 300, by: 226, s: 0.42, vol: F.prod, cap: 50, color: ORG }) + text(300, 246, L('колба с эфиром', 'эфирі бар колба', 'flask with ester'));
-  const lbl = F.mixed ? L('эмульсия — дайте отстояться', 'эмульсия — тұндырыңыз', 'emulsion — let it settle') : org > 0 && aq > 0 ? L('верх: эфир · низ: водный слой', 'үсті: эфир · асты: сулы қабат', 'top: ester · bottom: aqueous') : null;
-  if (lbl) s += text(cx + 64, top + 70, lbl, 'lbl', 'start');
-  if (F.gas > 0.05) s += text(cx + 64, top + 88, L('выделяется CO₂', 'CO₂ бөлінуде', 'CO₂ evolving'), 'lbl', 'start', ' style="fill:var(--warn)"');
+  const lbl = F.mixed ? [L('эмульсия —', 'эмульсия —', 'emulsion —'), L('дайте отстояться', 'тұндырыңыз', 'let it settle')] : org > 0 && aq > 0 ? [L('верх — эфир', 'үсті — эфир', 'top — ester'), L('низ — водный слой', 'асты — сулы қабат', 'bottom — aqueous')] : null;
+  if (lbl) s += text(354, top + 96, lbl[0], 'lbl', 'end') + text(354, top + 110, lbl[1], 'lbl', 'end');
+  if (F.gas > 0.05) s += text(354, top + 128, L('выделяется CO₂', 'CO₂ бөлінуде', 'CO₂ evolving'), 'lbl', 'end', ' style="fill:var(--warn)"');
   return scene(s);
 }
 

@@ -130,7 +130,7 @@ export default {
         const hx = R['3'] ? (r3.pos ? L('+ красно-фиолетовая', '+ қызыл-күлгін', '+ red-violet') : L('− (повторить)', '− (қайталау)', '− (repeat)')) : '—';
         return [
           [NAMES.n.ester, NAMES.n.alc, frac(R['1']), '126', R['1'] ? n(r1.mProd, 2) : '—', R['1'] ? n(r1.yield, 1) : '—', hx],
-          [NAMES.i.ester, NAMES.i.alc, frac(R['2']), '117–118', R['2'] ? n(r2.mProd, 2) : '—', R['2'] ? n(r2.yield, 1) : '—', R['2'] ? L('+ (эфир)', '+ (эфир)', '+ (ester)') : '—'],
+          [NAMES.i.ester, NAMES.i.alc, frac(R['2']), '117–118', R['2'] ? n(r2.mProd, 2) : '—', R['2'] ? n(r2.yield, 1) : '—', '—'],
         ];
       },
     },
