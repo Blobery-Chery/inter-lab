@@ -67,7 +67,7 @@ export class Runner {
     this.lab = lab; this.exp = exp; this.progress = progress; this.run = run;
     this.hooks = hooks; this.hintsEnabled = hintsEnabled; this.mode = mode; this.types = types;
     // контрольный режим «прилипает» к попытке: протокол помечается, если опыт хоть раз шёл без подсказок (?mode=exam или преподаватель выключил)
-    if (mode === 'exam' || !hintsEnabled) run.mode = 'exam'; else if (!run.mode) run.mode = 'train';
+    if ((mode === 'exam' || !hintsEnabled) && run.status !== 'done') run.mode = 'exam'; else if (!run.mode) run.mode = 'train';
     this.rng = createRng(run.rng);
   }
 

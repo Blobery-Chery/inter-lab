@@ -115,3 +115,14 @@ test('контрольный режим помечает попытку и пр�
   new Runner({ lab, exp, progress: p2, run: run2, types: {} });
   assert.equal(buildReport(lab, p2, { name: '', group: '' }).exam, false);
 });
+
+test('просмотр завершённого опыта в контрольном режиме не ставит отметку задним числом', () => {
+  const lab = miniLab(), exp = lab.experiments[0];
+  const progress = { runs: {}, attempts: {}, results: {}, clock: 0 };
+  const run = newRun(lab, exp, progress, 'dev');
+  const r = new Runner({ lab, exp, progress, run, types: {} });
+  for (let i = 0; i < 4; i++) { r.solve(); r.next(); }
+  assert.equal(run.status, 'done');
+  new Runner({ lab, exp, progress, run, types: {}, mode: 'exam', hintsEnabled: false });
+  assert.equal(run.mode, 'train');
+});
