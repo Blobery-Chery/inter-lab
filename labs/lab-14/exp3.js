@@ -50,7 +50,6 @@ function react(t, S, ctx, local, sec, T) {
   t.gas = true;
   recolor(t, S);
   if (before > 0.5 && t.left <= 0.5) ctx.log(L(`Через ${n(t.min, 0)} мин красная окраска заметно побледнела (бледно-розовый раствор)`, `${n(t.min, 0)} минуттан кейін қызыл түс айтарлықтай бозарды (ақшыл қызғылт ерітінді)`, `After ${n(t.min, 0)} min the red colour has faded markedly (pale pink solution)`), 'obs');
-  if (before > 0.04 && t.left <= 0.04) ctx.log(L(`Через ${n(t.min, 0)} мин раствор обесцветился; продолжается выделение пузырьков водорода`, `${n(t.min, 0)} минуттан кейін ерітінді түссізденді; сутек көпіршіктерінің бөлінуі жалғасуда`, `After ${n(t.min, 0)} min the solution has become colourless; hydrogen bubbles are still being given off`), 'obs');
 }
 
 const r1 = {
@@ -150,7 +149,7 @@ export default {
   title: L('Восстановительное расщепление азогруппы', 'Азотоптың тотықсыздана ыдырауы', 'Reductive cleavage of the azo group'),
   principle: L('Сильные восстановители расщепляют связь –N=N– и разрушают хромофор: метиловый оранжевый восстанавливается до сульфаниловой кислоты и N,N-диметил-п-фенилендиамина, раствор обесцвечивается.', 'Күшті тотықсыздандырғыштар –N=N– байланысын ыдыратып, хромофорды бұзады: метилоранж сульфанил қышқылы мен N,N-диметил-п-фенилендиаминге дейін тотықсызданады, ерітінді түссізденеді.', 'Strong reducing agents cleave the –N=N– bond and destroy the chromophore; methyl orange is reduced to sulfanilic acid and N,N-dimethyl-p-phenylenediamine, and the solution becomes colourless.'),
   equation: ['NaO₃S–C₆H₄–N=N–C₆H₄–N(CH₃)₂ + 4[H] → NaO₃S–C₆H₄–NH₂ + H₂N–C₆H₄–N(CH₃)₂', 'Zn + 2HCl → ZnCl₂ + H₂↑'],
-  initialState: ({ prev }) => ({ pH0: (prev['1'] || {}).acidForm ? 4.0 : 6.5, load: (prev['2'] || {}).dark ? 3 : 1, red: null }),
+  initialState: ({ prev }) => ({ pH0: (prev['1'] || {}).acidForm ? 4.0 : 6.5, load: (prev['2'] || {}).dark ? 2 : 1, red: null }),
   checkpoints: [0],
   steps: [r0, r1, r2, r3],
   results: (S) => ({ min: S.red ? S.red.min : null, load: S.load }),

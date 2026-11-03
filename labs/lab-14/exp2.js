@@ -19,7 +19,9 @@ function tubePH(t, pH0) {
 function paint(t, S) {
   if (!t.mo) { t.color = t.V > 0 ? null : t.color; return; }
   t.pH = tubePH(t, S.pH0);
-  t.color = moColor(acidFraction(t.pH), S.dark ? 0.95 : 0.7);
+  // нейтральный раствор натриевой соли (≈ pH 6,5) на глаз оранжево-жёлтый, щелочной — чисто жёлтый
+  const neutral = Math.abs(t.acid || 0) < 1e-5 && t.pH > 4.4;
+  t.color = moColor(neutral ? 0.22 : acidFraction(t.pH), S.dark ? 0.95 : 0.7);
 }
 const zone = (pH) => (pH < 3.1 ? 'red' : pH <= 4.4 ? 'orange' : 'yellow');
 const zoneName = (z) => (z === 'red' ? L('красная', 'қызыл', 'red') : z === 'orange' ? L('оранжевая', 'қызғылт сары', 'orange') : L('жёлтая', 'сары', 'yellow'));
