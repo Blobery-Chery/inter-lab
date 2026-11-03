@@ -106,7 +106,7 @@ export async function admissionPage(root, env, entry, lab) {
     if (A && A.checked) box.append(h('h2', null, t('result') + ': ' + t('admScore', { s: A.score, t: A.qs.length })));
     if (fresh) box.append(h('p', { class: 'fb info' }, t('sentToTeacher')));
     if (st.status === 'approved') {
-      box.append(h('p', { class: 'fb good' }, t('admApproved')), st.comment ? h('p', null, h('b', null, t('teacherComment') + ': '), st.comment) : null,
+      box.append(h('p', { class: 'fb good' }, t('admApproved')), st.comment ? h('p', null, h('b', null, t('teacherComment') + ': '), st.comment) : '',
         h('div', { class: 'row' }, h('a', { class: 'b pri', href: back }, t('toExperiments') + ' →')));
     } else if (st.status === 'pending') {
       box.append(h('p', { class: 'fb info' }, t('waitDecision')), h('div', { class: 'row' }, btn(t('checkNow'), () => show())));
