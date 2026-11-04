@@ -132,6 +132,11 @@ const s4 = {
     return false;
   },
   scene: (S, lc) => flaskScene(S, { bath: true, th: true, rod: true, stir: lc.c && lc.c.stir, vol: S.vMix, color: COL.amineSalt, solid: S.T < 8 ? 0.25 : 0 }),
+  hints: [
+    L('Чтобы охладить ниже 5 °C, нужна охлаждающая смесь, а теплообмен ускоряет перемешивание.', '5 °C-тан төмен салқындату үшін салқындатқыш қоспа қажет, ал жылу алмасуды араластыру жылдамдатады.', 'To cool below 5 °C you need a freezing mixture; stirring speeds up heat exchange.'),
+    L('Один лёд охлаждает баню лишь до ≈ 0 °C, и раствор подходит к 5 °C медленно; лёд с NaCl даёт ≈ −8 °C.', 'Тек мұз моншаны ≈ 0 °C-қа дейін ғана салқындатады, ерітінді 5 °C-қа баяу жетеді; NaCl қосылған мұз ≈ −8 °C береді.', 'Ice alone cools the bath only to ≈ 0 °C and the solution approaches 5 °C slowly; ice with NaCl gives ≈ −8 °C.'),
+    L('«Насыпать колотый лёд» → «Добавить соль NaCl» → «Поместить колбу в баню» → «Перемешивать»; ускорьте ход времени и дождитесь 5 °C.', '«Уатылған мұз салу» → «NaCl тұзын қосу» → «Колбаны моншаға салу» → «Араластыру»; уақыт жүрісін жылдамдатып, 5 °C-ты күтіңіз.', '“Add crushed ice” → “Add NaCl” → “Put the flask in the bath” → “Stir”; speed up time and wait for 5 °C.'),
+  ],
 };
 
 /* ------------------------------------------------------------------ 5. навеска нитрита */
@@ -278,7 +283,7 @@ const s7 = {
   hints: [
     L('Капайте спокойно и следите за термометром: выше 5 °C — пауза, лёд в смесь. Иодкрахмальная проба — ближе к концу, через 1–2 мин после порции.', 'Баяу тамызып, термометрді қадағалаңыз: 5 °C-тан жоғары — үзіліс, қоспаға мұз. Иодкрахмал сынамасы — соңына қарай, порциядан 1–2 мин кейін.', 'Add calmly and watch the thermometer: above 5 °C — pause and drop ice into the mixture. The starch–iodide test comes towards the end, 1–2 min after a portion.'),
     L('Нитрита 26 ммоль на 25 ммоль анилина: свободная HNO₂ появится только после ~58 капель. Ритм 10–15 с при включённом перемешивании держит смесь холодной.', '25 ммоль анилинге 26 ммоль нитрит: бос HNO₂ тек ~58 тамшыдан кейін пайда болады. Араластыру қосулы кезде 10–15 с ырғақ қоспаны суық ұстайды.', '26 mmol of nitrite for 25 mmol of aniline: free HNO₂ appears only after ~58 drops. A 10–15 s rhythm with stirring on keeps the mixture cold.'),
-    L('Включите перемешивание, ритм 10 с; после 55 капель — проба после каждых 1–2 капель. Если весь нитрит прибавлен, а бумага не синеет, — «Добавить ещё 0,5 мл NaNO₂» и снова проба.', 'Араластыруды қосып, ырғақ 10 с; 55 тамшыдан кейін — әр 1–2 тамшыдан соң сынама. Нитрит түгел қосылып, қағаз көгермесе — «Тағы 0,5 мл NaNO₂ қосу» және қайта сынама.', 'Switch stirring on, rhythm 10 s; after 55 drops test after every 1–2 drops. If all the nitrite is in and the paper stays white, use “Add another 0.5 mL of NaNO₂” and test again.'),
+    L('«Перемешивать» → ритм «10 с»; после 55 капель и после последней капли — «Иодкрахмальная проба (через 1–2 мин)». Если весь нитрит прибавлен, а бумага не синеет, — «Добавить ещё 0,5 мл раствора NaNO₂ (0,1 г)» и снова проба.', '«Араластыру» → ырғақ «10 с»; 55 тамшыдан кейін және соңғы тамшыдан соң — «Иодкрахмал сынамасы (1–2 мин кейін)». Нитрит түгел қосылып, қағаз көгермесе — «Тағы 0,5 мл NaNO₂ ерітіндісін (0,1 г) қосу» және қайта сынама.', '“Stir” → rhythm “10 s”; after 55 drops and after the last drop — “Starch–iodide test (after 1–2 min)”. If all the nitrite is in and the paper stays white, use “Add another 0.5 mL of NaNO₂ solution (0.1 g)” and test again.'),
   ],
 };
 s7.readouts = (S, lc) => [

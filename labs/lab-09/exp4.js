@@ -50,6 +50,11 @@ const t1 = {
         S.e4 = { ok: true, cold: !!t.cold, k };
       } },
   ],
+  hints: [
+    L('Азосоставляющую (2-нафтол) сначала переводят в нафтолят-ион и охлаждают; холодную соль диазония прибавляют последней.', 'Азоқұраушыны (2-нафтол) алдымен нафтолят-ионға айналдырып, салқындатады; суық диазоний тұзын соңынан қосады.', 'The coupling component (2-naphthol) is first converted to the naphthoxide ion and cooled; the cold diazonium salt goes in last.'),
+    L('В воде и в кислоте нафтолят-иона нет — сочетания почти не будет; без охлаждения часть соли диазония разложится с выделением N₂.', 'Суда және қышқылда нафтолят-ион жоқ — қосылу жүрмейді дерлік; салқындатпаса, диазоний тұзының бір бөлігі N₂ бөле ыдырайды.', 'In water or acid there is no naphthoxide ion, so there is hardly any coupling; without cooling some diazonium salt decomposes with loss of N₂.'),
+    L('«2-Нафтол, ~0,1 г» → «10 % NaOH, 2 мл» → «Охладить пробирку во льду» → «Холодный раствор соли диазония, 1 мл», затем отметьте наблюдение.', '«2-Нафтол, ~0,1 г» → «10 % NaOH, 2 мл» → «Пробирканы мұзда салқындату» → «Диазоний тұзының суық ерітіндісі, 1 мл», содан кейін бақылауды белгілеңіз.', '“2-Naphthol, ~0.1 g” → “10 % NaOH, 2 mL” → “Cool the tube in ice” → “Cold diazonium solution, 1 mL”, then record the observation.'),
+  ],
   done: (tubes) => !!tubes.n.good,
   observe: {
     question: L('Что образовалось в пробирке?', 'Пробиркада не түзілді?', 'What has formed in the tube?'),
