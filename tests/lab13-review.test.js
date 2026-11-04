@@ -38,7 +38,7 @@ test('загрязнённый продукт спекается при 120–13
   assert.equal((s3.match(/120–130 °C/g) || []).length, 6);
 });
 
-test('коричные кислоты: J методички (16,0 и 12,7 Гц), 12,7 Гц честно названо «выше» цис-интервала 6–12 Гц', () => {
+test('коричные кислоты: J методички (16,0 и 12,7 Гц), интервалы Silverstein (цис 6–14, транс 11–18 Гц), 12,7 Гц — в области перекрывания', () => {
   assert.equal(CINNAMIC.E.J, 16.0);
   assert.equal(CINNAMIC.Z.J, 12.7);
   assert.equal(configFromJ(16.0), 'E');
@@ -46,6 +46,8 @@ test('коричные кислоты: J методички (16,0 и 12,7 Гц),
   const sp = src('steps/spectrum.js');
   assert.ok(!sp.includes('у верхней границы цис-интервала'));
   assert.ok(!sp.includes('at the upper edge of the cis range'));
+  assert.ok(sp.includes('6–14 Гц') && sp.includes('11–18 Гц') && sp.includes('перекрываются'));
+  assert.ok(!sp.includes('6–12') && !sp.includes('12–18'));
 });
 
 test('малеиновая/фумаровая кислоты C₄H₄O₄: M = 116,07 г/моль, теоретический выход 2,0 г', () => {

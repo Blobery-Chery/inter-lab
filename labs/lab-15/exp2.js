@@ -117,7 +117,7 @@ export default {
   id: '2',
   title: L('Проба Троммера', 'Троммер сынамасы', 'Trommer’s test'),
   principle: L('На холоду Cu(OH)₂ растворяется полиольной структурой сахара (хелат — проба на вицинальные диолы); при нагревании восстанавливающие сахара восстанавливают Cu(II) до Cu(I).', 'Суықта Cu(OH)₂ қанттың полиол құрылымымен ериді (хелат — вициналь диолдарға сынама); қыздырғанда тотықсыздандырғыш қанттар Cu(II)-ні Cu(I)-ге дейін тотықсыздандырады.', 'In the cold Cu(OH)₂ is dissolved by the polyol structure of the sugar (chelate — a test for vicinal diols); on heating reducing sugars reduce Cu(II) to Cu(I).'),
-  equation: ['CuSO₄ + 2NaOH → Cu(OH)₂↓ + Na₂SO₄', L('сахар (полиол) + Cu(OH)₂ → ярко-синий хелат меди(II)', 'қант (полиол) + Cu(OH)₂ → мыс(II)-тің қанық көк хелаты', 'sugar (polyol) + Cu(OH)₂ → deep-blue copper(II) chelate'), 'CH₂OH–(CHOH)₄–CHO + 2Cu(OH)₂ → CH₂OH–(CHOH)₄–COOH + Cu₂O↓ + 2H₂O'],
+  equation: ['CuSO₄ + 2NaOH → Cu(OH)₂↓ + Na₂SO₄', L('сахар (полиол) + Cu(OH)₂ → ярко-синий хелат меди(II)', 'қант (полиол) + Cu(OH)₂ → мыс(II)-тің қанық көк хелаты', 'sugar (polyol) + Cu(OH)₂ → deep-blue copper(II) chelate'), 'CH₂OH–(CHOH)₄–CHO + 2Cu(OH)₂ + NaOH → CH₂OH–(CHOH)₄–COONa + Cu₂O↓ + 3H₂O'],
   initialState: (a) => baseState(a),
   checkpoints: [0, 2],
   steps: [s0, s1, s2, s3, s4],

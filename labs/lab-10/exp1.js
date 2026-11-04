@@ -266,7 +266,7 @@ const s5 = {
 
 export default {
   id: '1',
-  title: L('Реакции щавелевой кислоты', 'Щавель қышқылының реакциялары', 'Reactions of oxalic acid'),
+  title: L('Реакции щавелевой кислоты', 'Щавель қышқылының (қымыздық қышқылының) реакциялары', 'Reactions of oxalic acid'),
   principle: L('Оксалат-ионы дают белый осадок оксалата кальция, нерастворимый в уксусной кислоте, но растворимый в минеральных кислотах; в кислой среде щавелевая кислота окисляется перманганатом до CO₂.', 'Оксалат-иондар сірке қышқылында ерімейтін, бірақ минералдық қышқылдарда еритін кальций оксалатының ақ тұнбасын береді; қышқыл ортада щавель қышқылы перманганатпен CO₂-ге дейін тотығады.', 'Oxalate ions form a white precipitate of calcium oxalate, insoluble in acetic acid but soluble in mineral acids; in acidic medium oxalic acid is oxidised by permanganate to CO₂.'),
   equation: ['H₂C₂O₄ + CaCl₂ → CaC₂O₄↓ + 2HCl', '5H₂C₂O₄ + 2KMnO₄ + 3H₂SO₄ → 10CO₂↑ + 2MnSO₄ + K₂SO₄ + 8H₂O'],
   initialState: () => ({ e1: { ca: false, km: null } }),

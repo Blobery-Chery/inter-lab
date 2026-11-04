@@ -112,20 +112,38 @@ export function cuTartrate({ cu, naoh, tart }) {
 
 /* ------------------------------------------------------------------ опыт 4: Ca²⁺ — лимонная и винная */
 
-/** pH смеси 1 мл 10 % кислоты с V мл известковой воды (по методичке щелочная среда — при 3–5 мл; модель по объёму, см. ASSUMPTIONS). */
-export function limePH(V) {
-  if (V <= 0) return 2.2;
-  if (V < 1) return 2.6;
-  if (V < 2) return 3.8;
-  if (V < 3) return 5.6;
-  return Math.min(11.5, 9 + (V - 3) * 0.6);
+/**
+ * Опыт 4 (по решению автора, 04.11): к 2 каплям (≈ 0,1 мл) 10 % кислоты — насыщенная известковая вода.
+ * В методичке 1 мл кислоты и «около 3–5 мл» известковой воды, но 1 мл 10 % лимонной кислоты (1,56 ммоль H⁺)
+ * насыщенный Ca(OH)₂ (≈ 0,022 М, OH⁻ ≈ 0,044 ммоль/мл) нейтрализует лишь при ≈ 35 мл. С 0,1 мл кислоты
+ * щелочная среда наступает при ≈ 3,5 мл (лимонная) и ≈ 3 мл (винная) — в согласии с «3–5 мл» методички.
+ */
+export const LIME = { acidMl: 0.1, ohPerMl: 0.044, caPerMl: 0.022 };
+/** Кислота в 0,1 мл 10 % раствора: ммоль кислоты и ммоль H⁺ (лимонная — трёхосновная, винная — двухосновная). */
+export function acidLoad(acid) {
+  const m = 0.1 * LIME.acidMl * 1000; // мг: 10 % (масс./об.) · 0,1 мл
+  const n = acid === 'tart' ? m / M.tart : m / M.citr;
+  return { n, H: n * (acid === 'tart' ? 2 : 3) };
 }
-
-/** Осадок кальциевой соли: tartrate — уже на холоду; citrate — только при нагревании в щелочной среде. */
+/** pH смеси 0,1 мл 10 % кислоты с V мл известковой воды. */
+export function limePH(V, acid = 'citr') {
+  const { H } = acidLoad(acid);
+  if (!(V > 0)) return 2.2;
+  const oh = V * LIME.ohPerMl;
+  if (oh < H) return Math.round((2.4 + (oh / H) * 4.4) * 10) / 10; // буферная область: от ≈ 2,4 до ≈ 6,8
+  const c = (oh - H) / (V + LIME.acidMl);                           // избыток OH⁻, моль/л
+  return c > 1e-5 ? Math.min(12.3, Math.round((14 + Math.log10(c)) * 10) / 10) : 7;
+}
+/** Известковой воды, мл, чтобы среда стала щелочной (pH > 8). */
+export function limeNeeded(acid) {
+  for (let v = 0; v <= 10; v++) if (limePH(v, acid) > 8) return v;
+  return 10;
+}
+/** Осадок кальциевой соли: тартрат — уже на холоду (когда кальция хватает); цитрат — только при кипячении в щелочной среде. */
 export function caSalt(acid, V, hot) {
-  const pH = limePH(V);
-  if (acid === 'tart') return V >= 1 ? clamp(0.35 + (V - 1) * 0.15, 0, 0.9) : 0;
-  return hot && pH >= 7 ? clamp(0.5 + (V - 3) * 0.1, 0, 0.9) : 0;
+  const pH = limePH(V, acid);
+  if (acid === 'tart') { const { n } = acidLoad('tart'); const ca = V * LIME.caPerMl; return ca >= 0.5 * n ? clamp(0.35 + (ca / n) * 0.3, 0, 0.9) : 0; }
+  return hot && pH > 8 ? clamp(0.5 + (V - limeNeeded('citr')) * 0.1, 0, 0.9) : 0;
 }
 
 /* ------------------------------------------------------------------ опыт 5: кето-енольная таутомерия */

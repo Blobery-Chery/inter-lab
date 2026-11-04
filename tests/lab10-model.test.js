@@ -184,3 +184,14 @@ test('казахские фразы работы 10 не совпадают с �
   })(lab, 'lab');
   assert.deepEqual(same, []);
 });
+
+test('опыт 4 (решение автора): 2 капли 10 % кислоты — щелочная среда от 4 мл известковой воды; 3 мл — ещё кислая', () => {
+  const H = m.acidLoad('citr').H;
+  assert.ok(Math.abs(H - 0.156) < 0.002);                 // 10 мг лимонной кислоты = 0,052 ммоль, ×3 H⁺
+  assert.ok(m.limePH(3, 'citr') < 7 && m.limePH(4, 'citr') > 8);
+  assert.ok(m.limePH(4, 'tart') > 8);
+  assert.equal(m.caSalt('tart', 1, false), 0);            // кальция ещё мало
+  assert.ok(m.caSalt('tart', 2, false) > 0);              // тартрат — на холоду
+  assert.equal(m.caSalt('citr', 3, true), 0);             // не щелочная — цитрат не выпал
+  assert.ok(m.caSalt('citr', 5, true) > 0);
+});

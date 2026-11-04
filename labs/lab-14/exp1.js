@@ -386,9 +386,9 @@ const s11 = {
 const s12 = {
   type: 'measure', id: 'dma',
   title: L('Раствор N,N-диметиланилина', 'N,N-диметиланилин ерітіндісі', 'The N,N-dimethylaniline solution'),
-  instr: L('<ol><li>В вытяжном шкафу отмерьте пипеткой <b>1,3 мл (1,21 г, 10 ммоль)</b> N,N-диметиланилина в пробирку.</li><li>Прилейте <b>1 мл</b> ледяной уксусной кислоты и перемешайте.</li></ol>',
-    '<ol><li>Тартпа шкафта пипеткамен пробиркаға <b>1,3 мл (1,21 г, 10 ммоль)</b> N,N-диметиланилин өлшеңіз.</li><li><b>1 мл</b> мұзды сірке қышқылын қосып, араластырыңыз.</li></ol>',
-    '<ol><li>In the fume hood, pipette <b>1.3 mL (1.21 g, 10 mmol)</b> of N,N-dimethylaniline into a test tube.</li><li>Add <b>1 mL</b> of glacial acetic acid and mix.</li></ol>'),
+  instr: L('<ol><li>В вытяжном шкафу отмерьте пипеткой <b>1,3 мл (1,24 г, 10,3 ммоль)</b> N,N-диметиланилина в пробирку.</li><li>Прилейте <b>1 мл</b> ледяной уксусной кислоты и перемешайте.</li></ol>',
+    '<ol><li>Тартпа шкафта пипеткамен пробиркаға <b>1,3 мл (1,24 г, 10,3 ммоль)</b> N,N-диметиланилин өлшеңіз.</li><li><b>1 мл</b> мұзды сірке қышқылын қосып, араластырыңыз.</li></ol>',
+    '<ol><li>In the fume hood, pipette <b>1.3 mL (1.24 g, 10.3 mmol)</b> of N,N-dimethylaniline into a test tube.</li><li>Add <b>1 mL</b> of glacial acetic acid and mix.</li></ol>'),
   need: L('Приготовьте раствор ДМА в уксусной кислоте', 'ДМА-ның сірке қышқылындағы ерітіндісін дайындаңыз', 'Prepare the DMA solution in acetic acid'),
   measure: 'pipette-5', reagent: L('C₆H₅N(CH₃)₂', 'C₆H₅N(CH₃)₂', 'C₆H₅N(CH₃)₂'), bottleSub: L('ДМА', 'ДМА', 'DMA'), target: 1.3, tol: 0.1, onDeviation: 'consequence', saveAs: 'vDMA',
   into: L('пробирка', 'пробирка', 'the test tube'),

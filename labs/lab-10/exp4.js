@@ -1,6 +1,6 @@
 /** Опыт 4. Отличие лимонной кислоты от винной по ионам кальция. Методичка, раздел 6, опыт 4. */
 import { L, n } from '../../app/i18n.js';
-import { limePH, caSalt } from './model.js';
+import { limePH, caSalt, limeNeeded } from './model.js';
 import { perTube } from './util.js';
 import { tubesScene, bathScene } from './scene.js';
 
@@ -40,7 +40,7 @@ const caTubes = [
 ];
 const nameOf = (id) => (id === 'c' ? L('лимонной', 'лимон', 'citric') : L('винной', 'шарап', 'tartaric'));
 function paint(t, id) {
-  t.pH = limePH(t.L || 0);
+  t.pH = limePH(t.L || 0, id === 'c' ? 'citr' : 'tart');
   t.ppt = t.acid ? caSalt(id === 'c' ? 'citr' : 'tart', t.L || 0, !!t.hot) : 0;
   if (t.lost) t.ppt *= 0.5;
   t.pptColor = WHITE;
@@ -48,21 +48,21 @@ function paint(t, id) {
 const s1 = {
   type: 'test', id: 'ca',
   title: L('Известковая вода: на холоду и при кипячении', 'Әк суы: суықта және қайнатқанда', 'Lime water: cold and on boiling'),
-  instr: L('<ol><li>К <b>1 мл</b> раствора лимонной кислоты прилейте известковую воду в избытке — до щелочной реакции по индикаторной бумаге (около <b>3–5 мл</b>). Отметьте, выпадает ли осадок на холоду.</li><li>Нагрейте смесь до кипения и наблюдайте; затем охладите пробирку под струёй воды.</li><li>Повторите пробу с раствором винной кислоты для сравнения.</li></ol>',
-    '<ol><li><b>1 мл</b> лимон қышқылы ерітіндісіне әк суын артық мөлшерде — индикатор қағазы бойынша сілтілі реакцияға дейін (шамамен <b>3–5 мл</b>) құйыңыз. Суықта тұнба түсетінін белгілеңіз.</li><li>Қоспаны қайнағанға дейін қыздырып, бақылаңыз; содан кейін пробирканы су ағынымен салқындатыңыз.</li><li>Салыстыру үшін сынаманы шарап қышқылы ерітіндісімен қайталаңыз.</li></ol>',
-    '<ol><li>To <b>1 mL</b> of citric acid solution add lime water in excess — until alkaline to indicator paper (about <b>3–5 mL</b>). Note whether a precipitate forms in the cold.</li><li>Heat the mixture to boiling and observe; then cool the tube under running water.</li><li>Repeat the test with tartaric acid solution for comparison.</li></ol>'),
+  instr: L('<ol><li>К <b>2 каплям (≈ 0,1 мл)</b> 10 % раствора лимонной кислоты прилейте известковую воду в избытке — до щелочной реакции по индикаторной бумаге (около <b>4–5 мл</b>). Отметьте, выпадает ли осадок на холоду.</li><li>Нагрейте смесь до кипения и наблюдайте; затем охладите пробирку под струёй воды.</li><li>Повторите пробу с раствором винной кислоты для сравнения.</li></ol><p class="note">Кислоты берут 2 капли, а не 1 мл: насыщенная известковая вода слабая (≈ 0,02 М Ca(OH)₂), и 4–5 мл её делают щелочной среду только с таким количеством 10 % кислоты.</p>',
+    '<ol><li>10 % лимон қышқылы ерітіндісінің <b>2 тамшысына (≈ 0,1 мл)</b> әк суын артық мөлшерде — индикатор қағазы бойынша сілтілі реакцияға дейін (шамамен <b>4–5 мл</b>) құйыңыз. Суықта тұнба түсетінін белгілеңіз.</li><li>Қоспаны қайнағанға дейін қыздырып, бақылаңыз; содан кейін пробирканы су ағынымен салқындатыңыз.</li><li>Салыстыру үшін сынаманы шарап қышқылы ерітіндісімен қайталаңыз.</li></ol><p class="note">Қышқылды 1 мл емес, 2 тамшы алады: қаныққан әк суы әлсіз (≈ 0,02 М Ca(OH)₂), оның 4–5 мл-і ортаны 10 % қышқылдың тек осындай мөлшерімен ғана сілтілі етеді.</p>',
+    '<ol><li>To <b>2 drops (≈ 0.1 mL)</b> of 10 % citric acid solution add lime water in excess — until alkaline to indicator paper (about <b>4–5 mL</b>). Note whether a precipitate forms in the cold.</li><li>Heat the mixture to boiling and observe; then cool the tube under running water.</li><li>Repeat the test with tartaric acid solution for comparison.</li></ol><p class="note">Take 2 drops of acid, not 1 mL: saturated lime water is weak (≈ 0.02 M Ca(OH)₂), and 4–5 mL of it makes the medium alkaline only with this amount of 10 % acid.</p>'),
   need: L('Сравните лимонную и винную кислоты', 'Лимон және шарап қышқылдарын салыстырыңыз', 'Compare citric and tartaric acids'),
   tubes: caTubes, reset: true, indicator: true, capacity: 8,
   reagents: perTube([
-    { id: 'acid', group: L('Реактивы', 'Реактивтер', 'Reagents'), label: L('Раствор кислоты (по этикетке): 1 мл', 'Қышқыл ерітіндісі (заттаңба бойынша): 1 мл', 'Acid solution (as labelled): 1 mL'), advance: 20, disabled: (t) => t.acid,
-      apply(t, S, ctx, id) { t.acid = 1; t.v += 1; paint(t, id); ctx.log(L(`В пробирку ${id === 'c' ? 1 : 2} отмерен 1 мл 10 % раствора ${tr3(nameOf(id), 'ru')} кислоты`, `${id === 'c' ? 1 : 2}-пробиркаға 10 % ${tr3(nameOf(id), 'kk')} қышқылы ерітіндісінің 1 мл өлшенді`, `1 mL of 10 % ${tr3(nameOf(id), 'en')} acid solution measured into tube ${id === 'c' ? 1 : 2}`)); } },
+    { id: 'acid', group: L('Реактивы', 'Реактивтер', 'Reagents'), label: L('Раствор кислоты (по этикетке): 2 капли', 'Қышқыл ерітіндісі (заттаңба бойынша): 2 тамшы', 'Acid solution (as labelled): 2 drops'), advance: 20, disabled: (t) => t.acid,
+      apply(t, S, ctx, id) { t.acid = 1; t.v += 0.1; paint(t, id); ctx.log(L(`В пробирку ${id === 'c' ? 1 : 2} внесено 2 капли (≈ 0,1 мл) 10 % раствора ${tr3(nameOf(id), 'ru')} кислоты`, `${id === 'c' ? 1 : 2}-пробиркаға 10 % ${tr3(nameOf(id), 'kk')} қышқылы ерітіндісінің 2 тамшысы (≈ 0,1 мл) тамызылды`, `2 drops (≈ 0.1 mL) of 10 % ${tr3(nameOf(id), 'en')} acid solution added to tube ${id === 'c' ? 1 : 2}`)); } },
     { id: 'lime', group: L('Реактивы', 'Реактивтер', 'Reagents'), label: L('Известковая вода: +1 мл', 'Әк суы: +1 мл', 'Lime water: +1 mL'), advance: 15, disabled: (t) => !t.acid || (t.L || 0) >= 6,
       apply(t, S, ctx, id) {
         const before = t.ppt || 0;
         t.L = (t.L || 0) + 1; t.v += 1; paint(t, id);
         ctx.log(L(`В пробирку ${id === 'c' ? 1 : 2} прилит 1 мл известковой воды (всего ${t.L} мл)`, `${id === 'c' ? 1 : 2}-пробиркаға 1 мл әк суы құйылды (барлығы ${t.L} мл)`, `1 mL of lime water added to tube ${id === 'c' ? 1 : 2} (total ${t.L} mL)`));
         if (!t.hot && id === 't' && t.ppt > 0.1 && before <= 0.1) { t.coldPpt = true; ctx.log(L('Винная кислота: на холоду выпал белый осадок тартрата кальция', 'Шарап қышқылы: суықта кальций тартратының ақ тұнбасы түзілді', 'Tartaric acid: a white precipitate of calcium tartrate formed in the cold'), 'obs'); }
-        if (!t.hot && id === 'c' && t.L === 3) ctx.log(L('Лимонная кислота: на холоду раствор остаётся прозрачным', 'Лимон қышқылы: суықта ерітінді мөлдір күйінде қалады', 'Citric acid: the solution stays clear in the cold'), 'obs');
+        if (!t.hot && id === 'c' && t.L === limeNeeded('citr')) ctx.log(L('Лимонная кислота: на холоду раствор остаётся прозрачным', 'Лимон қышқылы: суықта ерітінді мөлдір күйінде қалады', 'Citric acid: the solution stays clear in the cold'), 'obs');
       } },
     { id: 'boil', group: L('Нагрев', 'Қыздыру', 'Heating'), label: L('Нагреть до кипения', 'Қайнағанға дейін қыздыру', 'Heat to boiling'), advance: 180, disabled: (t) => !t.acid || !t.L || t.hot,
       apply(t, S, ctx, id) {
@@ -102,8 +102,8 @@ const s1 = {
   },
   scene: (S, local) => tubesScene(caTubes, local, { cap: 8, hot: (t) => t.hot }),
   hint1: L('Известковой воды — до щелочной реакции (проверьте бумагой), потом кипятить и охладить. Винная кислота — для сравнения, осадок уже на холоду.', 'Әк суы — сілтілі реакцияға дейін (қағазбен тексеріңіз), содан кейін қайнатып, салқындату. Шарап қышқылы — салыстыру үшін, тұнба суықта-ақ.', 'Lime water until alkaline (check with paper), then boil and cool. Tartaric acid is for comparison — it gives a precipitate already in the cold.'),
-  hint2: L('Для лимонной кислоты нужно не меньше 3 мл известковой воды — тогда бумага покажет щелочную среду.', 'Лимон қышқылы үшін кемінде 3 мл әк суы қажет — сонда қағаз сілтілі ортаны көрсетеді.', 'Citric acid needs at least 3 mL of lime water — then the paper shows an alkaline medium.'),
-  hint3: L('Пробирка 1: кислота → известковая вода +1 мл ×4 → бумага → нагреть → охладить. Пробирка 2: кислота → известковая вода +1 мл ×2.', '1-пробирка: қышқыл → әк суы +1 мл ×4 → қағаз → қыздыру → салқындату. 2-пробирка: қышқыл → әк суы +1 мл ×2.', 'Tube 1: acid → lime water +1 mL ×4 → paper → heat → cool. Tube 2: acid → lime water +1 mL ×2.'),
+  hint2: L('Для 2 капель лимонной кислоты нужно не меньше 4 мл известковой воды — тогда бумага покажет щелочную среду.', '2 тамшы лимон қышқылы үшін кемінде 4 мл әк суы қажет — сонда қағаз сілтілі ортаны көрсетеді.', 'Two drops of citric acid need at least 4 mL of lime water — then the paper shows an alkaline medium.'),
+  hint3: L('Пробирка 1: «Раствор кислоты (по этикетке): 2 капли» → «Известковая вода: +1 мл» ×5 → бумага → «Нагреть до кипения» → «Охладить под струёй воды». Пробирка 2: кислота → «Известковая вода: +1 мл» ×3.', '1-пробирка: «Қышқыл ерітіндісі (заттаңба бойынша): 2 тамшы» → «Әк суы: +1 мл» ×5 → қағаз → «Қайнағанға дейін қыздыру» → «Су ағынымен салқындату». 2-пробирка: қышқыл → «Әк суы: +1 мл» ×3.', 'Tube 1: “Acid solution (as labelled): 2 drops” → “Lime water: +1 mL” ×5 → paper → “Heat to boiling” → “Cool under running water”. Tube 2: acid → “Lime water: +1 mL” ×3.'),
 };
 function tr3(x, l) { return x[l]; }
 
