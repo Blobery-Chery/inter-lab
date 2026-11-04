@@ -72,11 +72,12 @@ async function walkLab(browser, id) {
       const wrong = MODE === 'bad' && attempt === 0;
       const bank = await page.evaluate(async (folder) => (await import(`/labs/${folder}/admission.js`)).default.map((q) => q.correct), id);
       const A = await page.evaluate(async (lid) => { const s = await import('/app/store.js'); return s.loadLab(lid).admission; }, id);
+      if (opt.v) console.error(`  ${id} admission attempt ${attempt + 1}`);
       for (let k = 0; k < A.qs.length; k++) {
         const correct = bank[A.qs[k]];
         const pos = A.orders[k].indexOf(correct);
         const idx = wrong ? (pos + 1) % A.orders[k].length : pos;
-        await page.locator('fieldset.q').nth(k).locator('button.opt').nth(idx).click();
+        await page.locator('fieldset.q').nth(k).locator('button.opt').nth(idx).click({ timeout: 5000 });
       }
       await textIssues('admission');
       await page.locator('main button.pri', { hasText: /Проверить|Тексеру|Check/ }).first().click();
@@ -92,7 +93,7 @@ async function walkLab(browser, id) {
     let stepStart = Date.now(), lastStep = -1, iters = 0;
     while (iters++ < 6000) {
       let r;
-      try { r = await page.evaluate(act, MODE); } catch (err) { out.issues.push(`exp ${e.id}: bot error ${err.message.slice(0, 160)}`); await sleep(300); continue; }
+      try { r = await page.evaluate(act, MODE); } catch (err) { r = { k: 'idle', err: err.message.slice(0, 160) }; if (!out.botErrors) out.botErrors = []; if (out.botErrors.length < 5) out.botErrors.push(`exp ${e.id}: ${r.err}`); }
       if (r.k === 'done') break;
       if (r.k === 'restart') out.restarts++;
       if (r.k === 'next') {

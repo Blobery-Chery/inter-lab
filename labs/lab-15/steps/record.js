@@ -23,7 +23,10 @@ export default {
   render(step, ctx) {
     const S = ctx.state, b = benchOf(S, step.key), env = envOf(S);
     const wrap = h('div', { class: 'wfull' });
-    const obs = M.OBS[step.test];
+    const base = M.OBS[step.test];
+    // код без описания (например, реактивы не внесены) — «изменений нет», а не ошибка
+    const NONE = { sign: '−', label: () => L('изменений нет — реактивы не внесены', 'өзгеріс жоқ — реактивтер қосылмаған', 'no change — the reagents were not added') };
+    const obs = new Proxy(base, { get: (o, k) => o[k] || NONE });
     const done = () => b.tubes.every((t) => ctx.local.m[t.id] && ctx.local.m[t.id].right != null);
     const check = () => {
       const k = b.tubes.filter((t) => ctx.local.m[t.id] && ctx.local.m[t.id].right != null).length;
