@@ -105,6 +105,8 @@ function errText(e) {
     const min = e.retryAfter ? Math.ceil(e.retryAfter / 60000) : 15;
     return st.lang === 'en' ? `Too many failed attempts. Try again in ${min} min.` : st.lang === 'kk' ? `Сәтсіз әрекеттер тым көп. ${min} мин кейін қайталаңыз.` : `Слишком много неудачных попыток. Попробуйте через ${min} мин.`;
   }
+  // Непредвиденная ошибка сервера: показываем текст — по нему видно, что не так в таблице или скрипте.
+  if (code === 'server' && e && e.message) return String(e.message).startsWith('Ошибка сервера') ? e.message : t('e_server') + ': ' + e.message;
   if (S['e_' + code]) return t('e_' + code);
   return t('e_server') + (e && e.message ? ': ' + e.message : '');
 }
