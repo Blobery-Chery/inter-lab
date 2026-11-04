@@ -66,7 +66,7 @@ const s2 = {
     S.nHCl = hclMmol(v); S.vMix = 6.5 + v; S.T = 26;
     ctx.log(L(`HCl: ${n(v, 1)} мл × 1.18 г/мл × 0.36 / 36.46 = ${mm(S.nHCl)} ммоль`, `HCl: ${n(v, 1)} мл × 1.18 г/мл × 0.36 / 36.46 = ${mm(S.nHCl)} ммоль`, `HCl: ${n(v, 1)} mL × 1.18 g/mL × 0.36 / 36.46 = ${mm(S.nHCl)} mmol`), 'calc');
   },
-  then: [{ id: 'stir', label: L('Перемешать палочкой', 'Таяқшамен араластыру', 'Stir with the rod'), advance: 30, obs: L('Разбавленная соляная кислота — бесцветный раствор, слегка дымит над горлом колбы, немного разогрелась', 'Сұйытылған тұз қышқылы — түссіз ерітінді, колба мойны үстінде сәл түтіндейді, аздап жылыды', 'Dilute hydrochloric acid — a colourless solution, fuming slightly at the neck of the flask, a little warm') }],
+  then: [{ id: 'stir', label: L('Перемешать палочкой', 'Таяқшамен араластыру', 'Stir with the rod'), advance: 30, obs: L('Разбавленная (≈ 20 %) соляная кислота — бесцветный прозрачный раствор, при смешении немного разогрелась', 'Сұйытылған (≈ 20 %) тұз қышқылы — түссіз мөлдір ерітінді, араластырғанда аздап жылыды', 'Dilute (≈ 20 %) hydrochloric acid — a clear colourless solution that warmed slightly on mixing') }],
   sceneExtra: (S) => flaskSide(S),
 };
 
@@ -285,7 +285,7 @@ s7.readouts = (S, lc) => [
   { label: L('Раствор', 'Ерітінді', 'Solution'), value: n(S.T, 1) + ' °C', st: S.T > 10 ? 'bad' : S.T > 5 ? 'warn' : 'ok' },
   { label: L('Баня', 'Монша', 'Bath'), value: n(S.Tb, 1) + ' °C' },
   { label: L('Капель', 'Тамшы', 'Drops'), value: `${lc.added} / ${DROPS}` + (lc.extra ? ` + ${lc.extra}×0.5` : '') },
-  { label: L('Иодкрахм. проба', 'Иодкрахм. сынама', 'Starch–KI test'), value: lc.strip === 'blue' ? L('синяя', 'көк', 'blue') : lc.strip === 'faint' ? L('слабая', 'әлсіз', 'faint') : lc.tests ? L('нет', 'жоқ', 'none') : '—', st: lc.strip === 'blue' ? 'ok' : '' },
+  { label: L('Иодкрахм. проба', 'Иодкрахм. сынама', 'Starch–iodide test'), value: lc.strip === 'blue' ? L('синяя', 'көк', 'blue') : lc.strip === 'faint' ? L('слабая', 'әлсіз', 'faint') : lc.tests ? L('нет', 'жоқ', 'none') : '—', st: lc.strip === 'blue' ? 'ok' : '' },
 ];
 
 /* ------------------------------------------------------------------ 8. вопросы */
@@ -296,7 +296,7 @@ const s8 = {
   need: L('Ответьте на все вопросы', 'Барлық сұраққа жауап беріңіз', 'Answer all the questions'),
   questions: [
     { q: L('Почему иодкрахмальная бумага синеет в конце диазотирования?', 'Неліктен диазоттаудың соңында иодкрахмал қағазы көгереді?', 'Why does starch–iodide paper turn blue at the end of the diazotization?'),
-      options: [L('Избыток HNO₂ окисляет иодид до иода: 2HNO₂ + 2KI + 2HCl → I₂ + 2NO + 2KCl + 2H₂O; иод с крахмалом — синий', 'Артық HNO₂ иодидті иодқа дейін тотықтырады: 2HNO₂ + 2KI + 2HCl → I₂ + 2NO + 2KCl + 2H₂O; иод крахмалмен — көк', 'Excess HNO₂ oxidises iodide to iodine: 2HNO₂ + 2KI + 2HCl → I₂ + 2NO + 2KCl + 2H₂O; iodine with starch is blue'), L('Соль диазония окрашивает крахмал', 'Диазоний тұзы крахмалды бояйды', 'The diazonium salt colours the starch'), L('Соляная кислота разрушает бумагу', 'Тұз қышқылы қағазды бұзады', 'Hydrochloric acid destroys the paper'), L('Анилин восстанавливает крахмал', 'Анилин крахмалды тотықсыздандырады', 'Aniline reduces the starch')],
+      options: [L('Избыток HNO₂ окисляет иодид до иода: 2HNO₂ + 2KI + 2HCl → I₂ + 2NO↑ + 2KCl + 2H₂O; иод с крахмалом — синий', 'Артық HNO₂ иодидті иодқа дейін тотықтырады: 2HNO₂ + 2KI + 2HCl → I₂ + 2NO↑ + 2KCl + 2H₂O; иод крахмалмен — көк', 'Excess HNO₂ oxidises iodide to iodine: 2HNO₂ + 2KI + 2HCl → I₂ + 2NO↑ + 2KCl + 2H₂O; iodine with starch is blue'), L('Соль диазония окрашивает крахмал', 'Диазоний тұзы крахмалды бояйды', 'The diazonium salt colours the starch'), L('Соляная кислота разрушает бумагу', 'Тұз қышқылы қағазды бұзады', 'Hydrochloric acid destroys the paper'), L('Анилин восстанавливает крахмал', 'Анилин крахмалды тотықсыздандырады', 'Aniline reduces the starch')],
       correct: 0, why: L('Пока в смеси есть амин, HNO₂ сразу расходуется; синева появляется только при небольшом избытке HNO₂ — это и есть конец диазотирования.', 'Қоспада амин болғанда HNO₂ бірден жұмсалады; көк түс тек HNO₂ аздап артық болғанда пайда болады — бұл диазоттаудың соңы.', 'While amine is present, HNO₂ is consumed at once; the blue appears only when HNO₂ is in slight excess — that is the end point.') },
     { q: L('Зачем нужен избыток соляной кислоты (2,5–3 экв.)?', 'Тұз қышқылының артық мөлшері (2,5–3 экв.) не үшін қажет?', 'Why is an excess of hydrochloric acid (2.5–3 equiv.) needed?'),
       options: [L('Чтобы получить HNO₂ из NaNO₂, удержать амин в растворе в виде соли и не дать соли диазония сочетаться с непрореагировавшим амином', 'NaNO₂-ден HNO₂ алу, аминді ерітіндіде тұз түрінде ұстау және диазоний тұзының әрекеттеспеген аминмен қосылуына жол бермеу үшін', 'To generate HNO₂ from NaNO₂, keep the amine in solution as its salt and stop the diazonium salt coupling with unreacted amine'), L('Чтобы ускорить разложение соли диазония', 'Диазоний тұзының ыдырауын жылдамдату үшін', 'To speed up the decomposition of the diazonium salt'), L('Чтобы нейтрализовать нитрит натрия до NaCl без реакции', 'Натрий нитритін реакциясыз NaCl-ға дейін бейтараптау үшін', 'To neutralise the sodium nitrite to NaCl without reaction'), L('Кислота не нужна, её прибавляют для растворения льда', 'Қышқыл қажет емес, оны мұзды еріту үшін қосады', 'Acid is not needed; it is added to melt the ice')],
@@ -371,6 +371,6 @@ export default {
     { label: L('Анилин', 'Анилин', 'Aniline'), value: { ru: n(r.nAn, 1) + ' ммоль', kk: n(r.nAn, 1) + ' ммоль', en: n(r.nAn, 1) + ' mmol' } },
     { label: L('Соль диазония', 'Диазоний тұзы', 'Diazonium salt'), value: { ru: '≈ ' + n(r.Dz, 1) + ' ммоль', kk: '≈ ' + n(r.Dz, 1) + ' ммоль', en: '≈ ' + n(r.Dz, 1) + ' mmol' }, st: r.conv > 0.9 ? 'ok' : 'warn' },
     { label: L('Макс. t', 'Макс. t', 'Max t'), value: n(r.maxT, 1) + ' °C', st: r.maxT <= 5.5 ? 'ok' : 'warn' },
-    { label: L('Иодкрахм. проба', 'Иодкрахм. сынама', 'Starch–KI test'), value: L('синяя', 'көк', 'blue'), st: 'ok' },
+    { label: L('Иодкрахм. проба', 'Иодкрахм. сынама', 'Starch–iodide test'), value: L('синяя', 'көк', 'blue'), st: 'ok' },
   ],
 };

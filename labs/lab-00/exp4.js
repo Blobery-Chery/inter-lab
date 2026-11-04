@@ -8,7 +8,7 @@ import { stageResults } from './common.js';
 const sCheck = {
   type: 'checklist', id: 'pre',
   title: L('Перед включением нагрева', 'Қыздыруды қосар алдында', 'Before switching on the heating'),
-  instr: L('<p>Нужно прокипятить 30 мл этанола с обратным холодильником в колбонагревателе. Отметьте всё, что надо сделать до включения. Лишнего не нажимайте.</p>', '<p>Колба қыздырғышта кері мұздатқышпен 30 мл этанолды қайнату керек. Қосар алдында не істеу керектің бәрін белгілеңіз. Артығын баспаңыз.</p>', '<p>You need to boil 30 mL of ethanol under reflux in a heating mantle. Tick everything to be done before switching on. Do not tap anything wrong.</p>'),
+  instr: L('<p>Нужно прокипятить 30 мл этанола с обратным холодильником в колбонагревателе. Отметьте всё, что надо сделать до включения. Лишнего не нажимайте.</p>', '<p>Колба қыздырғышта кері мұздатқышпен 30 мл этанолды қайнату керек. Қосар алдында істелуі тиіс әрекеттердің бәрін белгілеңіз. Артығын баспаңыз.</p>', '<p>You need to boil 30 mL of ethanol under reflux in a heating mantle. Tick everything to be done before switching on. Do not tap anything wrong.</p>'),
   need: L('Отметьте все нужные пункты', 'Барлық қажетті тармақтарды белгілеңіз', 'Tick every required item'),
   scene: () => refluxScene({ T: 22, water: false }),
   items: [
@@ -131,7 +131,7 @@ const sReflux = {
           effect(S, lc, ctx) { lc.c.power = 0; S.H.power = 0; S.H.El = 70; lc.c.water = true; S.H.water = true; S.H.lost += 0.05; ctx.remark({ key: 'nowater', severity: 'major', text: L('нагрев без воды в холодильнике: пары этанола выходили в шкаф', 'мұздатқышта сусыз қыздыру: этанол булары шкафқа шықты', 'heating with no condenser water: ethanol vapour escaped into the hood') }); } },
         { ok: false, severity: 'safety', label: L('Продолжать — пары всё равно уходят в тягу', 'Жалғастыру — булар бәрібір тартпаға кетеді', 'Carry on — the vapour goes up the extraction anyway'),
           remark: L('пары ЛВЖ выходили из установки: нагрев не прекращён', 'тез тұтанатын сұйық булары қондырғыдан шықты: қыздыру тоқтатылмады', 'flammable vapour escaping from the apparatus; heating not stopped'),
-          whatif: L('Пары этанола горючи; тяга не успевает их убрать, а этанол выкипает из колбы — опыт сорван.', 'Этанол булары жанғыш; тартым оларды үлгермей кетіреді, ал этанол колбадан қайнап кетеді — тәжірибе үзіледі.', 'Ethanol vapour is flammable; the hood cannot clear it fast enough and the ethanol boils out of the flask — the experiment is ruined.'),
+          whatif: L('Пары этанола горючи; тяга не успевает их убрать, а этанол выкипает из колбы — опыт сорван.', 'Этанол булары жанғыш; тартым оларды кетіріп үлгермейді, ал этанол колбадан қайнап кетеді — тәжірибе үзіледі.', 'Ethanol vapour is flammable; the hood cannot clear it fast enough and the ethanol boils out of the flask — the experiment is ruined.'),
           effect(S, lc) { lc.c.water = true; S.H.water = true; S.H.lost += 0.3; } },
       ] },
   ],

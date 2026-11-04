@@ -57,7 +57,7 @@ const s0 = {
   scene: (S, local) => tubesScene(uTubes, local, { cap: 4 }),
   hint1: L('Сначала реактив Уффельмана: фенол + 1–2 капли FeCl₃ (фиолетовый). Только потом — молочная кислота по каплям.', 'Алдымен Уффельман реактиві: фенол + 1–2 тамшы FeCl₃ (күлгін). Тек содан кейін — сүт қышқылы тамшылап.', 'First Uffelmann’s reagent: phenol + 1–2 drops of FeCl₃ (violet). Only then lactic acid, drop by drop.'),
   hint2: L('Для смены окраски нужно молочной кислоты в несколько раз больше, чем FeCl₃ (по каплям).', 'Түс өзгеруі үшін сүт қышқылы FeCl₃-тен бірнеше есе көп (тамшы бойынша) қажет.', 'To change the colour you need several times more lactic acid than FeCl₃ (in drops).'),
-  hint3: L('2 мл фенола → 2 капли FeCl₃ → молочная кислота «+5 кап.» 3–4 раза, пока окраска не станет жёлто-зелёной.', '2 мл фенол → 2 тамшы FeCl₃ → сүт қышқылы «+5 тамшы» 3–4 рет, түсі сары-жасыл болғанша.', '2 mL phenol → 2 drops FeCl₃ → lactic acid “+5 drops” 3–4 times until the colour is yellow-green.'),
+  hint3: L('2 мл фенола → 2 капли FeCl₃ → молочная кислота «+5 кап.» 4 раза (нужно не меньше 16 капель), пока окраска не станет жёлто-зелёной.', '2 мл фенол → 2 тамшы FeCl₃ → сүт қышқылы «+5 тамшы» 4 рет (кемінде 16 тамшы қажет), түсі сары-жасыл болғанша.', '2 mL phenol → 2 drops FeCl₃ → lactic acid “+5 drops” 4 times (at least 16 drops are needed) until the colour is yellow-green.'),
 };
 
 /* ---------- 2. Иодоформная проба ---------- */

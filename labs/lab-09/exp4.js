@@ -20,7 +20,7 @@ const t1 = {
     { id: 'water', group: L('Реактивы', 'Реактивтер', 'Reagents'), label: L('Вода, 2 мл', 'Су, 2 мл', 'Water, 2 mL'), advance: 30, disabled: (t) => t.base || t.water || t.acid,
       apply(t, S, ctx) { t.water = true; t.v += 2; t.pH = 6.5; ctx.log(L('В пробирку налито 2 мл воды; 2-нафтол почти не растворяется', 'Пробиркаға 2 мл су құйылды; 2-нафтол еріген жоқ дерлік', '2 mL of water added; the 2-naphthol hardly dissolves')); } },
     { id: 'hcl', group: L('Реактивы', 'Реактивтер', 'Reagents'), label: L('10 % HCl, 2 мл', '10 % HCl, 2 мл', '10 % HCl, 2 mL'), advance: 30, disabled: (t) => t.base || t.water || t.acid,
-      apply(t, S, ctx) { t.acid = true; t.v += 2; t.pH = 0.5; ctx.log(L('В пробирку налито 2 мл 10 % HCl; 2-нафтол не растворяется', 'Пробиркаға 2 мл 10 % HCl құйылды; 2-нафтол ерімейді', '2 mL of 10 % HCl added; the 2-naphthol does not dissolve')); } },
+      apply(t, S, ctx) { t.acid = true; t.v += 2; t.pH = 0; /* 10 % HCl ≈ 2,9 моль/л → индикатор pH ≈ 0 */ ctx.log(L('В пробирку налито 2 мл 10 % HCl; 2-нафтол не растворяется', 'Пробиркаға 2 мл 10 % HCl құйылды; 2-нафтол ерімейді', '2 mL of 10 % HCl added; the 2-naphthol does not dissolve')); } },
     { id: 'ice', group: L('Охлаждение', 'Салқындату', 'Cooling'), label: L('Охладить пробирку во льду', 'Пробирканы мұзда салқындату', 'Cool the tube in ice'), advance: 120, disabled: (t) => t.cold,
       apply(t, S, ctx) { t.cold = true; ctx.log(L('Пробирка охлаждена во льду', 'Пробирка мұзда салқындатылды', 'Tube cooled in ice')); } },
     { id: 'diaz', group: L('Сочетание', 'Қосылу', 'Coupling'), label: L('Холодный раствор соли диазония, 1 мл', 'Диазоний тұзының суық ерітіндісі, 1 мл', 'Cold diazonium solution, 1 mL'), advance: 60, disabled: (t) => t.dz,

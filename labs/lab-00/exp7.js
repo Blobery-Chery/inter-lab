@@ -177,7 +177,9 @@ const sDistill = {
   },
 };
 
-const dsT = (S) => (S.ds && S.ds.th === 'high' ? 66 : S.ds && S.ds.th === 'liq' ? 84 : 78);
+/** Показание термометра при перегонке этанола (т. кип. 78 °C) по положению шарика, °C (допущение, ASSUMPTIONS.md). */
+export const DIST_T = { side: ETHANOL_BP, high: 66, liq: 80 };
+const dsT = (S) => DIST_T[(S.ds && S.ds.th) || 'side'];
 const sDistObs = {
   type: 'observe', id: 'distObs',
   title: L('Перегонка идёт', 'Айдау жүріп жатыр', 'The distillation is running'),
@@ -188,7 +190,7 @@ const sDistObs = {
   options: [
     { id: 'side', label: L('≈ 78 °C — истинная температура паров, отгон идёт при т. кип. этанола', '≈ 78 °C — булардың шын температурасы, айдау этанолдың қайнау t-сында жүреді', '≈ 78 °C — the true vapour temperature; the distillate comes over at the b.p. of ethanol') },
     { id: 'high', label: L('Заметно ниже 78 °C, хотя отгон уже капает: шарик выше отвода и не омывается парами', 'Айдалған сұйық тамып тұрса да, 78 °C-тан айтарлықтай төмен: шарик бұрмадан жоғары және буларға малынбайды', 'Well below 78 °C although distillate is dripping: the bulb is above the side arm and not bathed in vapour') },
-    { id: 'liq', label: L('Выше температуры паров: шарик в жидкости показывает температуру кипящей смеси, а не паров', 'Бу температурасынан жоғары: сұйықтағы шарик будың емес, қайнап жатқан қоспаның температурасын көрсетеді', 'Above the vapour temperature: the bulb in the liquid shows the boiling mixture, not the vapour') },
+    { id: 'liq', label: L('Выше температуры паров: шарик в жидкости показывает температуру кипящей (у нагретых стенок перегретой) жидкости, а не паров', 'Бу температурасынан жоғары: сұйықтағы шарик будың емес, қайнап жатқан (қызған қабырға маңында асқын қызған) сұйықтың температурасын көрсетеді', 'Above the vapour temperature: the bulb in the liquid shows the boiling (superheated near the hot walls) liquid, not the vapour') },
   ],
   correct: (S) => (S.ds ? S.ds.th : 'side'),
   why: (S) => (S.ds && S.ds.th !== 'side' ? L('Из-за положения термометра фракцию соберут не в тех пределах температур — продукт будет загрязнён.', 'Термометрдің орналасуына байланысты фракция басқа температура аралығында жиналады — өнім ластанады.', 'Because of where the thermometer is, the fraction will be collected over the wrong temperature range — the product will be impure.') : L('Шарик напротив отвода омывается парами, уходящими в холодильник.', 'Бұрманың тұсындағы шарик мұздатқышқа кететін буларға малынады.', 'The bulb level with the side arm is bathed in the vapour going into the condenser.')),

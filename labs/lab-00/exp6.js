@@ -4,15 +4,15 @@ import { fireScene, eyewashScene, spillScene, bench, beaker, person, scene, STYL
 import { stageResults } from './common.js';
 
 const WATER_FIRE = {
-  ru: 'Горящий органический растворитель легче воды и не смешивается с ней: вода уходит под него, вскипает и разбрызгивает горящую жидкость — огонь растекается по столу и на пол. В реальной лаборатории это уже большой пожар: огнетушитель, эвакуация (п. 11.4). Небольшой очаг в стакане накрывают часовым стеклом, влажной тканью или противопожарным одеялом — без доступа воздуха пламя гаснет.',
-  kk: 'Жанып жатқан органикалық еріткіш судан жеңіл және онымен араласпайды: су оның астына кетіп, қайнайды да, жанып жатқан сұйықты шашыратады — от үстел бойымен және еденге жайылады. Нақты зертханада бұл енді үлкен өрт: өрт сөндіргіш, эвакуация (11.4-тармақ). Стақандағы шағын ошақты сағат шынысымен, дымқыл матамен немесе өртке қарсы жамылғымен жабады — ауа кірмесе, жалын сөнеді.',
-  en: 'A burning organic solvent is lighter than water and does not mix with it: the water sinks beneath it, boils and splashes the burning liquid about — the fire spreads over the bench and onto the floor. In a real lab that is now a major fire: extinguisher, evacuation (rule 11.4). A small fire in a beaker is covered with a watch glass, a damp cloth or a fire blanket — without air the flame goes out.',
+  ru: 'Диэтиловый эфир легче воды и почти не смешивается с ней: вода уходит под горящий слой, стакан переполняется, и горящая жидкость выплёскивается вместе с водой — огонь растекается по столу и на пол. В реальной лаборатории это уже большой пожар: огнетушитель, эвакуация (п. 11.4). Небольшой очаг в стакане накрывают часовым стеклом, влажной тканью или противопожарным одеялом — без доступа воздуха пламя гаснет.',
+  kk: 'Диэтил эфирі судан жеңіл және онымен іс жүзінде араласпайды: су жанып жатқан қабаттың астына кетеді, стақан толып, жанып жатқан сұйық сумен бірге шайқалып төгіледі — от үстел бойымен және еденге жайылады. Нақты зертханада бұл енді үлкен өрт: өрт сөндіргіш, эвакуация (11.4-тармақ). Стақандағы шағын ошақты сағат шынысымен, дымқыл матамен немесе өртке қарсы жамылғымен жабады — ауа кірмесе, жалын сөнеді.',
+  en: 'Diethyl ether is lighter than water and barely mixes with it: the water sinks beneath the burning layer, the beaker overflows and the burning liquid spills out with the water — the fire spreads over the bench and onto the floor. In a real lab that is now a major fire: extinguisher, evacuation (rule 11.4). A small fire in a beaker is covered with a watch glass, a damp cloth or a fire blanket — without air the flame goes out.',
 };
 
 const sBeaker = {
   type: 'decide', id: 'beakerFire',
   title: L('Загорелся стакан', 'Стақан жанып кетті', 'A beaker is on fire'),
-  instr: L('<p>В стакане вспыхнул остаток спирта. Пламя только в стакане. Что делать?</p>', '<p>Стақандағы спирт қалдығы тұтанып кетті. Жалын тек стақанда. Не істеу керек?</p>', '<p>The alcohol left in a beaker has caught fire. The flame is only in the beaker. What do you do?</p>'),
+  instr: L('<p>В стакане вспыхнул остаток диэтилового эфира. Пламя только в стакане. Что делать?</p>', '<p>Стақандағы диэтил эфирінің қалдығы тұтанып кетті. Жалын тек стақанда. Не істеу керек?</p>', '<p>The diethyl ether left in a beaker has caught fire. The flame is only in the beaker. What do you do?</p>'),
   need: L('Потушите очаг', 'Ошақты сөндіріңіз', 'Put the fire out'),
   scene: (S, lc) => fireScene({ out: lc.chosen === 'cover', spread: (lc.tried || []).includes('water') }),
   options: [

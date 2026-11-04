@@ -55,7 +55,7 @@ const t2 = {
   reagents: [
     { id: 'cool', group: L('Пробирка', 'Пробирка', 'Tube'), label: L('Охладить под струёй холодной воды', 'Суық су ағынымен салқындату', 'Cool under running cold water'), advance: 60, disabled: (t) => t.cool,
       apply(t, S, ctx) { t.cool = true; ctx.log(L('Пробирка охлаждена под струёй воды', 'Пробирка су ағынымен салқындатылды', 'Tube cooled under running water')); } },
-    ...[2, 5].map((k) => ({ id: 'br' + k, group: L('Бромная вода', 'Бромды су', 'Bromine water'), label: L(`+${k} капли`, `+${k} тамшы`, `+${k} drops`), advance: 10 * k,
+    ...[2, 5].map((k) => ({ id: 'br' + k, group: L('Бромная вода', 'Бромды су', 'Bromine water'), label: L(`+${k} ${k < 5 ? 'капли' : 'капель'}`, `+${k} тамшы`, `+${k} drops`), advance: 10 * k,
       apply(t, S, ctx) {
         if (!t.cool) ctx.remark({ key: 'brHot', severity: 'safety', text: L('бромную воду прибавляли к горячему раствору — пары брома', 'бромды су ыстық ерітіндіге қосылды — бром булары', 'bromine water added to the hot solution — bromine vapour'), whatif: L('Из горячего раствора бром улетучивается: над пробиркой бурые ядовитые пары брома, а для пробы его остаётся меньше. Раствор сначала охлаждают.', 'Ыстық ерітіндіден бром ұшып кетеді: пробирка үстінде қоңыр улы бром булары, ал сынамаға ол азырақ қалады. Ерітіндіні алдымен салқындатады.', 'Bromine evaporates from a hot solution: toxic brown bromine vapour forms above the tube and less is left for the test. Cool the solution first.') });
         t.v += 0.05 * k; t.drops = (t.drops || 0) + k;

@@ -221,7 +221,7 @@ const s6 = {
   },
   alerts(S) {
     if (S.bath.in === false) return { text: L('Колба вне бани — теплота реакции не отводится. Верните колбу в баню.', 'Колба моншадан тыс — реакция жылуы әкетілмейді. Колбаны моншаға қайтарыңыз.', 'The flask is out of the bath — the heat of reaction is not removed. Put the flask back into the bath.'), kind: 'bad' };
-    if (S.T > 20) return { text: L('Выше 20 °C: появляются бурые пары NO₂, идут окисление и динитрование. Прекратите прибавление и охлаждайте!', '20 °C-тан жоғары: қоңыр NO₂ булары пайда болады, тотығу мен динитрлеу жүреді. Қосуды тоқтатып, салқындатыңыз!', 'Above 20 °C: brown NO₂ fumes appear; oxidation and dinitration set in. Stop adding and cool!'), kind: 'bad' };
+    if (S.T > 20) return { text: L('Выше 20 °C: выделяется много бурого NO₂, идут окисление и динитрование. Прекратите прибавление и охлаждайте!', '20 °C-тан жоғары: қоңыр NO₂ көп бөлінеді, тотығу мен динитрлеу жүреді. Қосуды тоқтатып, салқындатыңыз!', 'Above 20 °C: much brown NO₂ is evolved; oxidation and dinitration set in. Stop adding and cool!'), kind: 'bad' };
     if (S.T > 10) return { text: L('Температура выше 10 °C. Прекратите прибавление, перемешивайте, подсыпьте лёд с солью.', 'Температура 10 °C-тан жоғары. Қосуды тоқтатып, араластырыңыз, тұзы бар мұз салыңыз.', 'Temperature above 10 °C. Stop adding, keep stirring, add ice and salt.'), kind: 'warn' };
     return null;
   },
@@ -396,7 +396,7 @@ const s11 = {
       effect(S, F) { F.washLoss = (F.washLoss || 0) + 0.6; } },
   ],
   okPH: 2.5,
-  washings: (S, F) => (F.naohUsed ? 6 : washPH(F.iceWashes || 0)),
+  washings: (S, F) => (F.naohUsed ? 9 : washPH(F.iceWashes || 0)),
   onVacuum(S, F, ctx) {
     if (S.thin) { ctx.remark({ key: 'implode', severity: 'critical', text: L('вакуум включён на тонкостенной конической колбе — колба лопнула', 'вакуум жұқа қабырғалы конустық колбада қосылды — колба жарылды', 'vacuum applied to a thin-walled conical flask — the flask imploded'), critical: { text: IMPLODE } }); return false; }
     if (S.noHose) { ctx.feedback(L('Отвод колбы не соединён с насосом — разрежения нет.', 'Колба бұрмасы сорғыға жалғанбаған — сиреу жоқ.', 'The side arm is not connected to the pump — there is no vacuum.'), 'warn'); return false; }
@@ -415,7 +415,7 @@ const s11 = {
   },
   washFeedback(p) {
     const r = Math.round(p);
-    if (r >= 6) return L('Бумага зелёная — в промывных водах щёлочь.', 'Қағаз жасыл — жуынды суда сілті бар.', 'The paper is green — the washings contain alkali.');
+    if (r >= 8) return L('Бумага сине-зелёная — промывные воды щелочные: щёлочь перевела продукт в растворимую соль.', 'Қағаз көкшіл-жасыл — жуынды су сілтілі: сілті өнімді еритін тұзға айналдырды.', 'The paper is blue-green — the washings are alkaline: the alkali has turned the product into a soluble salt.');
     return r <= 1 ? L('Бумага красная — промывные воды сильнокислые.', 'Қағаз қызыл — жуынды су күшті қышқыл.', 'The paper is red — the washings are strongly acidic.')
       : r <= 2 ? L('Бумага красно-оранжевая — ещё кислые.', 'Қағаз қызыл-сарғыш — әлі қышқыл.', 'The paper is red-orange — still acidic.')
         : L('Бумага оранжевая — промывные воды слабокислые. Выше pH не поднимется: сама м-нитробензойная кислота немного растворима в воде (pH ≈ 3).', 'Қағаз қызғылт сары — жуынды су әлсіз қышқыл. pH бұдан жоғарыламайды: м-нитробензой қышқылының өзі суда аздап ериді (pH ≈ 3).', 'The paper is orange — the washings are weakly acidic. It will not get higher: m-nitrobenzoic acid itself is slightly soluble in water (pH ≈ 3).');
@@ -569,7 +569,7 @@ s4.hints = [
   L('«Насыпать колотый лёд» → «Добавить соль NaCl» → «Поместить колбу в баню» → «Перемешивать» и ждать, пока раствор не охладится до 0–5 °C (ускорьте ход времени).', '«Уатылған мұз салу» → «NaCl тұзын қосу» → «Колбаны моншаға салу» → «Араластыру» және ерітінді 0–5 °C-қа дейін суығанша күту (уақыт жүрісін жылдамдатыңыз).', '“Add crushed ice” → “Add NaCl” → “Put the flask in the bath” → “Stir”, then wait until the solution is at 0–5 °C (speed up the clock).'),
 ];
 s5.hints = [
-  L('Нитрующую смесь готовят так же, как разбавляют кислоты: более тяжёлую и вязкую серную кислоту наливают первой.', 'Нитрлеуші қоспаны қышқылдарды сұйылтқандай дайындайды: ауырырақ әрі тұтқырырақ күкірт қышқылын бірінші құяды.', 'The nitrating mixture is made the way acids are diluted: the heavier, more viscous sulfuric acid goes in first.'),
+  L('Порядок по методичке (раздел 7): азотную кислоту приливают к серной — медленно, порциями, при охлаждении. Смешение кислот экзотермично.', 'Әдістеме бойынша рет (7-бөлім): азот қышқылын күкірт қышқылына құяды — баяу, порциялап, салқындата отырып. Қышқылдарды араластыру экзотермиялық.', 'The order from the manual (section 7): nitric acid is added to sulfuric acid — slowly, in portions, with cooling. Mixing the acids is exothermic.'),
   L('Нужно ровно 1,5 мл H₂SO₄ и 1,5 мл HNO₃ (по 3 порции по 0,5 мл). HNO₃ прибавляйте с паузами, давая смеси остыть, — иначе она разогреется.', 'Дәл 1,5 мл H₂SO₄ және 1,5 мл HNO₃ қажет (0,5 мл-ден 3 порция). HNO₃-ті қоспаның суынуына мүмкіндік беріп, үзіліспен қосыңыз — әйтпесе ол қызады.', 'You need exactly 1.5 mL of H₂SO₄ and 1.5 mL of HNO₃ (3 portions of 0.5 mL each). Add the HNO₃ with pauses so the mixture can cool, otherwise it warms up.'),
   L('3 × «H₂SO₄ +0,5 мл», затем 3 × «HNO₃ +0,5 мл, по стенке» с паузами и ждать, пока смесь не охладится до 5 °C. Перепутали порядок или перелили — «Слить в отходы, приготовить заново».', '3 × «H₂SO₄ +0,5 мл», содан кейін үзіліспен 3 × «HNO₃ +0,5 мл, қабырға бойымен» және қоспа 5 °C-қа дейін суығанша күту. Ретін шатастырсаңыз не артық құйсаңыз — «Қалдыққа төгіп, қайта дайындау».', '3 × “H₂SO₄ +0.5 mL”, then 3 × “HNO₃ +0.5 mL, down the wall” with pauses, and wait until the mixture is at 5 °C. Wrong order or too much — “Discard into waste and start again”.'),
 ];
