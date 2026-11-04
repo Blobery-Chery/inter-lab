@@ -27,7 +27,7 @@ export async function reportPage(root, env, entry, lab) {
     h('div', { class: 'dochead', style: 'margin:10px 0' },
       h('label', { class: 'field', for: 'rfio' }, h('span', null, t('student')), fio),
       h('label', { class: 'field', for: 'rgrp' }, h('span', null, t('group')), grp),
-      h('div', { class: 'field' }, h('span', null, t('date')), h('div', { class: 'mono' }, `${t('day')} ${d.days[0]}–${d.days[1]} (${t('labTime')}) · ${new Date().toLocaleDateString(getLang() === 'en' ? 'en-GB' : getLang() === 'kk' ? 'kk-KZ' : 'ru-RU')}`))),
+      h('div', { class: 'field' }, h('span', null, t('date')), h('div', { class: 'mono' }, `${t('day')} ${d.days[0] === d.days[1] ? d.days[0] : d.days[0] + '–' + d.days[1]} (${t('labTime')}) · ${new Date().toLocaleDateString(getLang() === 'en' ? 'en-GB' : getLang() === 'kk' ? 'kk-KZ' : 'ru-RU')}`))),
     h('div', { class: 'printonly' }, `${t('student')}: ${student.name || '—'} · ${t('group')}: ${student.group || '—'}`));
   if (!d.complete) doc.append(h('p', { class: 'banner warn' }, t('reportLocked')));
   doc.append(h('div', { html: reportBodyHTML(d) }));

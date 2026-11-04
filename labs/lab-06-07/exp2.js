@@ -121,6 +121,23 @@ const t3 = {
   onDone(S) { S.e2.c = true; },
 };
 
+/* Подсказки проб (сессия Q): вместо общих фраз типа — конкретно по методичке. */
+t1.hints = [
+  L('Сравните силу кислот: карбоновая кислота сильнее угольной — значит, она вытесняет CO₂ из гидрокарбоната.', 'Қышқылдардың күшін салыстырыңыз: карбон қышқылы көмір қышқылынан күшті — демек, ол гидрокарбонаттан CO₂ ығыстырады.', 'Compare the acid strengths: a carboxylic acid is stronger than carbonic acid, so it drives CO₂ out of hydrogencarbonate.'),
+  L('Сначала кристаллы в обе пробирки, затем NaHCO₃. Смотрите на пузырьки газа и на то, что стало с кристаллами.', 'Алдымен екі пробиркаға да кристалдар, содан кейін NaHCO₃. Газ көпіршіктеріне және кристалдарға не болғанына қараңыз.', 'Crystals into both tubes first, then the NaHCO₃. Watch for gas bubbles and what happens to the crystals.'),
+  L('«Внести кристаллы в пробирки» → «Прилить по 1,5 мл NaHCO₃». В обеих пробирках выделяется CO₂, кристаллы растворяются: обе кислоты сильнее угольной.', '«Пробиркаларға кристалдар салу» → «1,5 мл-ден NaHCO₃ құю». Екі пробиркада да CO₂ бөлінеді, кристалдар ериді: екі қышқыл да көмір қышқылынан күшті.', '“Put crystals into the tubes” → “Add 1.5 mL of NaHCO₃ to each”. CO₂ is given off in both tubes and the crystals dissolve: both acids are stronger than carbonic acid.'),
+];
+t2.hints = [
+  L('Соль карбоновой кислоты растворима; сильная кислота вытесняет слабую карбоновую кислоту из соли.', 'Карбон қышқылының тұзы ериді; күшті қышқыл әлсіз карбон қышқылын тұзынан ығыстырады.', 'The salt of a carboxylic acid is soluble; a strong acid displaces the weak carboxylic acid from its salt.'),
+  L('Сначала растворите продукт в NaOH, затем прибавляйте HCl, пока индикаторная бумага не покажет кислую среду (pH ≈ 2). Первые капли только нейтрализуют избыток щёлочи.', 'Алдымен өнімді NaOH-та ерітіп, содан кейін индикатор қағазы қышқыл ортаны (pH ≈ 2) көрсеткенше HCl қосыңыз. Алғашқы тамшылар тек артық сілтіні бейтараптайды.', 'Dissolve the product in NaOH first, then add HCl until the indicator paper shows an acidic medium (pH ≈ 2). The first drops only neutralise the excess alkali.'),
+  L('«Растворить 0,1 г в 1,5 мл NaOH» → около 30–35 капель HCl (по 5, затем по 1) → «Индикаторная бумага»: pH ≈ 2, выпадает белый осадок свободной м-нитробензойной кислоты.', '«0,1 г-ды 1,5 мл NaOH-та еріту» → шамамен 30–35 тамшы HCl (5-тен, содан кейін 1-ден) → «Индикатор қағазы»: pH ≈ 2, бос м-нитробензой қышқылының ақ тұнбасы түседі.', '“Dissolve 0.1 g in 1.5 mL of NaOH” → about 30–35 drops of HCl (5 at a time, then 1) → “Indicator paper”: pH ≈ 2, a white precipitate of free m-nitrobenzoic acid forms.'),
+];
+t3.hints = [
+  L('Основная соль железа(III) выпадает только в нейтральной среде: в щелочной выпадет Fe(OH)₃, в кислой осадка не будет.', 'Темір(III) негіздік тұзы тек бейтарап ортада түседі: сілтілі ортада Fe(OH)₃ түседі, қышқыл ортада тұнба болмайды.', 'The basic iron(III) salt forms only in a neutral medium: in alkali Fe(OH)₃ precipitates, in acid there is no precipitate.'),
+  L('После 4 капель NaOH щёлочь в избытке. 10 % HCl — грубо (одна капля перескакивает нейтральную точку), 1 % HCl — точно. Проверяйте бумагой после каждой капли.', '4 тамшы NaOH-тан кейін сілті артық. 10 % HCl — дөрекі (бір тамшы бейтарап нүктеден асып кетеді), 1 % HCl — дәл. Әр тамшыдан кейін қағазбен тексеріңіз.', 'After 4 drops of NaOH the alkali is in excess. 10 % HCl is coarse (one drop overshoots the neutral point), 1 % HCl is fine. Check with paper after each drop.'),
+  L('«Кристаллы + 4 капли NaOH 10 %» → 2 капли 10 % HCl → 1 % HCl по капле, пока бумага не покажет pH ≈ 5–7 → «Индикаторная бумага» → «Прибавить 3 капли FeCl₃»: бледно-коричневый (телесного цвета) осадок основной соли.', '«Кристалдар + 4 тамшы NaOH 10 %» → 2 тамшы 10 % HCl → қағаз pH ≈ 5–7 көрсеткенше 1 % HCl тамшылап → «Индикатор қағазы» → «3 тамшы FeCl₃ қосу»: негіздік тұздың ақшыл қоңыр (тән түсті) тұнбасы.', '“Crystals + 4 drops of 10 % NaOH” → 2 drops of 10 % HCl → 1 % HCl drop by drop until the paper shows pH ≈ 5–7 → “Indicator paper” → “Add 3 drops of FeCl₃”: a pale brown (buff) precipitate of the basic salt.'),
+];
+
 export default {
   id: '2',
   title: L('Кислотные свойства продукта', 'Өнімнің қышқылдық қасиеттері', 'Acidic properties of the product'),

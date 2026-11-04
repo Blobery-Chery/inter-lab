@@ -54,6 +54,12 @@ export async function experimentPage(root, env, lab, exp) {
   if (!hintsEnabled) root.append(h('div', { class: 'banner warn' }, mode === 'exam' ? t('examMode') : t('hintsOff')));
   root.append(h('div', { class: 'exp' }, h('div', { class: 'standcol' }, sceneBox), h('div', { class: 'side' }, panel, journal, tb)));
   document.body.classList.add('has-bar');
+  // Действия внутри шага (насыпать на весы, налить, переключить) меняют ctx.local/state без ctx.solve —
+  // сохраняем после каждого нажатия и при уходе со страницы, чтобы перезагрузка не сбрасывала шаг.
+  const saveSoon = () => setTimeout(save, 0);
+  controls.addEventListener('click', saveSoon);
+  controls.addEventListener('change', saveSoon);
+  window.addEventListener('pagehide', save);
 
   /* ---------- раннер ---------- */
   const runner = new Runner({
@@ -229,6 +235,6 @@ export async function experimentPage(root, env, lab, exp) {
   drawStages();
   mount();
 
-  function destroy() { destroyStep(); mounted = false; save(); document.body.classList.remove('has-bar'); }
+  function destroy() { destroyStep(); mounted = false; save(); window.removeEventListener('pagehide', save); document.body.classList.remove('has-bar'); }
   return { destroy };
 }

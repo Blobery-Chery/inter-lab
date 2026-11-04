@@ -154,13 +154,13 @@ textarea{min-height:120px;resize:vertical}
 }
 .side{display:grid;gap:14px;min-width:0}
 .journal summary,.tb summary{font:600 14px var(--f-display);cursor:pointer;min-height:32px;display:flex;align-items:center;gap:6px}
-.jcount{font:500 12px var(--f-mono);color:var(--muted)}
+.jcount{font:500 12px var(--f-mono);color:var(--muted);white-space:nowrap}
 .log{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:7px;max-height:56vh;overflow:auto}
 .lg{display:grid;grid-template-columns:58px minmax(0,1fr);gap:8px;font-size:13.5px;line-height:1.4}
 .lg time{font:500 12px var(--f-mono);color:var(--muted);padding-top:1px}
 .lg.obs .k{font-weight:600;color:var(--accent);margin-right:4px}
 .lg.warn span{color:var(--bad)}
-.lg.warn span::before{content:"⚠ "}
+.lg.warn>span::before{content:"⚠ "}
 .lg.calc span{font-family:var(--f-mono);font-size:12.5px}
 .lg.hint span{color:var(--muted);font-style:italic}
 .tb ul{margin:6px 0 0;padding-left:18px;font-size:13.5px}.tb li{margin:3px 0}
@@ -245,12 +245,15 @@ canvas.tg{width:100%;height:110px;display:block;border:1px solid var(--line);bor
 .losslist{list-style:none;margin:0 0 10px;padding:0;font-size:14px;display:grid;gap:4px}
 .losslist li{display:flex;gap:8px;align-items:center}
 .losslist .sw{flex:none;width:12px;height:12px;border-radius:3px}
-.losslist .pc{margin-left:auto;font-family:var(--f-mono);font-size:13px}
+.losslist .pc{margin-left:auto;font-family:var(--f-mono);font-size:13px;white-space:nowrap}
 .assign .q{border:1px solid var(--line);border-radius:10px;padding:10px}
 .status{font-weight:600}
 .status.ok{color:var(--good)}.status.warn{color:var(--warn)}
 .jtable{font-size:12.5px}
 .printonly{display:none}
+
+/* телефон: уравнения переносятся, а не обрезаются */
+@media (max-width:880px){.eq{white-space:normal;overflow-wrap:anywhere}}
 
 @media print{
   :root{--paper:#fff;--panel:#fff;--scene:#fff;--ink:#000;--muted:#333;--line:#999;--accent:#000;--accent-soft:#fff;--good:#000;--bad:#000;--warn:#000;--good-soft:#fff;--bad-soft:#fff;--warn-soft:#fff}
@@ -266,6 +269,12 @@ canvas.tg{width:100%;height:110px;display:block;border:1px solid var(--line);bor
   .doc li,.eq,.doc tr{break-inside:avoid}
   .assign textarea{border:1px solid #999;min-height:0}
   .printonly{display:block}
+  /* задание с выбором: на бумаге видны выбранный и верный варианты */
+  .assign .b.opt.right,.assign .b.opt.wrong{display:block!important;border:1px solid #999;background:#fff;color:#000;min-height:0;padding:4px 8px;margin:4px 0;text-align:left;opacity:1}
+  .assign .b.opt.right::before{content:'✓ '}
+  .assign .b.opt.wrong::before{content:'✗ '}
+  /* протокол уже содержит наблюдения и подпись: свёрнутый полный журнал и подвал страницы не печатаем */
+  body:has(.doc) .foot,details.journal:not([open]){display:none!important}
   @page{size:A4;margin:16mm 14mm}
 }
 .toasts{position:fixed;top:10px;right:10px;left:10px;z-index:40;display:grid;gap:6px;justify-items:end;pointer-events:none}
