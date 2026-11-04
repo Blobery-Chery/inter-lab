@@ -28,6 +28,11 @@ const t1 = {
       } },
   ],
   sceneBack: waterBathBack,
+  hints: [
+    L('Гидролиз соли диазония идёт при нагревании до 50–60 °C; запах определяют, только направляя пары ладонью к себе.', 'Диазоний тұзының гидролизі 50–60 °C-қа дейін қыздырғанда жүреді; иісті тек буды алақанмен өзіңе бағыттап анықтайды.', 'The diazonium salt hydrolyses on warming to 50–60 °C; the odour is checked only by wafting the vapour towards you.'),
+    L('Кипящая баня даёт бурное вспенивание и выброс раствора; нюхать прямо из пробирки нельзя.', 'Қайнаған монша қатты көпіршу мен ерітіндінің атылуын береді; пробиркадан тікелей иіскеуге болмайды.', 'A boiling bath causes violent frothing and spurting; never sniff straight from the tube.'),
+    L('«Водяная баня 50–60 °C, 4 мин» → «Направить пары ладонью к себе», затем отметьте наблюдение: пузырьки газа (N₂) и запах фенола.', '«Су моншасы 50–60 °C, 4 мин» → «Буды алақанмен өзіне бағыттау», содан кейін бақылауды белгілеңіз: газ көпіршіктері (N₂) және фенол иісі.', '“Water bath 50–60 °C, 4 min” → “Waft the vapour towards you”, then record the observation: gas bubbles (N₂) and the odour of phenol.'),
+  ],
   done: (tubes) => tubes.d.warm && tubes.d.smelled,
   observe: {
     question: L('Что вы наблюдаете при нагревании?', 'Қыздырғанда не байқайсыз?', 'What do you observe on warming?'),
@@ -55,7 +60,7 @@ const t2 = {
   reagents: [
     { id: 'cool', group: L('Пробирка', 'Пробирка', 'Tube'), label: L('Охладить под струёй холодной воды', 'Суық су ағынымен салқындату', 'Cool under running cold water'), advance: 60, disabled: (t) => t.cool,
       apply(t, S, ctx) { t.cool = true; ctx.log(L('Пробирка охлаждена под струёй воды', 'Пробирка су ағынымен салқындатылды', 'Tube cooled under running water')); } },
-    ...[2, 5].map((k) => ({ id: 'br' + k, group: L('Бромная вода', 'Бромды су', 'Bromine water'), label: L(`+${k} капли`, `+${k} тамшы`, `+${k} drops`), advance: 10 * k,
+    ...[2, 5].map((k) => ({ id: 'br' + k, group: L('Бромная вода', 'Бромды су', 'Bromine water'), label: L(`+${k} ${k < 5 ? 'капли' : 'капель'}`, `+${k} тамшы`, `+${k} drops`), advance: 10 * k,
       apply(t, S, ctx) {
         if (!t.cool) ctx.remark({ key: 'brHot', severity: 'safety', text: L('бромную воду прибавляли к горячему раствору — пары брома', 'бромды су ыстық ерітіндіге қосылды — бром булары', 'bromine water added to the hot solution — bromine vapour'), whatif: L('Из горячего раствора бром улетучивается: над пробиркой бурые ядовитые пары брома, а для пробы его остаётся меньше. Раствор сначала охлаждают.', 'Ыстық ерітіндіден бром ұшып кетеді: пробирка үстінде қоңыр улы бром булары, ал сынамаға ол азырақ қалады. Ерітіндіні алдымен салқындатады.', 'Bromine evaporates from a hot solution: toxic brown bromine vapour forms above the tube and less is left for the test. Cool the solution first.') });
         t.v += 0.05 * k; t.drops = (t.drops || 0) + k;
@@ -63,6 +68,11 @@ const t2 = {
         if (phenol) { t.ppt = Math.min(1, (t.ppt || 0) + 0.06 * k); t.pptColor = 'var(--solid)'; t.color = 'rgba(232,226,200,.5)'; }
         else t.color = 'rgba(230,150,40,.55)';
       } })),
+  ],
+  hints: [
+    L('Бромную воду прибавляют только к охлаждённому раствору, по каплям, и следят за окраской и осадком.', 'Бромды суды тек салқындатылған ерітіндіге тамшылатып қосып, түсі мен тұнбаны бақылайды.', 'Bromine water is added only to the cooled solution, dropwise, watching the colour and any precipitate.'),
+    L('Фенол обесцвечивает бромную воду; заметный белый осадок появляется после 8–10 капель.', 'Фенол бромды суды түссіздендіреді; айқын ақ тұнба 8–10 тамшыдан кейін пайда болады.', 'Phenol decolourises bromine water; a clear white precipitate appears after 8–10 drops.'),
+    L('«Охладить под струёй холодной воды» → 2 × «+5 капель», затем отметьте наблюдение.', '«Суық су ағынымен салқындату» → 2 × «+5 тамшы», содан кейін бақылауды белгілеңіз.', '“Cool under running cold water” → 2 × “+5 drops”, then record the observation.'),
   ],
   done: (tubes) => (tubes.d.ppt || 0) >= 0.5,
   observe: {

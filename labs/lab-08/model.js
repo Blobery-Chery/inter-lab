@@ -66,6 +66,17 @@ export function afterReflux(S, kind = 'n') {
   return { org, ledger, x, r };
 }
 
+/**
+ * Состояние после кипячения, если шаг кипячения был закрыт без него (принудительный переход,
+ * восстановление старого сохранения): считаем по тому, что есть, чтобы следующие шаги не падали.
+ */
+export function ensureOrg(S, kind = 'n') {
+  if (S.org && S.ledger) return;
+  if (!S.reflux || S.reflux.t == null) S.reflux = Object.assign({ t: 0, vap: 0, bump: 0 }, S.reflux || {});
+  const res = afterReflux(S, kind);
+  S.org = res.org; S.ledger = res.ledger; S.x = res.x; S.ratio = res.r;
+}
+
 /** Объём органической фазы, мл (для коэффициентов распределения). */
 export const orgVolume = (o) => o.ester / 0.88 + o.alc / 0.81 + o.acid / D_ACID + o.heavy / 0.77;
 

@@ -10,7 +10,7 @@
 import { h } from '../../../app/dom.js';
 import { L, tr, n } from '../../../app/i18n.js';
 import { btn, row, group } from '../../../app/ui/controls.js';
-import { washWater, washBicarb, washBrine, orgVolume, acidMmol } from '../model.js';
+import { washWater, washBicarb, washBrine, orgVolume, acidMmol, ensureOrg } from '../model.js';
 import { funnelScene } from '../scene.js';
 
 const LIQ = {
@@ -24,6 +24,41 @@ const CRIT_KEEP = L(
   'Төменгі қабат — сулы (d ≈ 1,0–1,1 г/мл), ал эфир (d ≈ 0,88 г/мл) жеңіл және әрқашан жоғарыда. Сіз сулы қабатты сақтап, эфирі бар қабатты қалдыққа төктіңіз — өнім жоғалды. Нақты зертханада синтезді қайталауға тура келер еді; органикалық қалдықтарды раковинаға емес, органикалық қалдықтар ыдысына жинайды. Тренажерде қоспаны өңдеудің басына ораласыз.',
   'The lower layer is aqueous (d ≈ 1.0–1.1 g/mL) and the ester (d ≈ 0.88 g/mL) is light and always on top. You kept the aqueous layer and threw the ester layer away — the product is lost. In a real lab the synthesis would have to be repeated; organic waste goes into the organic waste container, never the sink. In the simulator you return to the start of the work-up.');
 
+/*
+ * Подсказка 3 — готовое решение с названиями кнопок дословно (SCHEMA.md). Число порций NaHCO₃ заранее не известно:
+ * следующая порция добавляется, пока предыдущая давала CO₂; после порции без газа — NaCl и перенос эфира.
+ */
+const FB = {
+  tap: { ru: 'Кран открыт → закрыть', kk: 'Шүмек ашық → жабу', en: 'Stopcock open → close it' },
+  water: { ru: 'Налить 20 мл холодной воды', kk: '20 мл суық су құю', en: 'Add 20 mL of cold water' },
+  mix: { ru: 'Вылить реакционную смесь в воронку', kk: 'Реакциялық қоспаны шұңғымаға құю', en: 'Pour the reaction mixture into the funnel' },
+  shake: { ru: 'Закрыть пробкой, перевернуть и встряхивать, часто открывая кран', kk: 'Тығынмен жауып, аударып шайқау, шүмекті жиі ашып отыру', en: 'Stopper, invert and shake, opening the stopcock often' },
+  settle: { ru: 'Поставить в кольцо и дать слоям разделиться', kk: 'Сақинаға қойып, қабаттардың бөлінуін күту', en: 'Put it in the ring and let the layers separate' },
+  unstop: { ru: 'Снять пробку', kk: 'Тығынды алу', en: 'Remove the stopper' },
+  drain: { ru: 'Слить нижний (водный) слой в стакан, эфир оставить в воронке', kk: 'Төменгі (сулы) қабатты стақанға ағызу, эфирді шұңғымада қалдыру', en: 'Run the lower (aqueous) layer into the beaker; keep the ester in the funnel' },
+  bic: { ru: 'NaHCO₃ 5 %: +15 мл', kk: 'NaHCO₃ 5 %: +15 мл', en: '5 % NaHCO₃: +15 mL' },
+  brine: { ru: 'Насыщ. NaCl: 10 мл', kk: 'Қаныққан NaCl: 10 мл', en: 'Saturated NaCl: 10 mL' },
+  neck: { ru: 'Перелить эфир через горло воронки в сухую коническую колбу', kk: 'Эфирді шұңғыма мойны арқылы құрғақ конустық колбаға құю', en: 'Pour the ester out through the neck into a dry conical flask' },
+};
+function funnelH3(F, S) {
+  const cycle = [FB.shake, FB.settle, FB.unstop, FB.drain];
+  const items = [FB.tap, FB.water, FB.mix, ...cycle];
+  const busy = F.cur === 'bicarb' && F.aq > 0;
+  const lastCO2 = S.wash ? S.wash.lastCO2 : null;
+  const gasStopped = F.nB > 0 && !busy && lastCO2 != null && lastCO2 <= 0.5;
+  const portions = F.nB + (!F.nS && !busy && !gasStopped && F.drains >= 1 ? 1 : 0);
+  for (let i = 0; i < portions; i++) items.push(FB.bic, ...cycle);
+  const last = F.nS || gasStopped;
+  if (last) items.push(FB.brine, ...cycle, FB.neck);
+  const tail = last ? null : {
+    ru: '→ промывайте порциями NaHCO₃, пока при встряхивании выделяется CO₂; последняя порция газа не даёт. Затем 10 мл насыщенного NaCl и эфир через горло в сухую колбу.',
+    kk: '→ шайқағанда CO₂ бөлінгенше NaHCO₃ порцияларымен жуыңыз; соңғы порция газ бермейді. Содан кейін 10 мл қаныққан NaCl және эфирді мойны арқылы құрғақ колбаға.',
+    en: '→ wash with NaHCO₃ portions while shaking gives off CO₂; the last portion gives no gas. Then 10 mL of saturated NaCl, and the ester out through the neck into a dry flask.',
+  };
+  const f = (l) => items.map((x) => (l === 'en' ? `“${x.en}”` : `«${x[l]}»`)).join(' → ') + (tail ? ' ' + tail[l] : '');
+  return { ru: f('ru'), kk: f('kk'), en: f('en') };
+}
+
 export default {
   type: 'lab08-funnel',
   init(step, ctx) {
@@ -33,6 +68,7 @@ export default {
   },
   render(step, ctx) {
     const { local: F, state: S } = ctx;
+    ensureOrg(S, step.kind);
     const wrap = h('div', { class: 'wfull' });
     const ml = (v) => ({ ru: n(v, 0) + ' мл', kk: n(v, 0) + ' мл', en: n(v, 0) + ' mL' });
     const done = !!F.prod;
@@ -150,7 +186,7 @@ export default {
     const finish = (neck) => act(neck ? L('Перелить эфир через горло воронки в сухую коническую колбу', 'Эфирді шұңғыма мойны арқылы құрғақ конустық колбаға құю', 'Pour the ester out through the neck into a dry conical flask') : L('Слить эфир через кран в коническую колбу', 'Эфирді шүмек арқылы конустық колбаға ағызу', 'Run the ester out through the stopcock into a conical flask'), () => {
       if (!need(F.drains >= 2 && F.aq === 0 && F.nB >= 1, L('Сначала промойте эфир водой и раствором NaHCO₃ и слейте водный слой.', 'Алдымен эфирді сумен және NaHCO₃ ерітіндісімен жуып, сулы қабатты ағызыңыз.', 'First wash the ester with water and NaHCO₃ and run off the aqueous layer.'))) return;
       if (F.stopper) F.stopper = false;
-      if (!F.nS) ctx.remark({ key: 'sf8-brine', severity: 'minor', text: L('не проведена промывка насыщенным NaCl — в эфире больше воды и растворённого эфира ушло с водой', 'қаныққан NaCl-мен жуу жүргізілмеді — эфирде су көп, ал еріген эфир сумен кетті', 'no wash with saturated NaCl — more water stays in the ester'), whatif: L('Насыщенный раствор NaCl уменьшает растворимость эфира в воде и «вытягивает» воду из органического слоя. Без него эфир мутнее, осушителя нужно больше, а при перегонке появится мутный головной погон.', 'Қаныққан NaCl ерітіндісі эфирдің судағы ерігіштігін азайтып, органикалық қабаттан суды «тартып алады». Онсыз эфир лайлырақ, кептіргіш көбірек керек, ал айдағанда лайлы бастапқы фракция пайда болады.', 'Saturated NaCl lowers the solubility of the ester in water and draws water out of the organic layer. Without it the ester is cloudier, needs more drying agent and gives a cloudy fore-run on distillation.') });
+      if (!F.nS) ctx.remark({ key: 'sf8-brine', severity: 'minor', text: L('не проведена промывка насыщенным NaCl — в эфире остаётся больше воды', 'қаныққан NaCl-мен жуу жүргізілмеді — эфирде су көбірек қалады', 'no wash with saturated NaCl — more water stays in the ester'), whatif: L('Насыщенный раствор NaCl уменьшает растворимость эфира в воде и «вытягивает» воду из органического слоя. Без него эфир мутнее, осушителя нужно больше, а при перегонке появится мутный головной погон.', 'Қаныққан NaCl ерітіндісі эфирдің судағы ерігіштігін азайтып, органикалық қабаттан суды «тартып алады». Онсыз эфир лайлырақ, кептіргіш көбірек керек, ал айдағанда лайлы бастапқы фракция пайда болады.', 'Saturated NaCl lowers the solubility of the ester in water and draws water out of the organic layer. Without it the ester is cloudier, needs more drying agent and gives a cloudy fore-run on distillation.') });
       if (S.wash.lastCO2 != null && S.wash.lastCO2 > 0.5) ctx.remark({ key: 'sf8-co2', severity: 'minor', text: L('не проверено, что CO₂ больше не выделяется: промывку NaHCO₃ закончили, пока шёл газ', 'CO₂ енді бөлінбейтіні тексерілмеді: NaHCO₃-пен жуу газ бөлініп жатқанда аяқталды', 'no check that CO₂ evolution had stopped: the bicarbonate wash was ended while gas was still forming') });
       if (!neck) {
         S.org.water += 0.25;
@@ -200,7 +236,7 @@ export default {
     return [
       L('Эфир (d ≈ 0,88 г/мл) легче воды — он всегда в верхнем слое. Нижний слой сливают через кран, верхний выливают через горло.', 'Эфир (d ≈ 0,88 г/мл) судан жеңіл — ол әрқашан жоғарғы қабатта. Төменгі қабатты шүмек арқылы ағызады, жоғарғысын мойны арқылы құяды.', 'The ester (d ≈ 0.88 g/mL) is lighter than water — it is always the upper layer. The lower layer is run off through the stopcock, the upper one poured out through the neck.'),
       next,
-      L('Порядок: вода 20 мл → NaHCO₃ порциями 10–15 мл, пока выделяется CO₂ (каждый раз: пробка → встряхнуть со сбросом давления → отстоять → снять пробку → слить нижний слой) → NaCl 10 мл → эфир через горло в сухую колбу.', 'Рет: су 20 мл → CO₂ бөлінгенше 10–15 мл NaHCO₃ порциялары (әр жолы: тығын → қысымды шығарып шайқау → тұндыру → тығынды алу → төменгі қабатты ағызу) → NaCl 10 мл → эфирді мойны арқылы құрғақ колбаға.', 'Order: water 20 mL → NaHCO₃ in 10–15 mL portions while CO₂ forms (each time: stopper → shake with venting → settle → remove stopper → run off the lower layer) → NaCl 10 mL → ester out through the neck into a dry flask.'),
+      funnelH3(F, ctx.state),
     ];
   },
 };

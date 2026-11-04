@@ -1,6 +1,6 @@
 /** Опыт 2. Кислотные свойства продукта. Методичка, раздел 6, опыт 2. */
 import { L, n } from '../../app/i18n.js';
-import { M, pHcalc } from './model.js';
+import { M, pHcalc, DROP } from './model.js';
 
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
 const setPH = (t) => { const r = pHcalc(t.net, t.C0, t.V); t.pH = r.pH; t.pptRaw = r.ppt; t.ppt = clamp((r.ppt / t.C0) * 1.4, 0, 1); return r; };
@@ -47,11 +47,11 @@ const t2 = {
   indicator: true,
   reagents: [
     { id: 'dis', label: L('Растворить 0,1 г в 1,5 мл NaOH', '0,1 г-ды 1,5 мл NaOH-та еріту', 'Dissolve 0.1 g in 1.5 mL of NaOH'), advance: 60, disabled: (t) => t.dis,
-      apply(t, S, ctx) { t.dis = true; t.net = 4.16; t.V = 1.5; t.v = 1.5; t.C0 = (0.1 / M.NBA) * 1000; setPH(t); ctx.log(L('Продукт растворился в NaOH — прозрачный бесцветный раствор м-нитробензоата натрия', 'Өнім NaOH-та еріді — натрий м-нитробензоатының мөлдір түссіз ерітіндісі', 'The product dissolved in NaOH — a clear colourless solution of sodium m-nitrobenzoate'), 'obs'); } },
+      apply(t, S, ctx) { t.dis = true; t.net = 1.5 * DROP.NaOH10 / 0.05; t.V = 1.5; t.v = 1.5; t.C0 = (0.1 / M.NBA) * 1000; setPH(t); ctx.log(L('Продукт растворился в NaOH — прозрачный бесцветный раствор м-нитробензоата натрия', 'Өнім NaOH-та еріді — натрий м-нитробензоатының мөлдір түссіз ерітіндісі', 'The product dissolved in NaOH — a clear colourless solution of sodium m-nitrobenzoate'), 'obs'); } },
     ...[1, 5].map((k) => ({ id: 'hcl' + k, group: L('Хлороводородная кислота 10 %', 'Хлорсутек қышқылы 10 %', 'Hydrochloric acid 10 %'), label: L(`HCl: +${k} кап.`, `HCl: +${k} тамшы`, `HCl: +${k} ${k > 1 ? 'drops' : 'drop'}`), advance: 10 * k,
       apply(t, S, ctx) {
         if (!t.dis) { ctx.feedback(L('Сначала растворите продукт в щёлочи.', 'Алдымен өнімді сілтіде ерітіңіз.', 'Dissolve the product in alkali first.'), 'warn'); return; }
-        t.net -= 0.1436 * k; t.V += 0.05 * k; t.v = t.V; t.drops = (t.drops || 0) + k; setPH(t);
+        t.net -= DROP.HCl10 * k; t.V += 0.05 * k; t.v = t.V; t.drops = (t.drops || 0) + k; setPH(t);
       } })),
   ],
   done: (tubes) => { const t = tubes.p; return t.dis && t.pH < 3 && t.pptRaw > 0.3 * t.C0; },
@@ -80,8 +80,8 @@ const t3 = {
   indicator: true, reset: true,
   reagents: [
     { id: 'dis', label: L('Кристаллы + 4 капли NaOH 10 %', 'Кристалдар + 4 тамшы NaOH 10 %', 'Crystals + 4 drops of 10 % NaOH'), advance: 30, disabled: (t) => t.dis,
-      apply(t, S, ctx) { t.dis = true; t.net = 0.555; t.V = 0.25; t.v = 0.45; t.C0 = (0.03 / M.NBA) * 1000; setPH(t); ctx.log(L('Несколько кристаллов продукта растворены в 4 каплях 10 % NaOH', 'Өнімнің бірнеше кристалы 4 тамшы 10 % NaOH-та ерітілді', 'A few crystals of the product dissolved in 4 drops of 10 % NaOH')); } },
-    ...[['h10', L('HCl 10 %: +1 кап.', 'HCl 10 %: +1 тамшы', 'HCl 10 %: +1 drop'), -0.1436], ['h1', L('HCl 1 %: +1 кап.', 'HCl 1 %: +1 тамшы', 'HCl 1 %: +1 drop'), -0.0144], ['oh', L('NaOH 10 %: +1 кап.', 'NaOH 10 %: +1 тамшы', 'NaOH 10 %: +1 drop'), 0.139]].map(([id, label, dn]) => ({
+      apply(t, S, ctx) { t.dis = true; t.net = 4 * DROP.NaOH10; t.V = 0.25; t.v = 0.45; t.C0 = (0.03 / M.NBA) * 1000; setPH(t); ctx.log(L('Несколько кристаллов продукта растворены в 4 каплях 10 % NaOH', 'Өнімнің бірнеше кристалы 4 тамшы 10 % NaOH-та ерітілді', 'A few crystals of the product dissolved in 4 drops of 10 % NaOH')); } },
+    ...[['h10', L('HCl 10 %: +1 кап.', 'HCl 10 %: +1 тамшы', 'HCl 10 %: +1 drop'), -DROP.HCl10], ['h1', L('HCl 1 %: +1 кап.', 'HCl 1 %: +1 тамшы', 'HCl 1 %: +1 drop'), -DROP.HCl1], ['oh', L('NaOH 10 %: +1 кап.', 'NaOH 10 %: +1 тамшы', 'NaOH 10 %: +1 drop'), DROP.NaOH10]].map(([id, label, dn]) => ({
       id, label, group: L('Нейтрализация', 'Бейтараптау', 'Neutralisation'), advance: 10, disabled: (t) => t.used,
       apply(t, S, ctx) { if (!t.dis) { ctx.feedback(L('Сначала растворите кислоту в щёлочи.', 'Алдымен қышқылды сілтіде ерітіңіз.', 'Dissolve the acid in alkali first.'), 'warn'); return; } t.net += dn; t.V += 0.05; t.v = t.V + 0.2; t.checked = false; setPH(t); },
     })),
@@ -123,14 +123,14 @@ const t3 = {
 
 /* Подсказки проб (сессия Q): вместо общих фраз типа — конкретно по методичке. */
 t1.hints = [
-  L('Сравните силу кислот: карбоновая кислота сильнее угольной — значит, она вытесняет CO₂ из гидрокарбоната.', 'Қышқылдардың күшін салыстырыңыз: карбон қышқылы көмір қышқылынан күшті — демек, ол гидрокарбонаттан CO₂ ығыстырады.', 'Compare the acid strengths: a carboxylic acid is stronger than carbonic acid, so it drives CO₂ out of hydrogencarbonate.'),
+  L('Сравните силу кислот: карбоновая кислота сильнее угольной — значит, она вытесняет CO₂ из гидрокарбоната.', 'Қышқылдардың күшін салыстырыңыз: карбон қышқылы көмір қышқылынан күшті — демек, ол гидрокарбонаттан CO₂ ығыстырады.', 'Compare the acid strengths: a carboxylic acid is stronger than carbonic acid, so it drives CO₂ out of hydrogen carbonate.'),
   L('Сначала кристаллы в обе пробирки, затем NaHCO₃. Смотрите на пузырьки газа и на то, что стало с кристаллами.', 'Алдымен екі пробиркаға да кристалдар, содан кейін NaHCO₃. Газ көпіршіктеріне және кристалдарға не болғанына қараңыз.', 'Crystals into both tubes first, then the NaHCO₃. Watch for gas bubbles and what happens to the crystals.'),
   L('«Внести кристаллы в пробирки» → «Прилить по 1,5 мл NaHCO₃». В обеих пробирках выделяется CO₂, кристаллы растворяются: обе кислоты сильнее угольной.', '«Пробиркаларға кристалдар салу» → «Әрқайсысына 1,5 мл NaHCO₃ құю». Екі пробиркада да CO₂ бөлінеді, кристалдар ериді: екі қышқыл да көмір қышқылынан күшті.', '“Put crystals into the tubes” → “Add 1.5 mL of NaHCO₃ to each”. CO₂ is given off in both tubes and the crystals dissolve: both acids are stronger than carbonic acid.'),
 ];
 t2.hints = [
   L('Соль карбоновой кислоты растворима; сильная кислота вытесняет слабую карбоновую кислоту из соли.', 'Карбон қышқылының тұзы ериді; күшті қышқыл әлсіз карбон қышқылын тұзынан ығыстырады.', 'The salt of a carboxylic acid is soluble; a strong acid displaces the weak carboxylic acid from its salt.'),
-  L('Сначала растворите продукт в NaOH, затем прибавляйте HCl, пока индикаторная бумага не покажет кислую среду (pH ≈ 2). Первые капли только нейтрализуют избыток щёлочи.', 'Алдымен өнімді NaOH-та ерітіп, содан кейін индикатор қағазы қышқыл ортаны (pH ≈ 2) көрсеткенше HCl қосыңыз. Алғашқы тамшылар тек артық сілтіні бейтараптайды.', 'Dissolve the product in NaOH first, then add HCl until the indicator paper shows an acidic medium (pH ≈ 2). The first drops only neutralise the excess alkali.'),
-  L('«Растворить 0,1 г в 1,5 мл NaOH» → около 30–35 капель HCl (по 5, затем по 1) → «Индикаторная бумага»: pH ≈ 2, выпадает белый осадок свободной м-нитробензойной кислоты.', '«0,1 г-ды 1,5 мл NaOH-та еріту» → шамамен 30–35 тамшы HCl (5-тен, содан кейін 1-ден) → «Индикатор қағазы»: pH ≈ 2, бос м-нитробензой қышқылының ақ тұнбасы түседі.', '“Dissolve 0.1 g in 1.5 mL of NaOH” → about 30–35 drops of HCl (5 at a time, then 1) → “Indicator paper”: pH ≈ 2, a white precipitate of free m-nitrobenzoic acid forms.'),
+  L('Сначала растворите продукт в NaOH, затем прибавляйте HCl, пока индикаторная бумага не покажет кислую среду (pH 1–2). Первые капли только нейтрализуют избыток щёлочи.', 'Алдымен өнімді NaOH-та ерітіп, содан кейін индикатор қағазы қышқыл ортаны (pH 1–2) көрсеткенше HCl қосыңыз. Алғашқы тамшылар тек артық сілтіні бейтараптайды.', 'Dissolve the product in NaOH first, then add HCl until the indicator paper shows an acidic medium (pH 1–2). The first drops only neutralise the excess alkali.'),
+  L('«Растворить 0,1 г в 1,5 мл NaOH» → около 30 капель HCl (по 5, затем по 1) → «Индикаторная бумага»: pH 1–2, выпадает белый осадок свободной м-нитробензойной кислоты.', '«0,1 г-ды 1,5 мл NaOH-та еріту» → шамамен 30 тамшы HCl (5-тен, содан кейін 1-ден) → «Индикатор қағазы»: pH 1–2, бос м-нитробензой қышқылының ақ тұнбасы түседі.', '“Dissolve 0.1 g in 1.5 mL of NaOH” → about 30 drops of HCl (5 at a time, then 1) → “Indicator paper”: pH 1–2, a white precipitate of free m-nitrobenzoic acid forms.'),
 ];
 t3.hints = [
   L('Основная соль железа(III) выпадает только в нейтральной среде: в щелочной выпадет Fe(OH)₃, в кислой осадка не будет.', 'Темір(III) негіздік тұзы тек бейтарап ортада түседі: сілтілі ортада Fe(OH)₃ түседі, қышқыл ортада тұнба болмайды.', 'The basic iron(III) salt forms only in a neutral medium: in alkali Fe(OH)₃ precipitates, in acid there is no precipitate.'),

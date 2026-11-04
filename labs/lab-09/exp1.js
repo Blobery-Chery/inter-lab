@@ -66,7 +66,7 @@ const s2 = {
     S.nHCl = hclMmol(v); S.vMix = 6.5 + v; S.T = 26;
     ctx.log(L(`HCl: ${n(v, 1)} мл × 1.18 г/мл × 0.36 / 36.46 = ${mm(S.nHCl)} ммоль`, `HCl: ${n(v, 1)} мл × 1.18 г/мл × 0.36 / 36.46 = ${mm(S.nHCl)} ммоль`, `HCl: ${n(v, 1)} mL × 1.18 g/mL × 0.36 / 36.46 = ${mm(S.nHCl)} mmol`), 'calc');
   },
-  then: [{ id: 'stir', label: L('Перемешать палочкой', 'Таяқшамен араластыру', 'Stir with the rod'), advance: 30, obs: L('Разбавленная соляная кислота — бесцветный раствор, слегка дымит над горлом колбы, немного разогрелась', 'Сұйытылған тұз қышқылы — түссіз ерітінді, колба мойны үстінде сәл түтіндейді, аздап жылыды', 'Dilute hydrochloric acid — a colourless solution, fuming slightly at the neck of the flask, a little warm') }],
+  then: [{ id: 'stir', label: L('Перемешать палочкой', 'Таяқшамен араластыру', 'Stir with the rod'), advance: 30, obs: L('Разбавленная (≈ 20 %) соляная кислота — бесцветный прозрачный раствор, при смешении немного разогрелась', 'Сұйытылған (≈ 20 %) тұз қышқылы — түссіз мөлдір ерітінді, араластырғанда аздап жылыды', 'Dilute (≈ 20 %) hydrochloric acid — a clear colourless solution that warmed slightly on mixing') }],
   sceneExtra: (S) => flaskSide(S),
 };
 
@@ -132,6 +132,11 @@ const s4 = {
     return false;
   },
   scene: (S, lc) => flaskScene(S, { bath: true, th: true, rod: true, stir: lc.c && lc.c.stir, vol: S.vMix, color: COL.amineSalt, solid: S.T < 8 ? 0.25 : 0 }),
+  hints: [
+    L('Чтобы охладить ниже 5 °C, нужна охлаждающая смесь, а теплообмен ускоряет перемешивание.', '5 °C-тан төмен салқындату үшін салқындатқыш қоспа қажет, ал жылу алмасуды араластыру жылдамдатады.', 'To cool below 5 °C you need a freezing mixture; stirring speeds up heat exchange.'),
+    L('Один лёд охлаждает баню лишь до ≈ 0 °C, и раствор подходит к 5 °C медленно; лёд с NaCl даёт ≈ −8 °C.', 'Тек мұз моншаны ≈ 0 °C-қа дейін ғана салқындатады, ерітінді 5 °C-қа баяу жетеді; NaCl қосылған мұз ≈ −8 °C береді.', 'Ice alone cools the bath only to ≈ 0 °C and the solution approaches 5 °C slowly; ice with NaCl gives ≈ −8 °C.'),
+    L('«Насыпать колотый лёд» → «Добавить соль NaCl» → «Поместить колбу в баню» → «Перемешивать»; ускорьте ход времени и дождитесь 5 °C.', '«Уатылған мұз салу» → «NaCl тұзын қосу» → «Колбаны моншаға салу» → «Араластыру»; уақыт жүрісін жылдамдатып, 5 °C-ты күтіңіз.', '“Add crushed ice” → “Add NaCl” → “Put the flask in the bath” → “Stir”; speed up time and wait for 5 °C.'),
+  ],
 };
 
 /* ------------------------------------------------------------------ 5. навеска нитрита */
@@ -278,14 +283,14 @@ const s7 = {
   hints: [
     L('Капайте спокойно и следите за термометром: выше 5 °C — пауза, лёд в смесь. Иодкрахмальная проба — ближе к концу, через 1–2 мин после порции.', 'Баяу тамызып, термометрді қадағалаңыз: 5 °C-тан жоғары — үзіліс, қоспаға мұз. Иодкрахмал сынамасы — соңына қарай, порциядан 1–2 мин кейін.', 'Add calmly and watch the thermometer: above 5 °C — pause and drop ice into the mixture. The starch–iodide test comes towards the end, 1–2 min after a portion.'),
     L('Нитрита 26 ммоль на 25 ммоль анилина: свободная HNO₂ появится только после ~58 капель. Ритм 10–15 с при включённом перемешивании держит смесь холодной.', '25 ммоль анилинге 26 ммоль нитрит: бос HNO₂ тек ~58 тамшыдан кейін пайда болады. Араластыру қосулы кезде 10–15 с ырғақ қоспаны суық ұстайды.', '26 mmol of nitrite for 25 mmol of aniline: free HNO₂ appears only after ~58 drops. A 10–15 s rhythm with stirring on keeps the mixture cold.'),
-    L('Включите перемешивание, ритм 10 с; после 55 капель — проба после каждых 1–2 капель. Если весь нитрит прибавлен, а бумага не синеет, — «Добавить ещё 0,5 мл NaNO₂» и снова проба.', 'Араластыруды қосып, ырғақ 10 с; 55 тамшыдан кейін — әр 1–2 тамшыдан соң сынама. Нитрит түгел қосылып, қағаз көгермесе — «Тағы 0,5 мл NaNO₂ қосу» және қайта сынама.', 'Switch stirring on, rhythm 10 s; after 55 drops test after every 1–2 drops. If all the nitrite is in and the paper stays white, use “Add another 0.5 mL of NaNO₂” and test again.'),
+    L('«Перемешивать» → ритм «10 с»; после 55 капель и после последней капли — «Иодкрахмальная проба (через 1–2 мин)». Если весь нитрит прибавлен, а бумага не синеет, — «Добавить ещё 0,5 мл раствора NaNO₂ (0,1 г)» и снова проба.', '«Араластыру» → ырғақ «10 с»; 55 тамшыдан кейін және соңғы тамшыдан соң — «Иодкрахмал сынамасы (1–2 мин кейін)». Нитрит түгел қосылып, қағаз көгермесе — «Тағы 0,5 мл NaNO₂ ерітіндісін (0,1 г) қосу» және қайта сынама.', '“Stir” → rhythm “10 s”; after 55 drops and after the last drop — “Starch–iodide test (after 1–2 min)”. If all the nitrite is in and the paper stays white, use “Add another 0.5 mL of NaNO₂ solution (0.1 g)” and test again.'),
   ],
 };
 s7.readouts = (S, lc) => [
   { label: L('Раствор', 'Ерітінді', 'Solution'), value: n(S.T, 1) + ' °C', st: S.T > 10 ? 'bad' : S.T > 5 ? 'warn' : 'ok' },
   { label: L('Баня', 'Монша', 'Bath'), value: n(S.Tb, 1) + ' °C' },
   { label: L('Капель', 'Тамшы', 'Drops'), value: `${lc.added} / ${DROPS}` + (lc.extra ? ` + ${lc.extra}×0.5` : '') },
-  { label: L('Иодкрахм. проба', 'Иодкрахм. сынама', 'Starch–KI test'), value: lc.strip === 'blue' ? L('синяя', 'көк', 'blue') : lc.strip === 'faint' ? L('слабая', 'әлсіз', 'faint') : lc.tests ? L('нет', 'жоқ', 'none') : '—', st: lc.strip === 'blue' ? 'ok' : '' },
+  { label: L('Иодкрахм. проба', 'Иодкрахм. сынама', 'Starch–iodide test'), value: lc.strip === 'blue' ? L('синяя', 'көк', 'blue') : lc.strip === 'faint' ? L('слабая', 'әлсіз', 'faint') : lc.tests ? L('нет', 'жоқ', 'none') : '—', st: lc.strip === 'blue' ? 'ok' : '' },
 ];
 
 /* ------------------------------------------------------------------ 8. вопросы */
@@ -296,7 +301,7 @@ const s8 = {
   need: L('Ответьте на все вопросы', 'Барлық сұраққа жауап беріңіз', 'Answer all the questions'),
   questions: [
     { q: L('Почему иодкрахмальная бумага синеет в конце диазотирования?', 'Неліктен диазоттаудың соңында иодкрахмал қағазы көгереді?', 'Why does starch–iodide paper turn blue at the end of the diazotization?'),
-      options: [L('Избыток HNO₂ окисляет иодид до иода: 2HNO₂ + 2KI + 2HCl → I₂ + 2NO + 2KCl + 2H₂O; иод с крахмалом — синий', 'Артық HNO₂ иодидті иодқа дейін тотықтырады: 2HNO₂ + 2KI + 2HCl → I₂ + 2NO + 2KCl + 2H₂O; иод крахмалмен — көк', 'Excess HNO₂ oxidises iodide to iodine: 2HNO₂ + 2KI + 2HCl → I₂ + 2NO + 2KCl + 2H₂O; iodine with starch is blue'), L('Соль диазония окрашивает крахмал', 'Диазоний тұзы крахмалды бояйды', 'The diazonium salt colours the starch'), L('Соляная кислота разрушает бумагу', 'Тұз қышқылы қағазды бұзады', 'Hydrochloric acid destroys the paper'), L('Анилин восстанавливает крахмал', 'Анилин крахмалды тотықсыздандырады', 'Aniline reduces the starch')],
+      options: [L('Избыток HNO₂ окисляет иодид до иода: 2HNO₂ + 2KI + 2HCl → I₂ + 2NO↑ + 2KCl + 2H₂O; иод с крахмалом — синий', 'Артық HNO₂ иодидті иодқа дейін тотықтырады: 2HNO₂ + 2KI + 2HCl → I₂ + 2NO↑ + 2KCl + 2H₂O; иод крахмалмен — көк', 'Excess HNO₂ oxidises iodide to iodine: 2HNO₂ + 2KI + 2HCl → I₂ + 2NO↑ + 2KCl + 2H₂O; iodine with starch is blue'), L('Соль диазония окрашивает крахмал', 'Диазоний тұзы крахмалды бояйды', 'The diazonium salt colours the starch'), L('Соляная кислота разрушает бумагу', 'Тұз қышқылы қағазды бұзады', 'Hydrochloric acid destroys the paper'), L('Анилин восстанавливает крахмал', 'Анилин крахмалды тотықсыздандырады', 'Aniline reduces the starch')],
       correct: 0, why: L('Пока в смеси есть амин, HNO₂ сразу расходуется; синева появляется только при небольшом избытке HNO₂ — это и есть конец диазотирования.', 'Қоспада амин болғанда HNO₂ бірден жұмсалады; көк түс тек HNO₂ аздап артық болғанда пайда болады — бұл диазоттаудың соңы.', 'While amine is present, HNO₂ is consumed at once; the blue appears only when HNO₂ is in slight excess — that is the end point.') },
     { q: L('Зачем нужен избыток соляной кислоты (2,5–3 экв.)?', 'Тұз қышқылының артық мөлшері (2,5–3 экв.) не үшін қажет?', 'Why is an excess of hydrochloric acid (2.5–3 equiv.) needed?'),
       options: [L('Чтобы получить HNO₂ из NaNO₂, удержать амин в растворе в виде соли и не дать соли диазония сочетаться с непрореагировавшим амином', 'NaNO₂-ден HNO₂ алу, аминді ерітіндіде тұз түрінде ұстау және диазоний тұзының әрекеттеспеген аминмен қосылуына жол бермеу үшін', 'To generate HNO₂ from NaNO₂, keep the amine in solution as its salt and stop the diazonium salt coupling with unreacted amine'), L('Чтобы ускорить разложение соли диазония', 'Диазоний тұзының ыдырауын жылдамдату үшін', 'To speed up the decomposition of the diazonium salt'), L('Чтобы нейтрализовать нитрит натрия до NaCl без реакции', 'Натрий нитритін реакциясыз NaCl-ға дейін бейтараптау үшін', 'To neutralise the sodium nitrite to NaCl without reaction'), L('Кислота не нужна, её прибавляют для растворения льда', 'Қышқыл қажет емес, оны мұзды еріту үшін қосады', 'Acid is not needed; it is added to melt the ice')],
@@ -371,6 +376,6 @@ export default {
     { label: L('Анилин', 'Анилин', 'Aniline'), value: { ru: n(r.nAn, 1) + ' ммоль', kk: n(r.nAn, 1) + ' ммоль', en: n(r.nAn, 1) + ' mmol' } },
     { label: L('Соль диазония', 'Диазоний тұзы', 'Diazonium salt'), value: { ru: '≈ ' + n(r.Dz, 1) + ' ммоль', kk: '≈ ' + n(r.Dz, 1) + ' ммоль', en: '≈ ' + n(r.Dz, 1) + ' mmol' }, st: r.conv > 0.9 ? 'ok' : 'warn' },
     { label: L('Макс. t', 'Макс. t', 'Max t'), value: n(r.maxT, 1) + ' °C', st: r.maxT <= 5.5 ? 'ok' : 'warn' },
-    { label: L('Иодкрахм. проба', 'Иодкрахм. сынама', 'Starch–KI test'), value: L('синяя', 'көк', 'blue'), st: 'ok' },
+    { label: L('Иодкрахм. проба', 'Иодкрахм. сынама', 'Starch–iodide test'), value: L('синяя', 'көк', 'blue'), st: 'ok' },
   ],
 };

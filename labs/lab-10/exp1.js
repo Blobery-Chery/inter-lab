@@ -112,7 +112,7 @@ const s2 = {
       { id: 'rev', label: L('Растворяется в уксусной, но не в HCl', 'Сірке қышқылында ериді, HCl-да ерімейді', 'Dissolves in acetic acid but not in HCl') },
     ],
     correct: () => 'ok',
-    why: () => L('Щавелевая кислота (pKa₁ = 1,25) сильнее уксусной, поэтому уксусная кислота не переводит C₂O₄²⁻ в H₂C₂O₄; сильная HCl — переводит, и осадок растворяется. Это признак оксалат-иона.', 'Щавель қышқылы (pKa₁ = 1,25) сірке қышқылынан күшті, сондықтан сірке қышқылы C₂O₄²⁻-ні H₂C₂O₄-ке айналдыра алмайды; күшті HCl айналдырады да, тұнба ериді. Бұл — оксалат-ионның белгісі.', 'Oxalic acid (pKa₁ = 1.25) is stronger than acetic acid, so acetic acid cannot convert C₂O₄²⁻ into H₂C₂O₄; strong HCl does, and the precipitate dissolves. This identifies the oxalate ion.'),
+    why: () => L('Уксусная кислота слабее щавелевой, поэтому почти не протонирует оксалат-ион и не растворяет CaC₂O₄. Сильная HCl связывает C₂O₄²⁻ в HC₂O₄⁻ и H₂C₂O₄ — равновесие CaC₂O₄ ⇌ Ca²⁺ + C₂O₄²⁻ смещается вправо, и осадок растворяется. Это признак оксалат-иона.', 'Сірке қышқылы щавель қышқылынан әлсіз, сондықтан оксалат-ионды іс жүзінде протондамайды және CaC₂O₄-ті ерітпейді. Күшті HCl C₂O₄²⁻-ні HC₂O₄⁻ және H₂C₂O₄ түріне байланыстырады — CaC₂O₄ ⇌ Ca²⁺ + C₂O₄²⁻ тепе-теңдігі оңға ығысып, тұнба ериді. Бұл — оксалат-ионның белгісі.', 'Acetic acid is weaker than oxalic acid, so it hardly protonates the oxalate ion and does not dissolve CaC₂O₄. Strong HCl binds C₂O₄²⁻ as HC₂O₄⁻ and H₂C₂O₄, the equilibrium CaC₂O₄ ⇌ Ca²⁺ + C₂O₄²⁻ shifts to the right and the precipitate dissolves. This identifies the oxalate ion.'),
   },
   onDone(S) { S.e1.ca = true; },
   scene: (S, local) => tubesScene(tubesA, local, { cap: 4 }),

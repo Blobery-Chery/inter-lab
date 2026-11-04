@@ -188,7 +188,7 @@ export function spillScene(S = {}) {
   if (!S.clean) s += `<path d="M90 190 Q120 178 170 184 Q220 180 238 190 Q232 200 190 198 Q140 204 100 198 Q82 196 90 190 Z" fill="${S.kind === 'alkali' ? 'rgba(160,198,222,.7)' : 'rgba(236,212,110,.55)'}" stroke="var(--glass)" stroke-width=".8"/>`;
   if (S.agent === 'soda') s += [110, 128, 146, 164, 182, 200, 218].map((x, i) => `<circle cx="${x}" cy="${189 + (i % 3) * 3}" r="2.3" class="sol"/>`).join('');
   if (S.fizz) s += bubbles(100, 188, 130, 9, true);
-  if (S.burn) s += `<path d="M150 160 l6 -10 l6 10 z" fill="var(--bad)"/>` + text(156, 176, L('бумага обуглилась', 'қағаз көмірленді', 'paper charred'), 'lbl');
+  if (S.burn) s += `<path d="M150 160 l6 -10 l6 10 z" fill="var(--bad)"/>` + text(156, 176, L('кислота на пальцах', 'саусақта қышқыл', 'acid on the fingers'), 'lbl');
   s += text(160, 222, S.kind === 'alkali' ? L('пролита щёлочь (10 % NaOH)', 'сілті төгілді (10 % NaOH)', 'alkali spill (10 % NaOH)') : S.kind === 'solvent' ? L('пролит растворитель', 'еріткіш төгілді', 'solvent spill') : L('пролита серная кислота', 'күкірт қышқылы төгілді', 'sulfuric acid spill'));
   return scene(s);
 }

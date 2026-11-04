@@ -6,7 +6,7 @@ import { L, tr, n } from '../../app/i18n.js';
 import { relax } from '../../app/instruments/thermal.js';
 import {
   ALC, M, afterReflux, molAlc, theoretical, percentYield, orgVolume, liquidMass, vapourT, thermoShown, distRate,
-  distil, addTo, purity, lossBreakdown,
+  distil, addTo, purity, lossBreakdown, ensureOrg,
 } from './model.js';
 import { hoodScene, flaskRight, chargeScene, refluxApparatus, refluxScene, funnelScene, dryScene, distApparatus, distScene, thermoReadScene } from './scene.js';
 
@@ -41,9 +41,9 @@ const grams = (g, d = 2) => ({ ru: n(g, d) + ' г', kk: n(g, d) + ' г', en: n(g
 
 /* ------------------------------------------------------------------ тексты аварий */
 const FIRE = L(
-  'Открытое пламя рядом с парами бутанола, уксусной кислоты и эфира: пары вспыхнули у горла колбы. В реальной лаборатории это пожар в вытяжном шкафу: перекрывают газ, накрывают очаг противопожарным одеялом или тушат углекислотным огнетушителем — не водой (п. 11.2). ЛВЖ нагревают только колбонагревателем или на бане (п. 5.2). Смесь испорчена — синтез начинают заново.',
-  'Бутанол, сірке қышқылы мен эфир буларының жанындағы ашық жалын: булар колба мойнында тұтанды. Нақты зертханада бұл тартпа шкафтағы өрт: газды жауып, ошақты өртке қарсы жамылғымен жабады немесе көмірқышқыл өрт сөндіргішпен сөндіреді — сумен емес (11.2-тармақ). ТТС-ты тек колба қыздырғышпен немесе моншада қыздырады (5.2-тармақ). Қоспа бүлінді — синтез қайта басталады.',
-  'An open flame next to butanol, acetic acid and ester vapours: the vapours ignited at the neck of the flask. In a real lab this is a fire in the fume hood: the gas is shut off and the fire smothered with a fire blanket or a CO₂ extinguisher — never water (rule 11.2). Flammable liquids are heated only with a heating mantle or a bath (rule 5.2). The mixture is spoilt — the synthesis starts again.');
+  'Открытое пламя рядом с парами бутанола, уксусной кислоты и эфира: пары вспыхнули у горла колбы. В реальной лаборатории это пожар в вытяжном шкафу: перекрывают газ, накрывают очаг противопожарным одеялом или тушат углекислотным огнетушителем — не водой (пп. 11.1, 11.2). ЛВЖ нагревают только колбонагревателем или на бане (п. 5.2). Смесь испорчена — синтез начинают заново.',
+  'Бутанол, сірке қышқылы мен эфир буларының жанындағы ашық жалын: булар колба мойнында тұтанды. Нақты зертханада бұл тартпа шкафтағы өрт: газды жауып, ошақты өртке қарсы жамылғымен жабады немесе көмірқышқыл өрт сөндіргішпен сөндіреді — сумен емес (11.1, 11.2-тармақтар). ТТС-ты тек колба қыздырғышпен немесе моншада қыздырады (5.2-тармақ). Қоспа бүлінді — синтез қайта басталады.',
+  'An open flame next to butanol, acetic acid and ester vapours: the vapours ignited at the neck of the flask. In a real lab this is a fire in the fume hood: the gas is shut off and the fire smothered with a fire blanket or a CO₂ extinguisher — never water (rules 11.1, 11.2). Flammable liquids are heated only with a heating mantle or a bath (rule 5.2). The mixture is spoilt — the synthesis starts again.');
 const CLOSED = L(
   'Верх обратного холодильника закрыт пробкой: при кипячении пары не находят выхода, давление в колбе растёт — пробку выбивает или установка разрывается, горячая кислая смесь ЛВЖ выбрасывается наружу. При нагревании система должна сообщаться с атмосферой (п. 7.4). В реальной лаборатории нагрев немедленно выключают и сообщают преподавателю. Смесь потеряна — синтез начинают заново.',
   'Кері мұздатқыштың үсті тығынмен жабылған: қайнағанда булар шығатын жол таппай, колбадағы қысым өседі — тығын атылады немесе қондырғы жарылады, ыстық қышқыл ТТС қоспасы сыртқа шашырайды. Қыздырғанда жүйе атмосферамен байланысып тұруы тиіс (7.4-тармақ). Нақты зертханада қыздыруды бірден өшіріп, оқытушыға хабарлайды. Қоспа жоғалды — синтез қайта басталады.',
@@ -57,15 +57,61 @@ const DRYNESS = L(
   'Айдау құрғағанша жүргізілді: бос ыстық колбада қалдық (жоғары қайнайтын қоспалар, қышқыл іздері) қызып ыдырайды, колба жарылуы, ал ТТС булары қызған колба қыздырғышта тұтануы мүмкін. Әдістеме тікелей тыйым салады: «ешқашан құрғағанша айдамаңыз — колбада аздап сұйық қалғанда айдауды тоқтатыңыз». Нақты зертханада қыздыруды өшіріп, колбаны ұстамай суытады. Тренажерде айдау қондырғысын жинауға ораласыз.',
   'The distillation was taken to dryness: in the empty hot flask the residue (high-boiling impurities, traces of acid) overheats and decomposes, the flask may crack and flammable vapour may ignite on the hot mantle. The manual says plainly: “never distil to dryness — stop while a small residue remains in the flask”. In a real lab the heat is switched off and the flask left to cool untouched. In the simulator you return to assembling the distillation apparatus.');
 const FIRE_D = L(
-  'Перегонная колба с ЛВЖ на открытом пламени: пары эфира у шлифов и из приёмника вспыхнули. Нагревать ЛВЖ на открытом пламени запрещено (п. 5.2); в реальной лаборатории перекрывают газ и тушат очаг одеялом или углекислотным огнетушителем (п. 11.2). В тренажёре вы вернётесь к сборке установки.',
-  'ТТС бар айдау колбасы ашық жалында: шлифтер мен қабылдағыштағы эфир булары тұтанды. ТТС-ты ашық жалында қыздыруға тыйым салынған (5.2-тармақ); нақты зертханада газды жауып, ошақты жамылғымен немесе көмірқышқыл өрт сөндіргішпен сөндіреді (11.2-тармақ). Тренажерде қондырғыны жинауға ораласыз.',
-  'A distillation flask of flammable liquid over an open flame: ester vapour at the joints and from the receiver ignited. Heating flammable liquids over an open flame is forbidden (rule 5.2); in a real lab the gas is shut off and the fire smothered with a blanket or a CO₂ extinguisher (rule 11.2). In the simulator you return to assembling the apparatus.');
+  'Перегонная колба с ЛВЖ на открытом пламени: пары эфира у шлифов и из приёмника вспыхнули. Нагревать ЛВЖ на открытом пламени запрещено (п. 5.2); в реальной лаборатории перекрывают газ и тушат очаг одеялом или углекислотным огнетушителем (пп. 11.1, 11.2). В тренажёре вы вернётесь к сборке установки.',
+  'ТТС бар айдау колбасы ашық жалында: шлифтер мен қабылдағыштағы эфир булары тұтанды. ТТС-ты ашық жалында қыздыруға тыйым салынған (5.2-тармақ); нақты зертханада газды жауып, ошақты жамылғымен немесе көмірқышқыл өрт сөндіргішпен сөндіреді (11.1, 11.2-тармақтар). Тренажерде қондырғыны жинауға ораласыз.',
+  'A distillation flask of flammable liquid over an open flame: ester vapour at the joints and from the receiver ignited. Heating flammable liquids over an open flame is forbidden (rule 5.2); in a real lab the gas is shut off and the fire smothered with a blanket or a CO₂ extinguisher (rules 11.1, 11.2). In the simulator you return to assembling the apparatus.');
 
 /* ------------------------------------------------------------------ фабрика */
 export function makeSynthesis(kind, opts = {}) {
   const C = ALC[kind], N = NAMES[kind];
   const nm = (k, l) => tr(N[k], l);
   const [lo, hi] = C.frac;
+
+  /*
+   * Подсказка 3 процессов — готовое решение с названиями кнопок дословно (SCHEMA.md). Шаги, которые можно сделать
+   * только по прошествии времени (выключить нагрев после 45 мин, декантировать прозрачный эфир, сменить приёмник),
+   * появляются в подсказке, когда для них пришло время; до этого подсказка говорит, чего ждать.
+   * cur.* — последнее состояние шага (обновляется при каждой отрисовке показаний).
+   */
+  const cur = {};
+  const chain = (items, tail) => T3((l) => items.map((x) => (l === 'en' ? `“${x.en}”` : `«${x[l]}»`)).join(' → ') + (tail ? ' ' + tail[l] : ''));
+  const B = {
+    water: { ru: 'Пустить воду в холодильник', kk: 'Мұздатқышқа су жіберу', en: 'Turn on the condenser water' },
+    med: { ru: 'средне', kk: 'орташа', en: 'medium' },
+    cool: { ru: 'Выключить нагрев, охладить колбу до комнатной температуры', kk: 'Қыздыруды өшіріп, колбаны бөлме температурасына дейін суыту', en: 'Switch off the heat and cool the flask to room temperature' },
+    swirl: { ru: 'Время от времени взбалтывать', kk: 'Анда-санда шайқау', en: 'Swirl from time to time' },
+    salt: { ru: 'Насыпать ≈ 0,5 г безводного Na₂SO₄', kk: '≈ 0,5 г сусыз Na₂SO₄ салу', en: 'Add ≈ 0.5 g of anhydrous Na₂SO₄' },
+    decant: { ru: 'Декантировать в сухую перегонную колбу, осушитель оставить', kk: 'Кептіргішті қалдырып, құрғақ айдау колбасына декантациялау', en: 'Decant into the dry distillation flask, leaving the drying agent behind' },
+    chip: { ru: 'Бросить в колбу кипелку', kk: 'Колбаға қайнату тасын салу', en: 'Drop a boiling chip into the flask' },
+    recW: { ru: 'взвешенный', kk: 'өлшенген', en: 'pre-weighed' },
+    stop: { ru: 'Прекратить перегонку: выключить нагрев, в колбе остаётся немного жидкости', kk: 'Айдауды тоқтату: қыздыруды өшіру, колбада аздап сұйық қалады', en: 'Stop the distillation: heat off, leaving a small residue in the flask' },
+  };
+  function refluxH3() {
+    const R = cur.reflux && cur.reflux.S.reflux;
+    if (R && R.started && R.t >= 2700) return chain([B.water, B.med, B.cool], { ru: '— кипение длится уже 45 мин.', kk: '— қайнау 45 минуттан асты.', en: '— the reflux has already lasted 45 min.' });
+    const t = R ? n(R.t / 60, 0) : '0';
+    return chain([B.water, B.med], { ru: `→ ускорьте ход времени и дождитесь 45 мин спокойного кипения (сейчас ${t} мин); затем выключите нагрев и охладите колбу.`, kk: `→ уақытты жылдамдатып, 45 мин баяу қайнауды күтіңіз (қазір ${t} мин); содан кейін қыздыруды өшіріп, колбаны суытыңыз.`, en: `→ speed up time and wait for 45 min of gentle reflux (now ${t} min); then switch off the heat and cool the flask.` });
+  }
+  function dryH3() {
+    const D = cur.dry && cur.dry.S.dry;
+    const g = D ? D.g : 0, clumped = D && D.water > 0.03 && D.bound >= 0.3 * g * 0.97;
+    const adds = Math.max(2, Math.round(g / 0.5) + (clumped ? 1 : 0));
+    const items = [B.swirl, ...Array(adds).fill(B.salt)];
+    if (D && D.water <= 0.03 && D.t >= 600) return chain([...items, B.decant], { ru: '— жидкость прозрачная, прошло 10 мин.', kk: '— сұйық мөлдір, 10 мин өтті.', en: '— the liquid is clear and 10 min have passed.' });
+    const t = D ? n(D.t / 60, 0) : '0';
+    return chain(items, { ru: `→ ускорьте ход времени: сушите 10–15 мин, пока жидкость не станет прозрачной (сейчас ${t} мин); затем декантируйте, осушитель в колбу не переносите.`, kk: `→ уақытты жылдамдатыңыз: сұйық мөлдір болғанша 10–15 мин кептіріңіз (қазір ${t} мин); содан кейін декантациялаңыз, кептіргішті колбаға ауыстырмаңыз.`, en: `→ speed up time: dry for 10–15 min until the liquid is clear (now ${t} min); then decant, leaving the drying agent behind.` });
+  }
+  function distH3() {
+    const D = cur.dist && cur.dist.S.dist;
+    const items = [B.chip, B.water, B.med];
+    const main = D && (D.rec === 'main' || (D.boiling && D.Th >= lo));
+    if (main) items.push(B.recW);
+    if (D && D.rec === 'main' && D.mainMass > 0.5 && (D.flaskMass < 1.0 || D.Th > hi)) items.push(B.stop);
+    else return chain(items, main
+      ? { ru: `→ собирайте фракцию ${lo}–${hi} °C; когда в колбе останется ≈ 1 мл или температура превысит ${hi} °C — прекратите перегонку.`, kk: `→ ${lo}–${hi} °C фракциясын жинаңыз; колбада ≈ 1 мл қалғанда немесе температура ${hi} °C-тан асқанда айдауды тоқтатыңыз.`, en: `→ collect the ${lo}–${hi} °C fraction; when ≈ 1 mL is left in the flask or the temperature exceeds ${hi} °C, stop the distillation.` }
+      : { ru: `→ первые капли — в приёмник для головной фракции; когда термометр покажет ${lo} °C, переключите приёмник на взвешенный.`, kk: `→ алғашқы тамшылар — бастапқы фракция қабылдағышына; термометр ${lo} °C көрсеткенде, қабылдағышты өлшенгенге ауыстырыңыз.`, en: `→ the first drops go into the fore-run receiver; when the thermometer reads ${lo} °C, switch to the pre-weighed receiver.` });
+    return chain(items);
+  }
 
   const sPPE = {
     type: 'checklist', id: 'ppe',
@@ -159,7 +205,7 @@ export function makeSynthesis(kind, opts = {}) {
     hints: [
       L('Концентрированные кислоты набирают только грушей. Кислоту прибавляют медленно, перемешивая.', 'Концентрлі қышқылдарды тек грушамен алады. Қышқылды араластыра отырып баяу қосады.', 'Concentrated acids are pipetted only with a bulb. The acid is added slowly with swirling.'),
       L('Не забудьте кипелки: без них жидкость перегревается и кипит толчками.', 'Қайнату тастарын ұмытпаңыз: оларсыз сұйық қызып кетіп, серпіліп қайнайды.', 'Do not forget the boiling chips: without them the liquid superheats and bumps.'),
-      L('Груша → по каплям, вращая колбу → 2–3 кипелки.', 'Груша → колбаны айналдыра тамшылатып → 2–3 қайнату тасы.', 'Bulb → dropwise with swirling → 2–3 boiling chips.'),
+      L('«Набрать 0,5 мл H₂SO₄ пипеткой с грушей» → «Прибавлять по каплям, вращая колбу» → «Бросить 2–3 кипелки».', '«Грушасы бар пипеткамен 0,5 мл H₂SO₄ алу» → «Колбаны айналдыра отырып тамшылатып қосу» → «2–3 қайнату тасын салу».', '“Take up 0.5 mL of H₂SO₄ with a pipette and bulb” → “Add dropwise while swirling the flask” → “Add 2–3 boiling chips”.'),
     ],
   };
 
@@ -203,9 +249,9 @@ export function makeSynthesis(kind, opts = {}) {
   const sReflux = {
     type: 'process', id: 'reflux', speeds: [10, 30, 60],
     title: L('Кипячение с обратным холодильником', 'Кері мұздатқышпен қайнату', 'Heating under reflux'),
-    instr: L('<ol><li>Пустите воду в холодильник.</li><li>Нагревайте смесь при <b>слабом кипении 45–60 минут</b>: кольцо конденсата должно стоять в нижней трети холодильника.</li><li>Затем выключите нагрев и охладите колбу до комнатной температуры.</li></ol><p class="note">Нагревательные приборы не оставляют без присмотра (п. 7.2).</p>',
-      '<ol><li>Мұздатқышқа су жіберіңіз.</li><li>Қоспаны <b>45–60 минут әлсіз қайнауда</b> қыздырыңыз: конденсат сақинасы мұздатқыштың төменгі үштен бірінде тұруы тиіс.</li><li>Содан кейін қыздыруды өшіріп, колбаны бөлме температурасына дейін суытыңыз.</li></ol><p class="note">Қыздыру құралдарын қараусыз қалдырмайды (7.2-тармақ).</p>',
-      '<ol><li>Turn on the condenser water.</li><li>Heat the mixture at a <b>gentle boil for 45–60 minutes</b>: the ring of condensate should stay in the lower third of the condenser.</li><li>Then switch off the heat and let the flask cool to room temperature.</li></ol><p class="note">Heating equipment is never left unattended (rule 7.2).</p>'),
+    instr: L('<ol><li>Пустите воду в холодильник.</li><li>Нагревайте смесь при <b>слабом кипении 45–60 минут</b>: кольцо конденсата должно стоять в нижней половине холодильника.</li><li>Затем выключите нагрев и охладите колбу до комнатной температуры.</li></ol><p class="note">Нагревательные приборы не оставляют без присмотра (п. 7.2).</p>',
+      '<ol><li>Мұздатқышқа су жіберіңіз.</li><li>Қоспаны <b>45–60 минут әлсіз қайнауда</b> қыздырыңыз: конденсат сақинасы мұздатқыштың төменгі жартысында тұруы тиіс.</li><li>Содан кейін қыздыруды өшіріп, колбаны бөлме температурасына дейін суытыңыз.</li></ol><p class="note">Қыздыру құралдарын қараусыз қалдырмайды (7.2-тармақ).</p>',
+      '<ol><li>Turn on the condenser water.</li><li>Heat the mixture at a <b>gentle boil for 45–60 minutes</b>: the ring of condensate should stay in the lower half of the condenser.</li><li>Then switch off the heat and let the flask cool to room temperature.</li></ol><p class="note">Heating equipment is never left unattended (rule 7.2).</p>'),
     need: L('Прокипятите 45–60 мин и охладите', '45–60 мин қайнатып, суытыңыз', 'Reflux for 45–60 min and cool'),
     setup(S, lc) { S.reflux = S.reflux && S.reflux.T != null ? S.reflux : { T: 22, Tb: C.Tmix, t: 0, vap: 0, bump: 0, water: false, stopper: false, started: false, cooled: false }; lc.ring = 0; },
     controls: [
@@ -252,6 +298,7 @@ export function makeSynthesis(kind, opts = {}) {
       if (R.stopper && R.T > 95) ctx.remark({ key: 'closed', severity: 'critical', text: L('нагревали закрытую систему: верх обратного холодильника был заткнут пробкой (п. 7.4)', 'жабық жүйе қыздырылды: кері мұздатқыштың үсті тығынмен жабылған (7.4-тармақ)', 'a closed system was heated: the top of the reflux condenser was stoppered (rule 7.4)'), critical: { text: CLOSED } });
     },
     readouts: (S, lc) => {
+      cur.reflux = { S, lc };
       const R = S.reflux, p = lc.c.pow || 0, boiling = p > 0 && R.T >= R.Tb - 0.5 && !R.cooled;
       return [
         { label: G.heat, value: POWER[p][1] },
@@ -289,11 +336,13 @@ export function makeSynthesis(kind, opts = {}) {
     ],
     done: (S) => S.reflux.cooled && { text: L('Кипячение закончено, смесь охлаждена.', 'Қайнату аяқталды, қоспа суытылды.', 'Reflux finished, the mixture is cool.') },
     scene: refluxScene,
-    hints: [
-      L('Сначала вода в холодильник, затем нагрев. Нужен слабый, спокойный режим — кольцо конденсата в нижней трети холодильника.', 'Алдымен мұздатқышқа су, содан кейін қыздыру. Әлсіз, баяу режим керек — конденсат сақинасы мұздатқыштың төменгі үштен бірінде.', 'Water first, then heat. You need a gentle boil — the condensate ring in the lower third of the condenser.'),
-      L('Мощность «слабо» или «средне»; «сильно» выгоняет пары. Верх холодильника всегда открыт. Нужно 45–60 мин кипения.', 'Қуаты «әлсіз» немесе «орташа»; «қатты» буларды шығарады. Мұздатқыштың үсті әрқашан ашық. 45–60 мин қайнау керек.', 'Power “low” or “medium”; “high” drives vapour out. The top of the condenser is always open. You need 45–60 min of boiling.'),
-      L('Вода → нагрев «средне» → ускорьте ход времени и дождитесь 45 мин кипения → «Выключить нагрев, охладить колбу».', 'Су → «орташа» қыздыру → уақытты жылдамдатып, 45 мин қайнауды күтіңіз → «Қыздыруды өшіріп, колбаны суыту».', 'Water → heat “medium” → speed up time and wait for 45 min of boiling → “Switch off the heat and cool the flask”.'),
-    ],
+    get hints() {
+      return [
+        L('Сначала вода в холодильник, затем нагрев. Нужен слабый, спокойный режим — кольцо конденсата в нижней половине холодильника.', 'Алдымен мұздатқышқа су, содан кейін қыздыру. Әлсіз, баяу режим керек — конденсат сақинасы мұздатқыштың төменгі жартысында.', 'Water first, then heat. You need a gentle boil — the condensate ring in the lower half of the condenser.'),
+        L('Мощность «слабо» или «средне»; «сильно» выгоняет пары. Верх холодильника всегда открыт. Нужно 45–60 мин кипения.', 'Қуаты «әлсіз» немесе «орташа»; «қатты» буларды шығарады. Мұздатқыштың үсті әрқашан ашық. 45–60 мин қайнау керек.', 'Power “low” or “medium”; “high” drives vapour out. The top of the condenser is always open. You need 45–60 min of boiling.'),
+        refluxH3(),
+      ];
+    },
   };
 
   const sFunnel = {
@@ -312,7 +361,7 @@ export function makeSynthesis(kind, opts = {}) {
       '<ol><li>Эфирді <b>1–2 г сусыз Na₂SO₄</b> үстінде <b>10–15 минут</b> бойы, анда-санда шайқай отырып, сұйық мөлдір болғанша кептіріңіз.</li><li>Кептірілген сұйықты тұнбадан құрғақ айдау колбасына декантациялаңыз (ағызыңыз).</li></ol><p class="note">Кептіргіш кесектерге жабысып тұрса, су әлі көп; құрғақ кептіргіш үгілгіш болып қалады.</p>',
       '<ol><li>Dry the ester over <b>1–2 g of anhydrous Na₂SO₄</b> for <b>10–15 minutes</b>, swirling occasionally, until the liquid is clear.</li><li>Decant the dried liquid off the solid into a dry distillation flask.</li></ol><p class="note">While the drying agent clumps there is still a lot of water; dry drying agent stays free-flowing.</p>'),
     need: L('Высушите эфир и декантируйте', 'Эфирді кептіріп, декантациялаңыз', 'Dry the ester and decant it'),
-    setup(S, lc) { if (!S.dry || S.dry.w0 == null) S.dry = { g: 0, t: 0, bound: 0, w0: S.org.water, water: S.org.water, decanted: false, withSalt: false }; lc.vol = orgVolume(S.org); },
+    setup(S, lc) { ensureOrg(S, kind); if (!S.dry || S.dry.w0 == null) S.dry = { g: 0, t: 0, bound: 0, w0: S.org.water, water: S.org.water, decanted: false, withSalt: false }; lc.vol = orgVolume(S.org); },
     controls: [
       { kind: 'action', id: 'add', once: false, group: L('Осушитель', 'Кептіргіш', 'Drying agent'), label: L('Насыпать ≈ 0,5 г безводного Na₂SO₄', '≈ 0,5 г сусыз Na₂SO₄ салу', 'Add ≈ 0.5 g of anhydrous Na₂SO₄'), advance: 20, disabled: (S) => S.dry.decanted,
         do(S, lc, ctx) { S.dry.g = +(S.dry.g + 0.5).toFixed(1); ctx.log({ ru: `Добавлено 0,5 г безводного Na₂SO₄ (всего ${n(S.dry.g, 1)} г)`, kk: `0,5 г сусыз Na₂SO₄ қосылды (барлығы ${n(S.dry.g, 1)} г)`, en: `0.5 g of anhydrous Na₂SO₄ added (total ${n(S.dry.g, 1)} g)` }); } },
@@ -328,7 +377,8 @@ export function makeSynthesis(kind, opts = {}) {
       D.bound = Math.min(0.3 * D.g, D.bound + rate * dt);
       D.water = Math.max(0.012, D.w0 - D.bound);
     },
-    readouts: (S) => {
+    readouts: (S, lc) => {
+      cur.dry = { S, lc };
       const D = S.dry, cloudy = D.water > 0.03;
       return [
         { label: 'Na₂SO₄', value: grams(D.g, 1), st: D.g >= 1 && D.g <= 2 ? 'ok' : D.g > 2.5 ? 'warn' : '' },
@@ -346,11 +396,13 @@ export function makeSynthesis(kind, opts = {}) {
     },
     done: (S) => S.dry.decanted && { text: L('Эфир в перегонной колбе.', 'Эфир айдау колбасында.', 'The ester is in the distillation flask.') },
     scene: (S, lc) => dryScene(S, lc),
-    hints: [
-      L('Осушитель связывает воду в кристаллогидрат. Признак сухой жидкости — она прозрачна, а осушитель не слипается.', 'Кептіргіш суды кристаллогидратқа байланыстырады. Құрғақ сұйықтың белгісі — ол мөлдір, ал кептіргіш жабыспайды.', 'The drying agent binds water as a crystal hydrate. A dry liquid is clear and the drying agent does not clump.'),
-      L('Обычно хватает 1–2 г; лишний осушитель удерживает часть эфира. Взбалтывание ускоряет сушку; нужно 10–15 мин.', 'Әдетте 1–2 г жеткілікті; артық кептіргіш эфирдің бір бөлігін ұстап қалады. Шайқау кептіруді жылдамдатады; 10–15 мин керек.', 'Usually 1–2 g is enough; excess drying agent holds back some ester. Swirling speeds up drying; it takes 10–15 min.'),
-      L('2 × «0,5 г» (или 3, если мутно) → «Взбалтывать» → 10–15 мин → «Декантировать», осушитель в колбу не переносить.', '2 × «0,5 г» (лайлы болса 3) → «Шайқау» → 10–15 мин → «Декантациялау», кептіргішті колбаға ауыстырмау.', '2 × “0.5 g” (3 if still cloudy) → “Swirl” → 10–15 min → “Decant”, without the drying agent.'),
-    ],
+    get hints() {
+      return [
+        L('Осушитель связывает воду в кристаллогидрат. Признак сухой жидкости — она прозрачна, а осушитель не слипается.', 'Кептіргіш суды кристаллогидратқа байланыстырады. Құрғақ сұйықтың белгісі — ол мөлдір, ал кептіргіш жабыспайды.', 'The drying agent binds water as a crystal hydrate. A dry liquid is clear and the drying agent does not clump.'),
+        L('Обычно хватает 1–2 г; лишний осушитель удерживает часть эфира. Взбалтывание ускоряет сушку; нужно 10–15 мин.', 'Әдетте 1–2 г жеткілікті; артық кептіргіш эфирдің бір бөлігін ұстап қалады. Шайқау кептіруді жылдамдатады; 10–15 мин керек.', 'Usually 1–2 g is enough; excess drying agent holds back some ester. Swirling speeds up drying; it takes 10–15 min.'),
+        dryH3(),
+      ];
+    },
   };
   function decant(S, ctx, withSalt) {
     const D = S.dry;
@@ -378,7 +430,7 @@ export function makeSynthesis(kind, opts = {}) {
         correct: 0, why: L('Кислоты переходят в водный слой в виде солей: CH₃COOH + NaHCO₃ → CH₃COONa + CO₂↑ + H₂O. Пока выделяется CO₂, кислота ещё есть.', 'Қышқылдар тұз түрінде сулы қабатқа өтеді: CH₃COOH + NaHCO₃ → CH₃COONa + CO₂↑ + H₂O. CO₂ бөлініп жатса, қышқыл әлі бар.', 'The acids pass into the aqueous layer as salts: CH₃COOH + NaHCO₃ → CH₃COONa + CO₂↑ + H₂O. As long as CO₂ is evolved, acid remains.') },
       { q: L('Для чего последняя промывка насыщенным раствором NaCl?', 'Соңғы жуу не үшін қаныққан NaCl ерітіндісімен жүргізіледі?', 'What is the final wash with saturated NaCl for?'),
         options: [L('Уменьшает растворимость эфира в воде и «вытягивает» воду из органического слоя', 'Эфирдің судағы ерігіштігін азайтып, органикалық қабаттан суды «тартып алады»', 'It lowers the solubility of the ester in water and draws water out of the organic layer'), L('Нейтрализует остатки щёлочи', 'Сілті қалдықтарын бейтараптайды', 'It neutralises the remaining alkali'), L('Окрашивает слои, чтобы их было видно', 'Қабаттар көрінуі үшін оларды бояйды', 'It colours the layers so they can be seen'), L('Хлорирует остаток спирта', 'Спирт қалдығын хлорлайды', 'It chlorinates the remaining alcohol')],
-        correct: 0, why: L('Высаливание: в насыщенном растворе соли эфир и вода «не нужны» друг другу — меньше потерь и меньше воды перед сушкой.', 'Тұздау: қаныққан тұз ерітіндісінде эфир мен су бір-біріне «қажет емес» — шығын аз, кептіру алдында су аз.', 'Salting out: in saturated brine the ester is far less soluble — fewer losses and less water before drying.') },
+        correct: 0, why: L('Высаливание: в насыщенном растворе соли растворимость эфира в водном слое и воды в эфирном слое меньше — меньше потерь и меньше воды перед сушкой.', 'Тұздау: қаныққан тұз ерітіндісінде эфирдің сулы қабатта және судың эфир қабатында ерігіштігі азаяды — шығын аз, кептіру алдында су аз.', 'Salting out: saturated brine lowers the solubility of the ester in the aqueous layer and of water in the ester layer — fewer losses and less water before drying.') },
     ],
   };
 
@@ -447,8 +499,9 @@ export function makeSynthesis(kind, opts = {}) {
     need: T3((l) => ({ ru: `Соберите фракцию ${lo}–${hi} °C`, kk: `${lo}–${hi} °C фракциясын жинаңыз`, en: `Collect the ${lo}–${hi} °C fraction` })[l]),
     setup(S, lc) {
       if (S.dist && S.dist.L) return;
+      ensureOrg(S, kind);
       const L0 = { water: S.org.water, alc: S.org.alc, acid: S.org.acid, ester: S.org.ester, heavy: S.org.heavy };
-      if (S.dry.withSalt) L0.water += S.dry.bound * 0.9;
+      if (S.dry && S.dry.withSalt) L0.water += S.dry.bound * 0.9;
       if (S.dapp.noFlask) L0.ester *= 0.97;
       S.dist = { L: L0, T: 22, Th: 22, fore: {}, main: {}, lo: null, hi: null, rec: S.dapp.recW ? 'main' : 'fore', boiling: false, started: false, stopped: false, water: false, flaskMass: liquidMass(L0), rate: 0, usedHigh: false, foreCloudy: false, cloudyNow: false, boilTime: 0, lostVap: 0, mainMass: 0, foreMass: 0, Tshow: 22 };
       lc.c.rec = S.dist.rec;
@@ -509,6 +562,7 @@ export function makeSynthesis(kind, opts = {}) {
       if (D.flaskMass < 0.3 && p > 0) ctx.remark({ key: 'dry', severity: 'critical', text: L('перегонку довели досуха', 'айдау құрғағанша жүргізілді', 'the distillation was taken to dryness'), critical: { text: DRYNESS } });
     },
     readouts: (S, lc) => {
+      cur.dist = { S, lc };
       const D = S.dist, p = lc.c.pow || 0;
       const drops = D.rate / 0.04;
       return [
@@ -549,11 +603,13 @@ export function makeSynthesis(kind, opts = {}) {
     chart: { label: L('Температура паров во времени', 'Будың температурасы уақыт бойынша', 'Vapour temperature over time'), value: (S) => S.dist.Th, min: 20, max: 140, band: C.frac, limit: hi, every: 5, active: (S) => S.dist.started, empty: L('график начнётся, когда жидкость закипит', 'сұйық қайнағанда график басталады', 'the chart starts when the liquid boils') },
     done: (S) => S.dist.stopped && { text: L('Перегонка закончена.', 'Айдау аяқталды.', 'The distillation is finished.') },
     scene: distScene,
-    hints: [
-      T3((l) => ({ ru: `Кипелка → вода → нагрев «средне» (1–2 капли/с). Следите за термометром: до ${lo} °C — головная фракция, ${lo}–${hi} °C — продукт.`, kk: `Қайнату тасы → су → «орташа» қыздыру (1–2 тамшы/с). Термометрді қадағалаңыз: ${lo} °C-қа дейін — бастапқы фракция, ${lo}–${hi} °C — өнім.`, en: `Chip → water → heat “medium” (1–2 drops/s). Watch the thermometer: below ${lo} °C is the fore-run, ${lo}–${hi} °C is the product.` })[l]),
-      T3((l) => ({ ru: `Подставьте взвешенный приёмник, когда термометр покажет ${lo} °C. Если температура не доходит до ${lo} °C или сразу выше ${hi} °C — проверьте, где шарик термометра. Остановитесь, когда в колбе останется ~1 мл.`, kk: `Термометр ${lo} °C көрсеткенде өлшенген қабылдағышты қойыңыз. Температура ${lo} °C-қа жетпесе немесе бірден ${hi} °C-тан жоғары болса — термометр шарының қайда екенін тексеріңіз. Колбада ~1 мл қалғанда тоқтаңыз.`, en: `Switch to the pre-weighed receiver when the thermometer reads ${lo} °C. If it never reaches ${lo} °C or is above ${hi} °C straight away, check where the thermometer bulb is. Stop when ~1 mL is left in the flask.` })[l]),
-      L('«Бросить кипелку» → «Пустить воду» → нагрев «средне» → при нижней границе фракции «Приёмник: взвешенный» → когда в колбе ~1 мл, «Прекратить перегонку».', '«Қайнату тасын салу» → «Су жіберу» → «орташа» қыздыру → фракцияның төменгі шегінде «Қабылдағыш: өлшенген» → колбада ~1 мл қалғанда «Айдауды тоқтату».', '“Drop a chip” → “Turn on the water” → heat “medium” → at the lower limit of the fraction “Receiver: pre-weighed” → with ~1 mL left, “Stop the distillation”.'),
-    ],
+    get hints() {
+      return [
+        T3((l) => ({ ru: `Кипелка → вода → нагрев «средне» (1–2 капли/с). Следите за термометром: до ${lo} °C — головная фракция, ${lo}–${hi} °C — продукт.`, kk: `Қайнату тасы → су → «орташа» қыздыру (1–2 тамшы/с). Термометрді қадағалаңыз: ${lo} °C-қа дейін — бастапқы фракция, ${lo}–${hi} °C — өнім.`, en: `Chip → water → heat “medium” (1–2 drops/s). Watch the thermometer: below ${lo} °C is the fore-run, ${lo}–${hi} °C is the product.` })[l]),
+        T3((l) => ({ ru: `Подставьте взвешенный приёмник, когда термометр покажет ${lo} °C. Если температура не доходит до ${lo} °C или сразу выше ${hi} °C — проверьте, где шарик термометра. Остановитесь, когда в колбе останется ~1 мл.`, kk: `Термометр ${lo} °C көрсеткенде өлшенген қабылдағышты қойыңыз. Температура ${lo} °C-қа жетпесе немесе бірден ${hi} °C-тан жоғары болса — термометр шарының қайда екенін тексеріңіз. Колбада ~1 мл қалғанда тоқтаңыз.`, en: `Switch to the pre-weighed receiver when the thermometer reads ${lo} °C. If it never reaches ${lo} °C or is above ${hi} °C straight away, check where the thermometer bulb is. Stop when ~1 mL is left in the flask.` })[l]),
+        distH3(),
+      ];
+    },
   };
 
   function stopDist(S, lc, ctx) {
@@ -593,21 +649,24 @@ export function makeSynthesis(kind, opts = {}) {
     title: L('Взвешивание продукта', 'Өнімді өлшеу', 'Weighing the product'),
     instr: L('<p>Остудите приёмник с основной фракцией, закройте пробкой и взвесьте на тех же весах. Масса продукта — разность масс приёмника с продуктом и пустого.</p>', '<p>Негізгі фракциясы бар қабылдағышты суытып, тығынмен жабыңыз да, сол таразыда өлшеңіз. Өнім массасы — өнімі бар және бос қабылдағыш массаларының айырмасы.</p>', '<p>Cool the receiver with the main fraction, stopper it and weigh it on the same balance. The product mass is the difference between the receiver with product and the empty receiver.</p>'),
     need: L('Запишите массу приёмника с продуктом', 'Өнімі бар қабылдағыштың массасын жазыңыз', 'Record the mass of the receiver with the product'),
-    mass: (S) => S.recMass + S.dist.res.mass,
+    mass: (S) => (S.recMass || 0) + ((S.dist && S.dist.res && S.dist.res.mass) || 0),
     onRecord(S, m, ctx) {
       S.mProd = +(m - S.m0).toFixed(2);
       ctx.log({ ru: `Масса приёмника с продуктом ${n(m, 2)} г; масса ${tr(N.esterG, 'ru')} <b>${n(S.mProd, 2)} г</b>`, kk: `Өнімі бар қабылдағыш массасы ${n(m, 2)} г; ${tr(N.esterG, 'kk')} массасы <b>${n(S.mProd, 2)} г</b>`, en: `Receiver with product ${n(m, 2)} g; mass of ${tr(N.esterG, 'en')} <b>${n(S.mProd, 2)} g</b>` }, 'obs');
     },
   };
 
+  // Середина собранной фракции; если перегонка не была проведена (принудительный переход) — т. кип. по литературе.
+  const distTmid = (S) => (S.dist && S.dist.res ? S.dist.res.Tmid : C.bp);
+
   const sBp = {
     type: 'read', id: 'bp',
     title: L('Температура кипения фракции', 'Фракцияның қайнау температурасы', 'Boiling point of the fraction'),
     instr: L('<p>Во время отгонки основной фракции температура паров держалась почти постоянной. Снимите отсчёт термометра (цена деления 1 °C) и запишите его.</p>', '<p>Негізгі фракцияны айдау кезінде будың температурасы тұрақты дерлік болды. Термометр көрсеткішін (бөлік құны 1 °C) алып, жазыңыз.</p>', '<p>While the main fraction distilled, the vapour temperature stayed almost constant. Read the thermometer (1 °C divisions) and record it.</p>'),
     need: L('Запишите отсчёт термометра', 'Термометр көрсеткішін жазыңыз', 'Record the thermometer reading'),
-    value: (S) => S.dist.res.Tmid, div: 1, unit: '°C', decimals: 1, saveAs: 'bpRead',
+    value: (S) => distTmid(S), div: 1, unit: '°C', decimals: 1, saveAs: 'bpRead',
     label: L('Температура паров (основная фракция)', 'Будың температурасы (негізгі фракция)', 'Vapour temperature (main fraction)'),
-    scene: (S) => thermoReadScene(S.dist.res.Tmid),
+    scene: (S) => thermoReadScene(distTmid(S)),
   };
 
   const sCalc = {

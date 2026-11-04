@@ -67,7 +67,7 @@ const s0 = {
   },
   scene: (S, local) => tubesScene(kTubes, local, { cap: 4, rodIf: (t) => t.tart && t.added && t.added[t.added.length - 1] === 'rub' }),
   hint1: L('KOH — по каплям, после каждых нескольких капель встряхните и потрите стенку палочкой.', 'KOH — тамшылап, әр бірнеше тамшыдан кейін сілкілеп, қабырғаны таяқшамен ысқылаңыз.', 'KOH drop by drop; after every few drops shake and rub the wall with the rod.'),
-  hint2: L('Кристаллы KHT появляются примерно после 3–8 капель KOH и при трении; для их растворения нужно около 15 капель всего.', 'KHT кристалдары шамамен 3–8 тамшы KOH-тан кейін және ысқылағанда пайда болады; оларды еріту үшін барлығы 15-ке жуық тамшы қажет.', 'KHT crystals appear after about 3–8 drops of KOH and rubbing; about 15 drops in total are needed to dissolve them.'),
+  hint2: L('Кристаллы KHT появляются уже после 2–3 капель KOH при трении палочкой, больше всего их — около 7 капель (половина кислоты нейтрализована); растворяются они при ≈ 15 каплях всего.', 'KHT кристалдары таяқшамен ысқылағанда 2–3 тамшы KOH-тан кейін-ақ пайда болады, ең көбі — шамамен 7 тамшыда (қышқылдың жартысы бейтараптанған); барлығы ≈ 15 тамшыда олар ериді.', 'KHT crystals appear after only 2–3 drops of KOH when you rub with the rod; there are most of them at about 7 drops (half the acid neutralised); they dissolve at ≈ 15 drops in total.'),
   hint3: L('1 мл винной кислоты → «+5 кап.» → «Потереть стенку» (кристаллы) → «+5 кап.» ×2 (растворились).', '1 мл шарап қышқылы → «+5 тамшы» → «Қабырғаны ысқылау» (кристалдар) → «+5 тамшы» ×2 (еріді).', '1 mL tartaric acid → “+5 drops” → “Rub the wall” (crystals) → “+5 drops” ×2 (dissolved).'),
 };
 

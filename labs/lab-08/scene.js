@@ -29,7 +29,7 @@ export function chargeScene(S, lc) {
   const dark = S.char ? 'rgba(190,140,60,.5)' : null;
   let s = rbFlask({ id: 'rbc', cx: 180, cy: 180, r: 44, frac: Math.min(0.9, v / 50 * 1.5), color: dark, chips: S.chips });
   if (lc.pip) s += `<rect class="gl" x="176" y="20" width="8" height="96"/><rect class="liq" x="177" y="${100 - lc.pip * 60}" width="6" height="${lc.pip * 60}"/><ellipse cx="180" cy="16" rx="8" ry="10" class="metd"/>`;
-  s += text(180, 244, L('колба: н-бутанол + CH₃COOH', 'колба: н-бутанол + CH₃COOH', 'flask: n-butanol + CH₃COOH'));
+  s += text(180, 244, S.kind === 'i' ? L('колба: изобутанол + CH₃COOH', 'колба: изобутанол + CH₃COOH', 'flask: isobutanol + CH₃COOH') : L('колба: н-бутанол + CH₃COOH', 'колба: н-бутанол + CH₃COOH', 'flask: n-butanol + CH₃COOH'));
   return scene(s);
 }
 
