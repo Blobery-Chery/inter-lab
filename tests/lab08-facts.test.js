@@ -63,3 +63,27 @@ test('вывод по опытам 1–2 приводит литературны
   assert.match(c2.en, /0\.871/);
   assert.match(c2.en, /1\.3902/);
 });
+
+test('подсказка 3 шагов-процессов цитирует кнопки шага дословно (ru, kk, en)', async () => {
+  const exps = lab.experiments;
+  const labels = (s) => {
+    const out = [];
+    for (const c of s.controls || []) {
+      if (c.label) out.push(c.label);
+      if (c.labelOn) out.push(c.labelOn);
+      for (const o of c.options || []) out.push(o[1]);
+    }
+    return out;
+  };
+  let checked = 0;
+  for (const e of exps) for (const s of e.steps) {
+    if (s.type !== 'process') continue;
+    const h3 = s.hints[2];
+    for (const l of ['ru', 'kk', 'en']) {
+      const quoted = [...h3[l].matchAll(l === 'en' ? /“([^”]+)”/g : /«([^»]+)»/g)].map((m) => m[1]);
+      const own = labels(s).map((x) => x[l]);
+      for (const q of quoted) { assert.ok(own.some((x) => x.startsWith(q)), `опыт ${e.id}, шаг ${s.id}, ${l}: нет кнопки «${q}»`); checked++; }
+    }
+  }
+  assert.ok(checked > 20);
+});

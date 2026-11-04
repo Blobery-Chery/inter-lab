@@ -7,6 +7,29 @@ const CRIT_STOP = L(
   'Тығынмен тығыз жабылған пробирка қайнаған моншаға қойылды: эфир, бутанол және су булары қысым туғызды, тығын атылып, ыстық 2 М сілті ерітіндісі шашырады. Нақты зертханада бұл тері немесе көздің химиялық күйігі: кемінде 15 минут ағын сумен жуу (6.3-тармақ), оқытушыға хабарлау. Тек ашық пробиркаларды, аузын өзінен және көршілерден алыс бағыттап қыздырады. Тәжірибе эфирдің жаңа порциясымен қайталанады.',
   'A tightly stoppered tube was put into the boiling bath: vapour of ester, butanol and water built up pressure, the stopper blew out and hot 2 M alkali splashed out. In a real lab this means a chemical burn to the skin or eyes: rinse under running water for at least 15 minutes (rule 6.3) and tell the instructor. Only open tubes are heated, mouth pointed away from people. The experiment is repeated with a fresh portion of ester.');
 
+/*
+ * Подсказка 3 — готовое решение с названиями кнопок дословно (SCHEMA.md). «Встряхнуть» добавляется раз в минуту нагрева,
+ * «Вынуть» — когда слой эфира исчез и прошло 10 мин. cur — последнее состояние шага (обновляется при отрисовке показаний).
+ */
+let cur = null;
+const SB = {
+  load: { ru: 'Внести 0,5 мл эфира и 5 мл 2 М NaOH', kk: '0,5 мл эфир және 5 мл 2 М NaOH салу', en: 'Add 0.5 mL of ester and 5 mL of 2 M NaOH' },
+  bath: { ru: 'Поставить пробирку в кипящую водяную баню', kk: 'Пробирканы қайнаған су моншасына қою', en: 'Put the tube into the boiling water bath' },
+  shake: { ru: 'Встряхнуть пробирку', kk: 'Пробирканы шайқау', en: 'Shake the tube' },
+  out: { ru: 'Вынуть пробирку из бани, охладить', kk: 'Пробирканы моншадан алып, суыту', en: 'Take the tube out of the bath and cool it' },
+  waft: { ru: 'Определить запах, направляя пары к себе ладонью', kk: 'Буды алақанмен өзіне бағыттап, иісін анықтау', en: 'Smell it by wafting the vapour towards you' },
+};
+function saponH3() {
+  const P = cur && cur.S.sap, bathOn = !!(cur && cur.lc.c && cur.lc.c.bath);
+  const ready = P && P.h > 0.9 && P.t >= 600;
+  const k = (P ? P.shakes || 0 : 0) + (P && bathOn && !P.out && !ready && (P.tNow || 0) - P.lastShake >= 60 ? 1 : 0);
+  const items = [SB.load, SB.bath, ...Array(k).fill(SB.shake)];
+  if (ready || (P && P.out)) items.push(SB.out, SB.waft);
+  const tail = ready || (P && P.out) ? null : { ru: '→ встряхивайте каждую минуту нагрева (ускорьте ход времени); когда слой эфира исчезнет и пройдёт 10–15 мин, выньте пробирку и определите запах ладонью.', kk: '→ қыздырудың әр минутында шайқаңыз (уақытты жылдамдатыңыз); эфир қабаты жоғалып, 10–15 мин өткенде пробирканы алып, иісін алақанмен анықтаңыз.', en: '→ shake every minute of heating (speed up time); when the ester layer has gone and 10–15 min have passed, take the tube out and smell it by wafting.' };
+  const f = (l) => items.map((x) => (l === 'en' ? `“${x.en}”` : `«${x[l]}»`)).join(' → ') + (tail ? ' ' + tail[l] : '');
+  return { ru: f('ru'), kk: f('kk'), en: f('en') };
+}
+
 const s1 = {
   type: 'process', id: 'sapon', speeds: [10, 30],
   title: L('Омыление эфира в кипящей бане', 'Эфирді қайнаған моншада сабындандыру', 'Saponifying the ester in a boiling bath'),
@@ -56,6 +79,7 @@ const s1 = {
     }
   },
   readouts: (S, lc) => {
+    cur = { S, lc };
     const P = S.sap;
     return [
       { label: L('Нагрев', 'Қыздыру', 'Heating'), value: { ru: n(P.t / 60, 0) + ' мин', kk: n(P.t / 60, 0) + ' мин', en: n(P.t / 60, 0) + ' min' }, st: P.t >= 600 ? 'ok' : '' },
@@ -82,11 +106,13 @@ const s1 = {
   }],
   done: (S) => S.sap.out && S.sap.smelled && { text: L('Омыление закончено.', 'Сабындандыру аяқталды.', 'Saponification finished.') },
   scene: saponScene,
-  hints: [
-    L('Гидроксид-ион реагирует с эфиром на границе слоёв, поэтому слои нужно часто перемешивать встряхиванием. Пробирку не закрывают.', 'Гидроксид-ион эфирмен қабаттар шекарасында әрекеттеседі, сондықтан қабаттарды шайқап жиі араластыру керек. Пробирканы жаппайды.', 'Hydroxide reacts with the ester at the interface, so the layers must be mixed often by shaking. The tube is not stoppered.'),
-    L('Нагревайте 10–15 минут и встряхивайте хотя бы раз в минуту — тогда слой эфира исчезнет.', '10–15 минут қыздырып, кемінде минутына бір рет шайқаңыз — сонда эфир қабаты жоғалады.', 'Heat for 10–15 minutes and shake at least once a minute — then the ester layer disappears.'),
-    L('«Внести эфир и NaOH» → «В баню» → «Встряхнуть» каждую минуту → когда слой исчез, «Вынуть» → «Определить запах ладонью».', '«Эфир мен NaOH салу» → «Моншаға» → әр минут сайын «Шайқау» → қабат жоғалғанда «Алу» → «Иісті алақанмен анықтау».', '“Add ester and NaOH” → “Into the bath” → “Shake” every minute → when the layer is gone, “Take out” → “Smell by wafting”.'),
-  ],
+  get hints() {
+    return [
+      L('Гидроксид-ион реагирует с эфиром на границе слоёв, поэтому слои нужно часто перемешивать встряхиванием. Пробирку не закрывают.', 'Гидроксид-ион эфирмен қабаттар шекарасында әрекеттеседі, сондықтан қабаттарды шайқап жиі араластыру керек. Пробирканы жаппайды.', 'Hydroxide reacts with the ester at the interface, so the layers must be mixed often by shaking. The tube is not stoppered.'),
+      L('Нагревайте 10–15 минут и встряхивайте хотя бы раз в минуту — тогда слой эфира исчезнет.', '10–15 минут қыздырып, кемінде минутына бір рет шайқаңыз — сонда эфир қабаты жоғалады.', 'Heat for 10–15 minutes and shake at least once a minute — then the ester layer disappears.'),
+      saponH3(),
+    ];
+  },
 };
 /** Сколько секунд прошло без встряхивания (для подсказки). */
 function ctx0(S) { return S.sap.lastShake < 0 ? S.sap.t : Math.max(0, (S.sap.tNow || 0) - S.sap.lastShake); }
