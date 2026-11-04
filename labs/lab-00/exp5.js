@@ -61,7 +61,7 @@ const sNeutral = {
   hints: [
     L('Кислые отходы нейтрализуют порциями, контролируя pH индикаторной бумагой после каждой порции.', 'Қышқыл қалдықтарды порциялап бейтараптайды, әр порциядан кейін pH-ты индикатор қағазымен бақылайды.', 'Acidic waste is neutralised in portions, checking the pH with indicator paper after each one.'),
     L(`Нужно около ${n(bicarbonateFor(H0), 1)} г NaHCO₃: с ним трудно «перелить» — избыток гидрокарбоната даёт pH не выше ≈ 8. NaOH легко перещелачивает.`, `Шамамен ${n(bicarbonateFor(H0), 1)} г NaHCO₃ керек: онымен «асырып жіберу» қиын — гидрокарбонаттың артығы pH-ты ≈ 8-ден жоғары көтермейді. NaOH оңай сілтілеп жібереді.`, `About ${n(bicarbonateFor(H0), 1)} g of NaHCO₃ is needed: it is hard to overshoot — excess hydrogen carbonate keeps the pH at ≈ 8 or below. NaOH overshoots easily.`),
-    L('5 порций NaHCO₃ по 1 г (ждать, пока стихнет шипение), затем «Проверить pH».', '1 г-нан 5 порция NaHCO₃ (ысыл басылғанша күту), содан кейін «pH-ты тексеру».', '5 portions of 1 g NaHCO₃ (wait for the fizzing to stop), then “Check the pH”.'),
+    L('5 порций NaHCO₃ по 1 г (ждать, пока стихнет шипение), затем «Проверить pH индикаторной бумагой».', '1 г-нан 5 порция NaHCO₃ (ысыл басылғанша күту), содан кейін «pH-ты индикатор қағазымен тексеру».', '5 portions of 1 g NaHCO₃ (wait for the fizzing to stop), then “Check the pH with indicator paper”.'),
   ],
 };
 

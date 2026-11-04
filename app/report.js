@@ -3,7 +3,7 @@
  * расчёты, выводы, итоговая таблица, «куда делся продукт», индивидуальное задание, замечания, подсказки, оценка.
  * buildReport() — данные (без DOM), reportText() — простой текст, reportPayload() — для api.submitReport().
  */
-import { tr, t, L, num, pts } from './i18n.js';
+import { tr, t, L, num, pts, labName, expName } from './i18n.js';
 import { summarize } from './grading.js';
 import { clockText, dayOf } from './engine.js';
 import { esc } from './dom.js';
@@ -96,12 +96,12 @@ export function answerText(task, answer) {
 export function reportText(d, author) {
   const L2 = [];
   L2.push(t('reportTitle').toUpperCase());
-  L2.push(`${t('labNo', { n: d.lab.display || d.lab.number })}. ${tr(d.lab.title)}`);
+  L2.push(`${labName(d.lab)}. ${tr(d.lab.title)}`);
   L2.push(`${t('student')}: ${d.student.name || '—'}   ${t('group')}: ${d.student.group || '—'}`);
   if (d.exam) L2.push(t('examMark'));
   L2.push(`${t('aim')}: ${tr(d.lab.aim)}`);
   for (const e of d.exps) {
-    L2.push('', `${t('expN', { n: e.id })}. ${tr(e.title)}${e.done ? '' : ' — ' + t('notDone')}`);
+    L2.push('', `${expName(d.lab, e.id)}. ${tr(e.title)}${e.done ? '' : ' — ' + t('notDone')}`);
     if (e.reagents.length) L2.push(`${t('reagentsUsed')}: ${e.reagents.map((x) => tr(x)).join('; ')}`);
     for (const q of e.equations) L2.push('  ' + tr(q));
     if (e.conditions) L2.push(tr(e.conditions));
@@ -161,11 +161,11 @@ export function reportPayload(d, progress, mode, lang, text) {
 export function reportBodyHTML(d) {
   const eq = (s) => `<div class="eq">${esc(tr(s))}</div>`;
   let h = '';
-  h += `<h2>${esc(t('labNo', { n: d.lab.display || d.lab.number }))}. ${esc(tr(d.lab.title))}</h2>`;
+  h += `<h2>${esc(labName(d.lab))}. ${esc(tr(d.lab.title))}</h2>`;
   if (d.exam) h += `<p class="badge info">${esc(t('examMark'))}</p>`;
   h += `<p><b>${esc(t('aim'))}:</b> ${esc(tr(d.lab.aim))}</p>`;
   for (const e of d.exps) {
-    h += `<section><h3>${esc(t('expN', { n: e.id }))}. ${esc(tr(e.title))}</h3>`;
+    h += `<section><h3>${esc(expName(d.lab, e.id))}. ${esc(tr(e.title))}</h3>`;
     if (!e.done) { h += `<p class="muted">${esc(t('notDone'))}</p></section>`; continue; }
     if (e.reagents.length) h += `<p><b>${esc(t('reagentsUsed'))}:</b> ${e.reagents.map((x) => esc(tr(x))).join('; ')}.</p>`;
     if (e.equations.length) h += `<p><b>${esc(t('equations'))}:</b></p>${e.equations.map(eq).join('')}`;

@@ -225,7 +225,13 @@ const s5 = {
 const wasteScene = () => scene(bottle(20, 'Pb, Cu', '') + bottle(84, L('водн.', 'сулы', 'aq.'), '') + bottle(148, L('орг.', 'орг.', 'org.'), '') + bottle(212, L('тв.', 'қатты', 'solid'), '') + bottle(276, L('стекло', 'шыны', 'glass'), '') + text(180, 60, L('ёмкости для отходов', 'қалдықтарға арналған ыдыстар', 'waste containers'), 'lblb'), L('Ёмкости для отходов', 'Қалдықтарға арналған ыдыстар', 'Waste containers'));
 
 const s6 = {
-  type: 'lab11-waste', id: 'waste',
+  type: 'cleanup', id: 'waste',
+  bins: ['heavy', 'acid', 'organic', 'solid', 'glass', 'sink', 'trash'],
+  binLabels: { heavy: L('Отходы тяжёлых металлов (Pb, Cu)', 'Ауыр металдар қалдықтары (Pb, Cu)', 'Heavy-metal waste (Pb, Cu)') },
+  hints: [
+    L('Все отходы, содержащие свинец, собирают в отдельную ёмкость (раздел 7 методички); соли меди — туда же, как соли тяжёлых металлов.', 'Құрамында қорғасын бар барлық қалдықтар бөлек ыдысқа жиналады (әдістеменің 7-бөлімі); мыс тұздары да — ауыр металдар тұздары ретінде сонда.', 'All lead-containing waste goes into a separate container (manual, section 7); copper salts go there too, as heavy-metal salts.'),
+    L('В раковину нельзя: соли тяжёлых металлов, концентрированные кислоты и щёлочи, органические растворители (п. 10.2 правил ТБ).', 'Раковинаға болмайды: ауыр металдар тұздары, концентрлі қышқылдар мен сілтілер, органикалық еріткіштер (ҚТ ережелерінің 10.2-тармағы).', 'Never down the sink: heavy-metal salts, concentrated acids and alkalis, organic solvents (safety rule 10.2).'),
+  ],
   title: L('Отходы и уборка рабочего места', 'Қалдықтар және жұмыс орнын жинау', 'Waste and cleaning up'),
   instr: L('<p>Распределите отходы всех опытов по ёмкостям, выключите приборы и вымойте руки.</p><p class="note">Все отходы со свинцом — в отдельную ёмкость (раздел 7 методички).</p>', '<p>Барлық тәжірибелердің қалдықтарын ыдыстарға бөліп, құралдарды сөндіріп, қолды жуыңыз.</p><p class="note">Құрамында қорғасын бар барлық қалдықтар — бөлек ыдысқа (әдістеменің 7-бөлімі).</p>', '<p>Sort the waste from all the experiments into the containers, switch off the equipment and wash your hands.</p><p class="note">All lead-containing waste goes into a separate container (manual, section 7).</p>'),
   need: L('Утилизируйте отходы', 'Қалдықтарды кәдеге жаратыңыз', 'Dispose of the waste'),

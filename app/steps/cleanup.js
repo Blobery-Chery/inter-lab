@@ -1,7 +1,7 @@
 /**
  * cleanup — утилизация отходов по контейнерам, выключение приборов, мытьё посуды и рук (разделы 10 и 14.3 правил ТБ).
- * step.items: [{ id, label, bin: 'acid'|'organic'|'halogen'|'solid'|'glass', wrong?: {binId: {severity, text}} }]
- * step.bins: список id контейнеров (по умолчанию все из BINS); step.switches: [{ id, label, log }]
+ * step.items: [{ id, label, bin: 'acid'|'organic'|'halogen'|'solid'|'heavy'|'glass', wrong?: {binId: {severity, text}} }]
+ * step.bins: список id контейнеров (по умолчанию все из BINS, кроме heavy); step.binLabels: {binId: L(…)} — своя подпись контейнера; step.switches: [{ id, label, log }]
  * Неверный контейнер → замечание (по умолчанию minor; раковина для кислот/органики — safety). Предмет остаётся, нужно выбрать верно.
  */
 import { h } from '../dom.js';
@@ -13,24 +13,28 @@ export const BINS = {
   organic: L('Органические растворители', 'Органикалық еріткіштер', 'Organic solvent waste'),
   halogen: L('Галогенсодержащие отходы', 'Құрамында галоген бар қалдықтар', 'Halogenated waste'),
   solid: L('Твёрдые отходы (фильтры, бумага)', 'Қатты қалдықтар (сүзгілер, қағаз)', 'Solid waste (filters, paper)'),
+  heavy: L('Отходы солей тяжёлых металлов', 'Ауыр металдар тұздарының қалдықтары', 'Heavy-metal salt waste'),
   glass: L('Бой стекла', 'Сынған шыны', 'Broken glass'),
   sink: L('Раковина', 'Раковина', 'Sink'),
   trash: L('Бытовой мусор', 'Тұрмыстық қоқыс', 'General rubbish'),
 };
+
+const BASE_BINS = BINS;
 
 export default {
   type: 'cleanup',
   init(step, ctx) { ctx.local.put = {}; ctx.local.sw = {}; ctx.local.sel = null; },
   render(step, ctx) {
     const { local } = ctx;
-    const bins = step.bins || Object.keys(BINS);
+    const BINS = { ...BASE_BINS, ...(step.binLabels || {}) };
+    const bins = step.bins || Object.keys(BINS).filter((b) => b !== 'heavy'); // ёмкость для тяжёлых металлов — только если работа её назвала
     const wrap = h('div', { class: 'wfull' });
     const items = h('div', { class: 'shelf' });
     for (const it of step.items) {
       const done = !!local.put[it.id];
       const b = h('button', { class: 'tile' + (local.sel === it.id ? ' on' : '') + (done ? ' used' : ''), type: 'button', 'aria-pressed': String(local.sel === it.id) }, h('span', null, (done ? '✓ ' : '') + tr(it.label)));
       if (done) b.disabled = true;
-      b.onclick = () => { local.sel = local.sel === it.id ? null : it.id; ctx.rerender(); };
+      b.onclick = () => { local.sel = local.sel === it.id ? null : it.id; ctx.save(); ctx.rerender(); };
       items.append(b);
     }
     const binBox = grid();
@@ -46,7 +50,7 @@ export default {
         } else {
           const w = (it.wrong && it.wrong[id]) || {};
           const sev = w.severity || (id === 'sink' || id === 'trash' ? 'safety' : 'minor');
-          ctx.remark({ key: `waste-${it.id}`, severity: sev, points: w.points, text: w.text || { ru: `${tr(it.label, 'ru')} — не в тот контейнер (${tr(BINS[id], 'ru')})`, kk: `${tr(it.label, 'kk')} — басқа ыдысқа (${tr(BINS[id], 'kk')})`, en: `${tr(it.label, 'en')} — wrong container (${tr(BINS[id], 'en')})` } });
+          ctx.remark({ key: `waste-${it.id}`, severity: sev, points: w.points, whatif: w.whatif, text: w.text || { ru: `${tr(it.label, 'ru')} — не в тот контейнер (${tr(BINS[id], 'ru')})`, kk: `${tr(it.label, 'kk')} — басқа ыдысқа (${tr(BINS[id], 'kk')})`, en: `${tr(it.label, 'en')} — wrong container (${tr(BINS[id], 'en')})` } });
           ctx.feedback(w.whatif || L('Этот контейнер не подходит. Посмотрите разделы 10.1–10.4 правил ТБ.', 'Бұл ыдыс сәйкес емес. ҚТ ережелерінің 10.1–10.4 бөлімдерін қараңыз.', 'That container is not right. See safety rules 10.1–10.4.'), 'bad');
         }
         check(); ctx.rerender();
@@ -69,6 +73,7 @@ export default {
     return wrap;
   },
   hints(step, ctx) {
+    const BINS = { ...BASE_BINS, ...(step.binLabels || {}) };
     const it = step.items.find((i) => !ctx.local.put[i.id]);
     return [
       L('Отходы разделяют по видам: органические растворители, галогенсодержащие, водные кислотно-щелочные, твёрдые; бой стекла — отдельно (п. 9.3, 10.1).', 'Қалдықтар түрлері бойынша бөлінеді: органикалық еріткіштер, галогенді, сулы қышқыл-сілтілі, қатты; сынған шыны — бөлек (9.3, 10.1-тармақтар).', 'Waste is sorted by type: organic solvents, halogenated, aqueous acid/alkali, solid; broken glass separately (rules 9.3, 10.1).'),

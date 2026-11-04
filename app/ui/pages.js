@@ -1,11 +1,11 @@
 /** Главная, страница работы и экран заявки на доступ. */
 import { h, esc } from '../dom.js';
-import { tr, t, L, pts } from '../i18n.js';
+import { tr, t, L, pts, labName, expName } from '../i18n.js';
 import * as store from '../store.js';
 import { newRun } from '../engine.js';
 import { LABS } from '../../labs/manifest.js';
 import { EQUIPMENT, equipmentIcon } from '../equipment.js';
-import { labStatus } from './status.js';
+import { labStatus, allDone } from './status.js';
 import { btn } from './controls.js';
 import { confirmDialog, toast } from './modal.js';
 import { gradeOf } from '../report.js';
@@ -51,7 +51,7 @@ export async function homePage(root, env) {
     const st = await labStatus(entry, lab, env);
     const acc = (lab && lab.accent) || entry.accent;
     grid.append(h('a', { class: 'card labcard' + (st.key === 'draft' ? ' draft' : ''), href: `#/lab/${entry.number}`, style: `--lab-accent:${env.dark ? acc.dark : acc.light}` },
-      h('span', { class: 'num' }, entry.id === 'lab-00' ? t('intro') : t('labNo', { n: tr(entry.display) })),
+      h('span', { class: 'num' }, labName({ id: entry.id, display: entry.display })),
       h('span', { class: 't' }, tr((lab && lab.title) || entry.title)),
       h('span', { class: 'badge ' + st.cls }, st.text)));
   }
@@ -68,7 +68,7 @@ export async function labPage(root, env, entry, lab) {
   root.style.setProperty('--accent', env.dark ? acc.dark : acc.light);
   root.append(h('a', { class: 'b sm ghost', href: '#/' }, '← ' + t('home')));
   root.append(h('section', { class: 'section' },
-    h('div', { class: 'eyebrow' }, entry.id === 'lab-00' ? t('intro') : t('labNo', { n: tr(entry.display) })),
+    h('div', { class: 'eyebrow' }, labName({ id: entry.id, display: entry.display })),
     h('h1', null, tr(lab.title)),
     h('span', { class: 'badge ' + st.cls }, st.text)));
   if (st.key === 'draft') { root.append(h('p', { class: 'banner info' }, t('draftText'))); return; }
@@ -81,30 +81,36 @@ export async function labPage(root, env, entry, lab) {
     lab.aim ? h('p', null, h('b', null, t('aim') + ': '), tr(lab.aim)) : null,
     lab.relevance ? h('p', null, h('b', null, t('relevance') + ': '), tr(lab.relevance)) : null));
 
-  /* допуск */
+  /* допуск (у вводного занятия — итоговый тест после всех этапов) */
   const adm = st.adm;
-  const admBox = h('section', { class: 'card section' }, h('h2', null, t('admission')));
-  if (!adm) admBox.append(h('p', { class: 'badge' }, t('stNoAdm')), h('div', { class: 'row', style: 'margin-top:8px' }, h('a', { class: 'b pri', href: `#/lab/${entry.number}/admission` }, t('admTake'))));
+  const after = !!lab.admissionAfterExperiments;
+  const progress = store.loadLab(entry.id);
+  const admBox = h('section', { class: 'card section', id: 'admission' }, h('h2', null, after ? t('finalTest') : t('admission')));
+  if (!adm && after) {
+    if (allDone(lab, progress)) admBox.append(h('p', { class: 'badge warn' }, t('finalTestReady')), h('div', { class: 'row', style: 'margin-top:8px' }, h('a', { class: 'b pri', href: `#/lab/${entry.number}/admission` }, t('finalTestTake'))));
+    else admBox.append(h('p', { class: 'muted' }, t('finalTestLocked')));
+  } else if (!adm) admBox.append(h('p', { class: 'badge' }, t('stNoAdm')), h('div', { class: 'row', style: 'margin-top:8px' }, h('a', { class: 'b pri', href: `#/lab/${entry.number}/admission` }, t('admTake'))));
   else {
     const cls = adm.status === 'approved' ? 'ok' : adm.status === 'pending' ? 'info' : 'bad';
-    admBox.append(h('p', null, h('span', { class: 'badge ' + cls }, adm.status === 'approved' ? t('stAdmitted') : adm.status === 'pending' ? t('stPending') : t('admDenied')), ' ',
+    admBox.append(h('p', null, h('span', { class: 'badge ' + cls }, adm.status === 'approved' ? (after ? t('stBriefingDone') : t('stAdmitted')) : adm.status === 'pending' ? t('stPending') : t('admDenied')), ' ',
       adm.score != null ? h('span', { class: 'muted' }, t('admScore', { s: adm.score, t: (store.loadLab(entry.id).admission || {}).total || (lab.admission || {}).pick || 5 })) : null));
     if (adm.comment) admBox.append(h('p', { class: 'fb ' + (adm.status === 'denied' ? 'bad' : 'info') }, h('b', null, t('teacherComment') + ': '), adm.comment));
     if (adm.status === 'denied') admBox.append(h('a', { class: 'b pri', href: `#/lab/${entry.number}/admission` }, t('admRetake')));
     if (adm.status === 'pending') admBox.append(h('a', { class: 'b', href: `#/lab/${entry.number}/admission` }, t('checkNow')));
+    if (adm.status === 'approved' && after) admBox.append(h('p', { class: 'fb good' }, t('briefingApproved')));
   }
-  root.append(admBox);
+  if (!after) root.append(admBox);
 
   /* опыты */
   const approved = adm && adm.status === 'approved';
-  const progress = store.loadLab(entry.id);
+  const expOpen = approved || after;
   const list = h('div', { class: 'cards' });
   lab.experiments.forEach((e, i) => {
     const run = progress.runs[e.id];
     const prevDone = i === 0 || (progress.runs[lab.experiments[i - 1].id] && progress.runs[lab.experiments[i - 1].id].status === 'done') || lab.experiments[i - 1].optional;
-    const card = h('div', { class: 'card' }, h('div', { class: 'eyebrow' }, t('expN', { n: e.id }) + (e.optional ? ' · ' + t('optional') : '')), h('h3', { style: 'margin-top:4px' }, tr(e.title)), e.principle ? h('p', { class: 'muted', style: 'font-size:13.5px' }, tr(e.principle)) : null);
+    const card = h('div', { class: 'card' }, h('div', { class: 'eyebrow' }, expName(lab, e.id) + (e.optional ? ' · ' + t('optional') : '')), h('h3', { style: 'margin-top:4px' }, tr(e.title)), e.principle ? h('p', { class: 'muted', style: 'font-size:13.5px' }, tr(e.principle)) : null);
     const row = h('div', { class: 'row' });
-    if (!approved) row.append(h('span', { class: 'muted' }, t('needAdmission')));
+    if (!expOpen) row.append(h('span', { class: 'muted' }, t('needAdmission')));
     else if (!prevDone && !run) row.append(h('span', { class: 'muted' }, t('expLocked')));
     else {
       if (run && run.status === 'done') row.append(h('span', { class: 'badge ok' }, '✓ ' + t('expDone')));
@@ -123,7 +129,8 @@ export async function labPage(root, env, entry, lab) {
     card.append(row);
     list.append(card);
   });
-  root.append(h('section', { class: 'section' }, h('h2', null, t('experiments')), list));
+  root.append(h('section', { class: 'section' }, h('h2', null, lab.expWord === 'stage' ? t('stages') : t('experiments')), list));
+  if (after) root.append(admBox);
   const g = gradeOf(lab, progress);
   root.append(h('section', { class: 'section card' }, h('h2', null, t('report')),
     progress.report && progress.report.sentAt ? h('p', null, h('span', { class: 'badge ok' }, t('stDone', { g: progress.report.grade }))) : h('p', { class: 'muted' }, t('reportLocked')),

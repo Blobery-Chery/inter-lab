@@ -28,7 +28,7 @@ export default {
   render(step, ctx) {
     const { local, state } = ctx;
     const wrap = h('div', { class: 'wfull' });
-    if (step.tubes.length > 1) wrap.append(group(L('Пробирка', 'Пробирка', 'Test tube'), seg(step.tubes.map((t) => [t.id, t.label]), () => local.sel, (v) => { local.sel = v; ctx.save(); ctx.update(); }, L('Пробирка', 'Пробирка', 'Test tube'))));
+    if (step.tubes.length > 1) wrap.append(group(L('Пробирка', 'Пробирка', 'Test tube'), seg(step.tubes.map((t) => [t.id, t.label]), () => local.sel, (v) => { local.sel = v; ctx.save(); ctx.rerender(); }, L('Пробирка', 'Пробирка', 'Test tube'))));
     const groups = new Map();
     for (const r of step.reagents) {
       const b = btn(r.label, () => {
@@ -95,7 +95,8 @@ export default {
       s += tubeSVG({ id: 'tt' + i, cx: xs[i], frac: Math.min(1, (t.v || 0) / (step.capacity || 5)), color: t.color, solid: t.solid, ppt: t.ppt, pptColor: t.pptColor, gas: t.gas, mirror: t.mirror, layer: t.layer, layerColor: t.layerColor, label: td.label });
       if (ctx.local.sel === td.id && n > 1) s += `<path d="M${xs[i] - 6} 22 L${xs[i] + 6} 22 L${xs[i]} 30 Z" fill="var(--accent)"/>`;
     });
-    return scene((step.sceneBack ? step.sceneBack(ctx.state, ctx.local) : '') + s + tubeRack(Math.min(...xs) - 50, Math.max(...xs) + 50));
+    // штатив рисуется до пробирок — иначе нижняя планка закрывает подписи пробирок
+    return scene((step.sceneBack ? step.sceneBack(ctx.state, ctx.local) : '') + tubeRack(Math.min(...xs) - 50, Math.max(...xs) + 50) + s);
   },
   hints(step, ctx) {
     return [

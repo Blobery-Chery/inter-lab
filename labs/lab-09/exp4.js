@@ -111,7 +111,7 @@ const t4 = {
   need: L('Утилизируйте всё и выключите приборы', 'Бәрін кәдеге жаратып, құралдарды өшіріңіз', 'Dispose of everything and switch off the equipment'),
   bins: ['acid', 'organic', 'halogen', 'solid', 'sink', 'trash'],
   items: [
-    { id: 'tbp', bin: 'halogen', label: L('Пробирка опыта 3: трибромфенол и бромная вода', '3-тәжірибе пробиркасы: трибромфенол және бром суы', 'Tube from experiment 3: tribromophenol and bromine water'), wrong: { sink: { severity: 'safety', text: L('бромсодержащие отходы — в раковину (п. 10.2 правил ТБ)', 'құрамында бром бар қалдықтар — раковинаға (ҚТ ережелерінің 10.2-тармағы)', 'bromine-containing waste down the sink (safety rule 10.2)') } } },
+    { id: 'tbp', bin: 'halogen', label: L('Пробирка опыта 3: трибромфенол и бромная вода', '3-тәжірибе пробиркасы: трибромфенол және бромды су', 'Tube from experiment 3: tribromophenol and bromine water'), wrong: { sink: { severity: 'safety', text: L('бромсодержащие отходы — в раковину (п. 10.2 правил ТБ)', 'құрамында бром бар қалдықтар — раковинаға (ҚТ ережелерінің 10.2-тармағы)', 'bromine-containing waste down the sink (safety rule 10.2)') } } },
     { id: 'dye', bin: 'acid', label: L('Пробирка опыта 4: азокраситель в щелочном растворе', '4-тәжірибе пробиркасы: сілтілі ерітіндідегі азобояғыш', 'Tube from experiment 4: azo dye in alkaline solution') },
     { id: 'paper', bin: 'solid', label: L('Иодкрахмальная и индикаторная бумага', 'Иодкрахмал және индикатор қағазы', 'Starch–iodide and indicator paper'), wrong: { trash: { severity: 'minor', text: L('бумага с реактивами — в бытовой мусор (п. 10.4 правил ТБ)', 'реактивтері бар қағаз — тұрмыстық қоқысқа (ҚТ ережелерінің 10.4-тармағы)', 'paper with reagents in the general rubbish (safety rule 10.4)') } } },
   ],
