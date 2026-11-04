@@ -7,7 +7,7 @@ const sg = (x, d = 2) => (x > 0.0049 ? '+' : '') + n(x, d);
 const zeroOf = (S) => (S.zero ? S.zero.mean : 0);
 const aStd = (S) => (S.std ? S.std.mean - zeroOf(S) : 0);
 const aUnk = (S) => (S.unk ? S.unk.mean - zeroOf(S) : 0);
-const lS = (S) => (S.std ? lS(S) : 2), lU = (S) => (S.unk ? lU(S) : 2);
+const lS = (S) => (S.std ? S.std.tube : 2), lU = (S) => (S.unk ? S.unk.tube : 2);
 const mS = (S) => (S.std ? S.std.mean : 0), mU = (S) => (S.unk ? S.unk.mean : 0);
 
 const s0 = {

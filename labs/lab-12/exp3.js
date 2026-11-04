@@ -50,6 +50,11 @@ const s1 = {
   ],
   done: (S, lc) => (neat(S) ? !!lc.done.neat : !!lc.done.mix) && { text: L('Проба готова.', 'Сынама дайын.', 'The sample is ready.') },
   scene: (S, lc) => (neat(S) ? polBench() : volFlask(!!(lc.done && lc.done.mark))),
+  hints: [
+    L('Способ выбран на предыдущем шаге: неразбавленный амин или раствор в метаноле.', 'Тәсіл алдыңғы қадамда таңдалды: сұйылтылмаған амин немесе метанолдағы ерітінді.', 'The method was chosen in the previous step: neat amine or a methanol solution.'),
+    L('Для раствора вся проба должна попасть в мерную колбу, объём доводят точно до метки и перемешивают — иначе c рассчитана неверно.', 'Ерітінді үшін бүкіл сынама өлшегіш колбаға түсуі тиіс, көлемді дәл белгіге дейін жеткізіп, араластырады — әйтпесе c қате есептеледі.', 'For the solution the whole sample must go into the volumetric flask, the volume made up exactly to the mark and mixed — otherwise c is wrong.'),
+    L('Неразбавленный амин: «Амин готов к заполнению трубки». Раствор: «Перенести пробу в мерную колбу, смыть метанолом» → «Довести метанолом до метки (по нижнему мениску)» → «Закрыть пробкой и перемешать, переворачивая».', 'Сұйылтылмаған амин: «Амин түтікті толтыруға дайын». Ерітінді: «Сынаманы өлшегіш колбаға ауыстырып, метанолмен шаю» → «Метанолмен белгіге дейін жеткізу (төменгі мениск бойынша)» → «Тығынмен жауып, аударып араластыру».', 'Neat amine: “The amine is ready for filling the tube”. Solution: “Transfer the sample into the flask and rinse in with methanol” → “Make up to the mark with methanol (bottom of the meniscus)” → “Stopper and mix by inverting”.'),
+  ],
 };
 
 const s2 = {

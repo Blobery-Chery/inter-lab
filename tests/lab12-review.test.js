@@ -40,3 +40,35 @@ test('вывод протокола: при [α] ≥ 0 амин не назыв�
   const g = lab.report.experiments[3].conclusion({ op: 80, spec: -32, pS: 90, pR: 10 });
   assert.ok(/левовращающий/.test(g.ru));
 });
+
+test('шаги process/add работы 12: подсказки трёх уровней, в уровне 3 кнопки названы слово в слово', async () => {
+  const lab = (await import('../labs/lab-12/lab.js')).default;
+  for (const e of lab.experiments) for (const s of e.steps) {
+    if (!['process', 'add'].includes(s.type)) continue;
+    assert.equal((s.hints || []).length, 3, `опыт ${e.id}, шаг ${s.id}`);
+    for (const l of ['ru', 'kk', 'en']) {
+      const labels = new Set();
+      for (const c of s.controls || []) {
+        if (c.label) labels.add(c.label[l]);
+        for (const o of c.options || []) labels.add(typeof o[1] === 'string' ? o[1] : o[1][l]);
+      }
+      if (s.add) { labels.add(s.add.label[l]); for (const r of s.add.rhythms || []) labels.add(r[1][l]); }
+      const quoted = [...s.hints[2][l].matchAll(/[«“]([^»”]+)[»”]/g)].map((m) => m[1]);
+      const btn = quoted.filter((x) => labels.has(x));
+      assert.ok(btn.length >= 1, `опыт ${e.id}, шаг ${s.id}, ${l}: нет названий кнопок в подсказке 3`);
+    }
+  }
+});
+
+test('упаривание эфира: «эфир отогнан» срабатывает только при ≤ 0,3 мл, ранний съём — отдельной кнопкой с последствием', async () => {
+  const exp2 = (await import('../labs/lab-12/exp2.js')).default;
+  const st = exp2.steps.find((x) => x.id === 'evap');
+  const off = st.controls.find((c) => c.id === 'off'), early = st.controls.find((c) => c.id === 'offEarly');
+  const lc = { E: { ether: 5 }, c: {} };
+  assert.equal(off.when({}, lc), false); assert.equal(early.disabled({}, lc), false);
+  const rem = []; const ctx = { remark: (r) => rem.push(r.key), log() {} };
+  const S = {}; early.do(S, lc, ctx);
+  assert.deepEqual(rem, ['ether-left']); assert.equal(S.etherLeft, 5);
+  const lc2 = { E: { ether: 0.2 }, c: {} };
+  assert.equal(off.when({}, lc2), true);
+});
