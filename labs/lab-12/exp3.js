@@ -92,9 +92,9 @@ const s4 = {
   need: L('Рассчитайте оптическую чистоту', 'Оптикалық тазалықты есептеңіз', 'Calculate the optical purity'),
   fields: [
     { id: 'a', label: L('Угол вращения α (исправленный)', 'Айналу бұрышы α (түзетілген)', 'Angle of rotation α (corrected)'), unit: '°', decimals: 2, tol: 0.01, answer: aCorr,
-      formula: (S) => L(`α = ${sg(S.sample.mean)} − (${sg(zeroOf(S))})`, `α = ${sg(S.sample.mean)} − (${sg(zeroOf(S))})`, `α = ${sg(S.sample.mean)} − (${sg(zeroOf(S))})`) },
+      formula: (S) => L(`α = ${sg(S.sample ? S.sample.mean : 0)} − (${sg(zeroOf(S))})`, `α = ${sg(S.sample ? S.sample.mean : 0)} − (${sg(zeroOf(S))})`, `α = ${sg(S.sample ? S.sample.mean : 0)} − (${sg(zeroOf(S))})`) },
     { id: 'spec', label: L('Удельное вращение [α]', 'Меншікті айналу [α]', 'Specific rotation [α]'), unit: '°', decimals: 1, tol: 0.01, answer: spec,
-      formula: (S) => L(`[α] = ${sg(aCorr(S))} / (${S.sample.tube} × ${n(conc(S), 4)})`, `[α] = ${sg(aCorr(S))} / (${S.sample.tube} × ${n(conc(S), 4)})`, `[α] = ${sg(aCorr(S))} / (${S.sample.tube} × ${n(conc(S), 4)})`),
+      formula: (S) => L(`[α] = ${sg(aCorr(S))} / (${S.sample ? S.sample.tube : 1} × ${n(conc(S), 4)})`, `[α] = ${sg(aCorr(S))} / (${S.sample ? S.sample.tube : 1} × ${n(conc(S), 4)})`, `[α] = ${sg(aCorr(S))} / (${S.sample ? S.sample.tube : 1} × ${n(conc(S), 4)})`),
       hint1: L('Для неразбавленной жидкости c = плотность (0,95 г/мл); для раствора c = масса пробы / 10 мл.', 'Сұйылтылмаған сұйықтық үшін c = тығыздық (0,95 г/мл); ерітінді үшін c = сынама массасы / 10 мл.', 'For the neat liquid c = density (0.95 g/mL); for the solution c = sample mass / 10 mL.') },
     { id: 'op', label: L('Оптическая чистота (≈ ee)', 'Оптикалық тазалық (≈ ee)', 'Optical purity (≈ ee)'), unit: '%', decimals: 1, tol: 0.01, answer: op,
       formula: (S) => L(`${sg(spec(S), 1)} / (${n(ref(S), 1)}) × 100 %`, `${sg(spec(S), 1)} / (${n(ref(S), 1)}) × 100 %`, `${sg(spec(S), 1)} / (${n(ref(S), 1)}) × 100 %`) },

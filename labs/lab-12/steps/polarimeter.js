@@ -195,7 +195,52 @@ export default {
         : !lc.filled ? L('Трубку сначала ополаскивают исследуемым раствором, затем заполняют до выпуклого мениска и надвигают покровное стекло сбоку — так не остаётся пузырьков.', 'Түтікті алдымен зерттелетін ерітіндімен шаяды, содан кейін дөңес менискке дейін толтырып, жабын шыныны бүйірінен сырғытады — сонда көпіршік қалмайды.', 'First rinse the tube with the sample, then fill to a convex meniscus and slide the cover glass on from the side — that leaves no bubbles.')
           : L('Ищите положение, где обе половины поля одинаково тусклые (полутень). Если одна половина темнеет, а другая светлеет — вы рядом.', 'Өрістің екі жартысы бірдей күңгірт болатын жағдайды іздеңіз (жартылай көлеңке). Бір жартысы қараңғыланып, екіншісі жарықтанса — жақынсыз.', 'Look for the position where both halves are equally dim (half-shade). If one half darkens while the other brightens, you are close.'),
       L('Грубо — шагом 1–5°, точно — 0,05–0,1°. Если поле целиком яркое, вы на 90° от нужной точки. Пузырёк в трубке — удалите до отсчёта.', 'Шамамен — 1–5° қадаммен, дәл — 0,05–0,1°. Өріс толық жарқын болса, қажетті нүктеден 90°-та тұрсыз. Түтіктегі көпіршікті есепке дейін кетіріңіз.', 'Coarse steps of 1–5°, fine steps of 0.05–0.1°. If the whole field is bright you are 90° away. Remove any bubble before reading.'),
-      { ru: `Равенство полей — около ${num(t0, 1, 'ru')}° по шкале.`, kk: `Өрістер теңдігі — шкала бойынша шамамен ${num(t0, 1, 'kk')}°.`, en: `The fields match at about ${num(t0, 1, 'en')}° on the scale.` },
+      planHint(step, ctx, t0),
     ];
   },
 };
+
+/* Подсказка 3: конкретная последовательность кнопок (её же выполняет бот tests/e2e).
+ * Уже выполненные отсчёты остаются в начале списка, план поворота анализатора для текущего отсчёта
+ * пересчитывается от текущего положения — так префикс списка не меняется между вызовами. */
+const LBL = {
+  lamp: L('Включить натриевую лампу (прогрев 10 мин)', 'Натрий шамын қосу (10 мин қыздыру)', 'Switch on the sodium lamp (10 min warm-up)'),
+  rinseW: L('Ополоснуть трубку дистиллированной водой', 'Түтікті дистилденген сумен шаю', 'Rinse the tube with distilled water'),
+  rinseS: L('Ополоснуть трубку 2–3 раза исследуемым раствором', 'Түтікті зерттелетін ерітіндімен 2–3 рет шаю', 'Rinse the tube 2–3 times with the sample'),
+  fill: L('Заполнить до выпуклого мениска, стекло надвинуть сбоку', 'Дөңес менискке дейін толтырып, шыныны бүйірінен сырғыту', 'Fill to a convex meniscus, slide the glass on from the side'),
+  look: L('Посмотреть вдоль трубки на свет', 'Түтікті бойлай жарыққа қарау', 'Look along the tube against the light'),
+  debub: L('Удалить пузырёк: долить раствор, закрыть заново', 'Көпіршікті кетіру: ерітінді құйып, қайта жабу', 'Remove the bubble: top up and close again'),
+  rec: L('Поля равны — записать отсчёт', 'Өрістер тең — есепті жазу', 'Fields equal — record the reading'),
+};
+const q = (x, l) => `«${typeof x === 'string' ? x : x[l]}»`;
+function rotPlan(theta, t0) {
+  let d = ((t0 - theta) % 180 + 180) % 180; if (d > 90) d -= 180;
+  const s = d < 0 ? -1 : 1; let a = Math.abs(d); const out = [];
+  for (const st of [5, 1, 0.1, 0.05]) {
+    const k = st === 0.05 ? Math.round(a / st + 1e-9) : Math.floor(a / st + 1e-9);
+    a = +(a - k * st).toFixed(4);
+    if (k > 0) out.push([k, s * st]);
+  }
+  return out;
+}
+const rotLabel = (v, l) => (v > 0 ? '+' : '−') + num(Math.abs(v), Math.abs(v) >= 1 ? 0 : Math.abs(v) >= 0.1 ? 1 : 2, l) + '°';
+function planHint(step, ctx, t0) {
+  const lc = ctx.local;
+  if (!lc.reads) return L('Равенство полей ищут поворотом анализатора.', 'Өрістер теңдігін анализаторды бұрау арқылы іздейді.', 'Equal fields are found by turning the analyser.');
+  lc.hdone = lc.hdone || [];
+  const key = `${lc.reads.length}|${lc.filled ? 1 : 0}|${lc.bubble ? 1 : 0}`;
+  if (lc.hplan && lc.hplan.n < lc.reads.length && lc.hdone.length < lc.reads.length) lc.hdone.push(lc.hplan.rot);
+  if (!lc.hplan || lc.hplan.key !== key) lc.hplan = { key, n: lc.reads.length, rot: rotPlan(lc.theta, t0) };
+  const out = {};
+  for (const l of ['ru', 'kk', 'en']) {
+    const parts = [q(LBL.lamp, l)];
+    if (step.tube && (step.tubes || []).length > 1) parts.push(q(step.tube === 1 ? L('1 дм', '1 дм', '1 dm') : L('2 дм', '2 дм', '2 dm'), l));
+    parts.push(q(step.zero ? LBL.rinseW : LBL.rinseS, l), q(LBL.fill, l), q(LBL.look, l));
+    if (lc.bubble) parts.push(q(LBL.debub, l));
+    const segs = [...lc.hdone, ...(lc.reads.length < (step.readings || 1) ? [lc.hplan.rot] : [])];
+    for (const rot of segs) { for (const [k, v] of rot) parts.push(`${k} × ${q(rotLabel(v, l), l)}`); parts.push(q(LBL.rec, l)); }
+    const tail = { ru: `Равенство полей — около ${num(t0, 1, 'ru')}° по шкале.`, kk: `Өрістер теңдігі — шкала бойынша шамамен ${num(t0, 1, 'kk')}°.`, en: `The fields match at about ${num(t0, 1, 'en')}° on the scale.` }[l];
+    out[l] = { ru: 'Порядок: ', kk: 'Рет: ', en: 'Sequence: ' }[l] + parts.join(' → ') + '. ' + tail;
+  }
+  return out;
+}

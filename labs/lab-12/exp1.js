@@ -7,6 +7,8 @@ const sg = (x, d = 2) => (x > 0.0049 ? '+' : '') + n(x, d);
 const zeroOf = (S) => (S.zero ? S.zero.mean : 0);
 const aStd = (S) => (S.std ? S.std.mean - zeroOf(S) : 0);
 const aUnk = (S) => (S.unk ? S.unk.mean - zeroOf(S) : 0);
+const lS = (S) => (S.std ? lS(S) : 2), lU = (S) => (S.unk ? lU(S) : 2);
+const mS = (S) => (S.std ? S.std.mean : 0), mU = (S) => (S.unk ? S.unk.mean : 0);
 
 const s0 = {
   type: 'checklist', id: 'ppe',
@@ -82,10 +84,10 @@ const s4 = {
   need: L('Рассчитайте [α]', '[α] есептеңіз', 'Calculate [α]'),
   fields: [
     { id: 'a', label: L('Угол вращения α (исправленный)', 'Айналу бұрышы α (түзетілген)', 'Angle of rotation α (corrected)'), unit: '°', decimals: 2, tol: 0.01, answer: aStd,
-      formula: (S) => L(`α = ${sg(S.std.mean)} − (${sg(zeroOf(S))})`, `α = ${sg(S.std.mean)} − (${sg(zeroOf(S))})`, `α = ${sg(S.std.mean)} − (${sg(zeroOf(S))})`),
+      formula: (S) => L(`α = ${sg(mS(S))} − (${sg(zeroOf(S))})`, `α = ${sg(mS(S))} − (${sg(zeroOf(S))})`, `α = ${sg(mS(S))} − (${sg(zeroOf(S))})`),
       hint1: L('Возьмите среднее из трёх отсчётов и вычтите нулевую точку (отсчёт с водой).', 'Үш есептің орташасын алып, нөлдік нүктені (сумен алынған есеп) шегеріңіз.', 'Take the mean of the three readings and subtract the zero point (the reading with water).') },
-    { id: 'spec', label: L('Удельное вращение [α]', 'Меншікті айналу [α]', 'Specific rotation [α]'), unit: '°', decimals: 1, tol: 0.01, answer: (S) => specificRotation(aStd(S), S.std.tube, STD_C),
-      formula: (S) => L(`[α] = ${sg(aStd(S))} / (${S.std.tube} × 0.10)`, `[α] = ${sg(aStd(S))} / (${S.std.tube} × 0.10)`, `[α] = ${sg(aStd(S))} / (${S.std.tube} × 0.10)`),
+    { id: 'spec', label: L('Удельное вращение [α]', 'Меншікті айналу [α]', 'Specific rotation [α]'), unit: '°', decimals: 1, tol: 0.01, answer: (S) => specificRotation(aStd(S), lS(S), STD_C),
+      formula: (S) => L(`[α] = ${sg(aStd(S))} / (${lS(S)} × 0.10)`, `[α] = ${sg(aStd(S))} / (${lS(S)} × 0.10)`, `[α] = ${sg(aStd(S))} / (${lS(S)} × 0.10)`),
       hint1: L('l — длина трубки в дециметрах, c — в г/мл.', 'l — түтік ұзындығы дециметрмен, c — г/мл-мен.', 'l is the tube length in decimetres, c is in g/mL.') },
   ],
   saveAs: 'calcStd',
@@ -103,8 +105,8 @@ const s5 = {
     { id: 'high', label: L('Заметно больше +66,5°: неверно учтён нуль или мешал пузырёк', '+66,5°-тан айтарлықтай көп: нөл дұрыс ескерілмеген немесе көпіршік кедергі келтірген', 'Clearly above +66.5°: the zero was handled wrongly or a bubble interfered') },
     { id: 'neg', label: L('Знак отрицательный: сахароза левовращающая', 'Таңбасы теріс: сахароза солға айналдырады', 'The sign is negative: sucrose is laevorotatory') },
   ],
-  correct: (S) => { const s = specificRotation(aStd(S), S.std.tube, STD_C), d = (s - SUCROSE_LIT) / SUCROSE_LIT; return Math.abs(d) <= 0.03 ? 'ok' : d < 0 ? 'low' : 'high'; },
-  why: (S) => L(`Найдено ${sg(specificRotation(aStd(S), S.std.tube, STD_C), 1)}° при лит. +66,5°.`, `Табылғаны ${sg(specificRotation(aStd(S), S.std.tube, STD_C), 1)}°, әдеб. +66,5°.`, `Found ${sg(specificRotation(aStd(S), S.std.tube, STD_C), 1)}° vs lit. +66.5°.`),
+  correct: (S) => { const s = specificRotation(aStd(S), lS(S), STD_C), d = (s - SUCROSE_LIT) / SUCROSE_LIT; return Math.abs(d) <= 0.03 ? 'ok' : d < 0 ? 'low' : 'high'; },
+  why: (S) => L(`Найдено ${sg(specificRotation(aStd(S), lS(S), STD_C), 1)}° при лит. +66,5°.`, `Табылғаны ${sg(specificRotation(aStd(S), lS(S), STD_C), 1)}°, әдеб. +66,5°.`, `Found ${sg(specificRotation(aStd(S), lS(S), STD_C), 1)}° vs lit. +66.5°.`),
   scene: () => polBench(),
 };
 
@@ -134,9 +136,9 @@ const s7 = {
   need: L('Рассчитайте концентрацию', 'Концентрацияны есептеңіз', 'Calculate the concentration'),
   fields: [
     { id: 'a', label: L('Угол вращения α (исправленный)', 'Айналу бұрышы α (түзетілген)', 'Angle of rotation α (corrected)'), unit: '°', decimals: 2, tol: 0.01, answer: aUnk,
-      formula: (S) => L(`α = ${sg(S.unk.mean)} − (${sg(zeroOf(S))})`, `α = ${sg(S.unk.mean)} − (${sg(zeroOf(S))})`, `α = ${sg(S.unk.mean)} − (${sg(zeroOf(S))})`) },
-    { id: 'c', label: L('Концентрация c', 'Концентрация c', 'Concentration c'), unit: L('г/мл', 'г/мл', 'g/mL'), decimals: 4, tol: 0.01, answer: (S) => concentration(aUnk(S), SUCROSE_LIT, S.unk.tube),
-      formula: (S) => L(`c = ${sg(aUnk(S))} / (66.5 × ${S.unk.tube})`, `c = ${sg(aUnk(S))} / (66.5 × ${S.unk.tube})`, `c = ${sg(aUnk(S))} / (66.5 × ${S.unk.tube})`) },
+      formula: (S) => L(`α = ${sg(mU(S))} − (${sg(zeroOf(S))})`, `α = ${sg(mU(S))} − (${sg(zeroOf(S))})`, `α = ${sg(mU(S))} − (${sg(zeroOf(S))})`) },
+    { id: 'c', label: L('Концентрация c', 'Концентрация c', 'Concentration c'), unit: L('г/мл', 'г/мл', 'g/mL'), decimals: 4, tol: 0.01, answer: (S) => concentration(aUnk(S), SUCROSE_LIT, lU(S)),
+      formula: (S) => L(`c = ${sg(aUnk(S))} / (66.5 × ${lU(S)})`, `c = ${sg(aUnk(S))} / (66.5 × ${lU(S)})`, `c = ${sg(aUnk(S))} / (66.5 × ${lU(S)})`) },
   ],
   saveAs: 'calcUnk',
 };
@@ -177,12 +179,12 @@ export default {
   steps: [s0, s1, s2, s3, s4, s5, s6, s7, s8],
   results(S) {
     const a1 = aStd(S), a2 = aUnk(S);
-    const spec = S.std ? specificRotation(a1, S.std.tube, STD_C) : null;
+    const spec = S.std ? specificRotation(a1, lS(S), STD_C) : null;
     return {
       zero: S.zero ? S.zero.mean : 0, zeroTrue: S.pol.zero,
       std: S.std, unk: S.unk, aStd: a1, aUnk: a2, spec,
-      cUnk: S.unk ? concentration(a2, SUCROSE_LIT, S.unk.tube) : null, cTrue: S.cU,
-      lStd: S.std ? S.std.tube : 2, lUnk: S.unk ? S.unk.tube : 2,
+      cUnk: S.unk ? concentration(a2, SUCROSE_LIT, lU(S)) : null, cTrue: S.cU,
+      lStd: S.std ? lS(S) : 2, lUnk: S.unk ? lU(S) : 2,
     };
   },
   summary: (r) => [
