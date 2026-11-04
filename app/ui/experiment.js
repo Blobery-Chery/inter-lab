@@ -10,6 +10,7 @@ import { typesFor } from '../steps/index.js';
 import { btn } from './controls.js';
 import { criticalDialog, eventDialog, confirmDialog, toast, isOpen } from './modal.js';
 import { HINT_POINTS } from '../grading.js';
+import { benchScene } from '../scene/bench.js';
 
 export async function experimentPage(root, env, lab, exp) {
   const { api, mode } = env;
@@ -79,6 +80,7 @@ export async function experimentPage(root, env, lab, exp) {
   });
 
   let ctx = null;
+  let lastSvg = '';
   function makeCtx() {
     const step = runner.step, local = runner.local();
     return {
@@ -122,6 +124,15 @@ export async function experimentPage(root, env, lab, exp) {
     const step = runner.step, type = runner.type;
     let svg = '';
     try { svg = step.scene ? step.scene(run.state, ctx.local, ctx) : type && type.scene ? type.scene(step, ctx) : ''; } catch (e) { console.error(e); }
+    if (svg) lastSvg = svg;
+    // Шаг без своей сцены (вопрос, расчёт, вывод, уборка): стенд не пропадает —
+    // остаётся последняя установка, а после перезагрузки — рабочее место с тем, что взято в начале опыта.
+    if (!svg) svg = lastSvg;
+    for (let i = runner.stepIndex - 1; !svg && i >= 0; i--) {
+      const ps = exp.steps[i];
+      if (ps && ps.scene) { try { svg = ps.scene(run.state, {}, ctx) || ''; } catch (e) { svg = ''; } }
+    }
+    if (!svg && run.state.bench && run.state.bench.length) svg = benchScene(run.state.bench);
     if (!svg) { sceneBox.innerHTML = ''; return; }
     morph(sceneBox, svg);
   }

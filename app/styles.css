@@ -148,6 +148,10 @@ textarea{min-height:120px;resize:vertical}
 .tile .ico{width:36px;height:36px;flex:none}.tile .ico svg{width:100%;height:100%}
 .tile.on{border-color:var(--accent);background:var(--accent-soft)}
 .tile.on::after{content:"✓";margin-left:auto;color:var(--accent);font-weight:700}
+.tile{position:relative}.tile.on::after{position:absolute;top:3px;right:6px;margin:0;font-size:12px}.tile>span:not(.ico){min-width:0;hyphens:auto;overflow-wrap:break-word}@media (max-width:880px){.tile{gap:6px;padding:8px 14px 8px 8px}.tile .ico{width:30px;height:30px}}
+/* шаг pick на телефоне: стенд выше экрана, поэтому взятое показывается полоской прямо над полкой */
+.pick-mini{display:none}
+@media (max-width:880px){.pick-mini{display:flex;align-items:flex-end;gap:4px;min-height:52px;margin-bottom:8px;padding:6px 8px;border:1px dashed var(--line);border-radius:10px;background:var(--scene);overflow-x:auto}.pick-mini svg{width:40px;height:40px;flex:none}.pick-mini span{font-size:13px;color:var(--muted);align-self:center}}
 .tile.used{opacity:.55}
 .order{list-style:none;margin:0;padding:0;display:grid;gap:6px;width:100%}
 .order li{display:flex;align-items:center;gap:6px;padding:4px 6px 4px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}

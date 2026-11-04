@@ -8,6 +8,7 @@ import { h } from '../dom.js';
 import { tr, L } from '../i18n.js';
 import { btn, row } from '../ui/controls.js';
 import { EQUIPMENT, equipmentIcon } from '../equipment.js';
+import { benchScene } from '../scene/bench.js';
 
 function item(x) {
   if (typeof x === 'string') {
@@ -30,6 +31,13 @@ export default {
     const wrap = h('div', { class: 'wfull' });
     const shelf = h('div', { class: 'shelf', role: 'group', 'aria-label': tr(L('Полка', 'Сөре', 'Shelf')) });
     const count = () => ctx.readouts([{ label: L('Выбрано', 'Таңдалды', 'Selected'), value: String(Object.values(local.sel).filter(Boolean).length) }]);
+    // На телефоне стенд выше экрана — взятое видно в полоске над полкой.
+    const mini = h('div', { class: 'pick-mini', 'aria-hidden': 'true' });
+    const drawMini = () => {
+      const ids = local.order.filter((id) => local.sel[id]);
+      mini.innerHTML = ids.length ? ids.map((id) => byId[id].icon || '').join('') : `<span>${tr(L('Стол пока пуст', 'Үстел әзірге бос', 'The bench is empty'))}</span>`;
+    };
+    drawMini();
     for (const id of local.order) {
       const it = byId[id];
       const b = h('button', { class: 'tile' + (local.sel[id] ? ' on' : ''), type: 'button', 'aria-pressed': String(!!local.sel[id]) },
@@ -40,7 +48,9 @@ export default {
         b.classList.toggle('on', local.sel[id]);
         b.setAttribute('aria-pressed', String(local.sel[id]));
         count();
+        drawMini();
         ctx.save();
+        ctx.update();
       };
       shelf.append(b);
     }
@@ -52,6 +62,7 @@ export default {
       ctx.advance(60);
       if (!missing.length && !extra.length) {
         ctx.log({ ru: 'На рабочее место взято: ' + step.take.map((id) => tr(byId[id].label, 'ru')).join(', '), kk: 'Жұмыс орнына алынды: ' + step.take.map((id) => tr(byId[id].label, 'kk')).join(', '), en: 'Taken to the bench: ' + step.take.map((id) => tr(byId[id].label, 'en')).join(', ') });
+        ctx.state.bench = step.shelf.filter((x) => step.take.includes(typeof x === 'string' ? x : x.id));
         ctx.solve(L('Всё нужное на месте, лишнего нет.', 'Қажеттің бәрі орнында, артығы жоқ.', 'Everything needed is here and nothing extra.'));
         ctx.rerender();
         return;
@@ -66,9 +77,20 @@ export default {
       ctx.feedback({ ru: parts.map((p) => tr(p, 'ru')).join(' '), kk: parts.map((p) => tr(p, 'kk')).join(' '), en: parts.map((p) => tr(p, 'en')).join(' ') }, 'warn');
     }, 'pri');
     if (ctx.solved()) checkB.disabled = true;
-    wrap.append(shelf, row(checkB));
+    wrap.append(mini, shelf, row(checkB));
     setTimeout(count);
     return wrap;
+  },
+  /** Стенд: выбранные предметы появляются на рабочем столе по мере выбора. */
+  scene(step, ctx) {
+    const sel = ctx.local.sel || {};
+    const order = ctx.local.order || step.shelf.map((x) => (typeof x === 'string' ? x : x.id));
+    const byId = Object.fromEntries(step.shelf.map((x) => [typeof x === 'string' ? x : x.id, x]));
+    const items = order.filter((id) => sel[id]).map((id) => byId[id]);
+    return benchScene(items, {
+      caption: ctx.solved() ? L('Рабочее место готово', 'Жұмыс орны дайын', 'The bench is ready') : L('Рабочее место', 'Жұмыс орны', 'Workbench'),
+      empty: L('Выберите предметы на полке — они появятся на столе', 'Сөреден заттарды таңдаңыз — олар үстелде пайда болады', 'Pick items from the shelf — they will appear on the bench'),
+    });
   },
   hints(step, ctx) {
     const sel = ctx.local.sel || {};
