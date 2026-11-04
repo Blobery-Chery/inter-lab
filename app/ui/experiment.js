@@ -237,7 +237,9 @@ export async function experimentPage(root, env, lab, exp) {
 
   drawStages();
   mount();
+  // для автоматической проверки (tests/e2e): текущий раннер и ctx шага; студенту не мешает
+  window.__vlab = { runner, lab, exp, run: () => run, ctx: () => ctx, types };
 
-  function destroy() { destroyStep(); mounted = false; save(); window.removeEventListener('pagehide', save); document.body.classList.remove('has-bar'); }
+  function destroy() { destroyStep(); mounted = false; if (window.__vlab && window.__vlab.runner === runner) window.__vlab = null; save(); window.removeEventListener('pagehide', save); document.body.classList.remove('has-bar'); }
   return { destroy };
 }

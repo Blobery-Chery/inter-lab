@@ -1,37 +1,4 @@
-/* Виртуальная лаборатория — токены, светлая и тёмная тема, раскладка, печать.
-   Дизайн — по эталону reference/lab06-07-m-nitrobenzoic-acid.html: бумага в клетку, Golos Text / Unbounded / JetBrains Mono.
-   Unbounded и JetBrains Mono не содержат казахских букв (ә ғ қ ң ұ һ…) — для kk заголовки Geologica, моноширинный IBM Plex Mono. */
-:root{
-  --paper:#edf1f3; --grid:rgba(31,79,209,.07); --panel:#fbfcfd; --scene:#f5f8fa; --ink:#15222b; --muted:#56656f; --line:#cbd5db;
-  --accent:#1f4fd1; --accent-soft:#e1e8fd; --accent-ink:#ffffff;
-  --warn:#9a5a00; --warn-soft:#fff0d3; --bad:#c0352c; --bad-soft:#fde4e1; --good:#1b7a49; --good-soft:#ddf3e6;
-  --glass:#6f8a9b; --glass-fill:rgba(185,215,232,.28); --liquid:rgba(160,198,222,.55); --liq-y:rgba(236,212,110,.6); --melt:rgba(250,232,160,.8);
-  --ice:#f3fbff; --ice-edge:#a9cfe3; --bench:#c9d2d8; --metal:#9aa7b0; --metal-dark:#5f6c75; --screen:#1d2b22; --screen-ink:#7dff9e;
-  --solid:#fdfdf8; --solid-y:#f4eec9; --hot:#ff6a2b; --nox:#b8661f;
-  --f-display:"Unbounded",system-ui,sans-serif; --f-body:"Golos Text",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
-  --bar-h:0px;
-  color-scheme:light;
-}
-:root[lang="kk"]{--f-display:"Geologica","Golos Text",system-ui,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --paper:#0e1519; --grid:rgba(126,162,255,.06); --panel:#151f25; --scene:#111a20; --ink:#e2eaef; --muted:#93a3ad; --line:#2a3a44;
-  --accent:#86a6ff; --accent-soft:#1c2a4a; --accent-ink:#0b1430;
-  --warn:#f2aa45; --warn-soft:#38270c; --bad:#ff7a70; --bad-soft:#3b1714; --good:#5bd393; --good-soft:#112d1e;
-  --glass:#8fb0c3; --glass-fill:rgba(120,170,200,.12); --liquid:rgba(130,175,210,.35); --liq-y:rgba(220,190,90,.4); --melt:rgba(230,210,140,.6);
-  --ice:#2c4352; --ice-edge:#5d8aa3; --bench:#24323b; --metal:#4d5b64; --metal-dark:#8d9aa3; --screen:#0b130e; --screen-ink:#6cf08f;
-  --solid:#e9ece4; --solid-y:#e4dcae; --hot:#ff7d45; --nox:#e08a42; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --paper:#0e1519; --grid:rgba(126,162,255,.06); --panel:#151f25; --scene:#111a20; --ink:#e2eaef; --muted:#93a3ad; --line:#2a3a44;
-  --accent:#86a6ff; --accent-soft:#1c2a4a; --accent-ink:#0b1430;
-  --warn:#f2aa45; --warn-soft:#38270c; --bad:#ff7a70; --bad-soft:#3b1714; --good:#5bd393; --good-soft:#112d1e;
-  --glass:#8fb0c3; --glass-fill:rgba(120,170,200,.12); --liquid:rgba(130,175,210,.35); --liq-y:rgba(220,190,90,.4); --melt:rgba(230,210,140,.6);
-  --ice:#2c4352; --ice-edge:#5d8aa3; --bench:#24323b; --metal:#4d5b64; --metal-dark:#8d9aa3; --screen:#0b130e; --screen-ink:#6cf08f;
-  --solid:#e9ece4; --solid-y:#e4dcae; --hot:#ff7d45; --nox:#e08a42; color-scheme:dark}
-
-[hidden]{display:none!important}
-*{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;background-color:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:18px 18px;color:var(--ink);font:15px/1.5 var(--f-body);min-height:100vh;overflow-x:hidden}
+/* Виртуальная лаборатория — раскладка, компоненты, печать. Токены и темы — app/tokens.css. */
 a{color:var(--accent)}
 .wrap{max-width:1180px;margin:0 auto;padding:12px 16px calc(40px + var(--bar-h) + env(safe-area-inset-bottom,0px))}
 .skip{position:absolute;left:-999px;top:0;background:var(--panel);padding:8px;z-index:20}.skip:focus{left:8px}
