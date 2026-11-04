@@ -6,6 +6,7 @@
 import { CONFIG } from '../config.js';
 import apiBase from './api.js';
 import { withPreview } from './preview.js';
+import { withFastApi } from './fastapi.js';
 import { h, esc } from './dom.js';
 import { t, tr, getLang, setLang, onLang, LANGS, LANG_LABEL, labName } from './i18n.js';
 import * as store from './store.js';
@@ -18,7 +19,13 @@ import { close as closeModal } from './ui/modal.js';
 
 const params = new URLSearchParams(location.search);
 const mode = params.get('mode') === 'exam' ? 'exam' : 'train';
-const api = withPreview(apiBase, params.get('preview'));
+const previewMode = params.get('preview');
+// Быстрый слой (app/fastapi.js): кэш статусов и мгновенный доступ/настройки; в режиме ?preview= — без него.
+const api = previewMode ? withPreview(apiBase, previewMode) : withFastApi(apiBase, { onChange: (what, data) => {
+  if (what === 'settings' && data) settings = data;
+  const r = parse();
+  if (r.name === 'home' || r.name === 'lab') render();
+} });
 const app = document.getElementById('app');
 
 store.migrate();

@@ -46,14 +46,26 @@ export async function homePage(root, env) {
   root.append(prof);
   const grid = h('div', { class: 'cards' });
   root.append(h('section', { class: 'section' }, h('h2', null, t('labsTitle')), grid));
+  // Карточки рисуются сразу по последнему известному статусу (без ожидания сервера),
+  // затем статусы уточняются у сервера — все работы параллельно.
+  const quick = api.cachedStatus ? { ...env, api: { ...api, getStatus: async (id) => api.cachedStatus(id) } } : null;
+  const live = [];
   for (const entry of [...LABS].sort((a, b) => a.order - b.order)) {
     const lab = env.labs.get(entry.id);
-    const st = await labStatus(entry, lab, env);
+    const st = await labStatus(entry, lab, quick || env);
     const acc = (lab && lab.accent) || entry.accent;
-    grid.append(h('a', { class: 'card labcard' + (st.key === 'draft' ? ' draft' : ''), href: `#/lab/${entry.number}`, style: `--lab-accent:${env.dark ? acc.dark : acc.light}` },
+    const badge = h('span', { class: 'badge ' + st.cls }, st.text);
+    const card = h('a', { class: 'card labcard' + (st.key === 'draft' ? ' draft' : ''), href: `#/lab/${entry.number}`, style: `--lab-accent:${env.dark ? acc.dark : acc.light}` },
       h('span', { class: 'num' }, labName({ id: entry.id, display: entry.display })),
       h('span', { class: 't' }, tr((lab && lab.title) || entry.title)),
-      h('span', { class: 'badge ' + st.cls }, st.text)));
+      badge);
+    grid.append(card);
+    if (quick && st.key !== 'draft') {
+      live.push(labStatus(entry, lab, env).then((s2) => {
+        badge.className = 'badge ' + s2.cls; badge.textContent = s2.text;
+        card.classList.toggle('draft', s2.key === 'draft');
+      }).catch(() => {}));
+    }
   }
   root.append(h('section', { class: 'section card' }, h('h2', null, t('settingsTitle')),
     h('div', { class: 'row' }, btn(t('resetProgress'), async () => {

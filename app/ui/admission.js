@@ -34,7 +34,7 @@ export async function admissionPage(root, env, entry, lab) {
   async function show() {
     main.innerHTML = '';
     let status = null;
-    try { status = await api.getStatus(entry.id); } catch (e) { status = null; }
+    try { status = await (api.refreshStatus ? api.refreshStatus(entry.id) : api.getStatus(entry.id)); } catch (e) { status = null; }
     const A = progress.admission;
     if (A && A.checked && !A.submitted) return showTest();
     if (status) {
@@ -111,7 +111,7 @@ export async function admissionPage(root, env, entry, lab) {
         h('div', { class: 'row' }, h('a', { class: 'b pri', href: after ? `#/lab/${entry.number}/report` : back }, (after ? t('report') : t('toExperiments')) + ' →')));
     } else if (st.status === 'pending') {
       box.append(h('p', { class: 'fb info' }, t('waitDecision')), h('div', { class: 'row' }, btn(t('checkNow'), () => show())));
-      timer = setInterval(async () => { const s = await api.getStatus(entry.id); if (s && s.status !== 'pending') { clearInterval(timer); timer = null; show(); } }, 30000);
+      timer = setInterval(async () => { const s = await (api.refreshStatus ? api.refreshStatus(entry.id) : api.getStatus(entry.id)); if (s && s.status !== 'pending') { clearInterval(timer); timer = null; show(); } }, 30000);
     } else {
       box.append(h('p', { class: 'fb bad' }, t('admDenied')), st.comment ? h('p', null, h('b', null, t('teacherComment') + ': '), st.comment) : h('p', null, t('admDeniedAuto', { p: pass })),
         h('div', { class: 'row' }, btn(t('admRetake'), () => { newSession(); progress.admission.retake = true; save(); main.innerHTML = ''; showTest(); }, 'pri')));

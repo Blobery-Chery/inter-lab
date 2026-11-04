@@ -16,6 +16,8 @@ export async function labStatus(entry, lab, env) {
   const set = ((env.settings || {}).labs || {})[entry.id] || {};
   if (set.open === false) return { key: 'closed', cls: 'bad', text: t('stClosed') };
   let waived = false;
+  const admP = env.api.getStatus(entry.id); // параллельно со статусом инструктажа
+  admP.catch(() => {});
   for (const req of (lab && lab.requires) || entry.requires || []) {
     const rl = env.labs.get(req);
     if (!rl || rl.status !== 'ready') { waived = true; continue; }
@@ -23,7 +25,7 @@ export async function labStatus(entry, lab, env) {
     if (!rs || rs.status !== 'approved') return { key: 'briefing', cls: 'warn', text: t('stBriefing') };
   }
   const progress = store.loadLab(entry.id);
-  const adm = await env.api.getStatus(entry.id);
+  const adm = await admP;
   if (progress.report && progress.report.sentAt && adm && adm.status === 'approved') return { key: 'done', cls: 'ok', text: t('stDone', { g: progress.report.grade }), waived, adm };
   if (lab && lab.admissionAfterExperiments && (!adm || adm.status !== 'approved')) {
     // вводное занятие: этапы открыты без допуска, итоговый тест — после всех обязательных этапов
