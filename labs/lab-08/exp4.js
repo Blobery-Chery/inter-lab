@@ -8,7 +8,7 @@ const CRIT_STOP = L(
   'A tightly stoppered tube was put into the boiling bath: vapour of ester, butanol and water built up pressure, the stopper blew out and hot 2 M alkali splashed out. In a real lab this means a chemical burn to the skin or eyes: rinse under running water for at least 15 minutes (rule 6.3) and tell the instructor. Only open tubes are heated, mouth pointed away from people. The experiment is repeated with a fresh portion of ester.');
 
 /*
- * Подсказка 3 — готовое решение с названиями кнопок дословно (SCHEMA.md). «Встряхнуть» добавляется раз в минуту нагрева,
+ * Подсказка 3 — готовое решение с названиями кнопок дословно (SCHEMA.md). «Встряхнуть» добавляется раз в минуту нагрева (считаются только нажатия кнопки, не встряхивание в событии),
  * «Вынуть» — когда слой эфира исчез и прошло 10 мин. cur — последнее состояние шага (обновляется при отрисовке показаний).
  */
 let cur = null;
@@ -22,7 +22,7 @@ const SB = {
 function saponH3() {
   const P = cur && cur.S.sap, bathOn = !!(cur && cur.lc.c && cur.lc.c.bath);
   const ready = P && P.h > 0.9 && P.t >= 600;
-  const k = (P ? P.shakes || 0 : 0) + (P && bathOn && !P.out && !ready && (P.tNow || 0) - P.lastShake >= 60 ? 1 : 0);
+  const k = (P ? P.btnShakes || 0 : 0) + (P && bathOn && !P.out && !ready && (P.tNow || 0) - P.lastShake >= 60 ? 1 : 0);
   const items = [SB.load, SB.bath, ...Array(k).fill(SB.shake)];
   if (ready || (P && P.out)) items.push(SB.out, SB.waft);
   const tail = ready || (P && P.out) ? null : { ru: '→ встряхивайте каждую минуту нагрева (ускорьте ход времени); когда слой эфира исчезнет и пройдёт 10–15 мин, выньте пробирку и определите запах ладонью.', kk: '→ қыздырудың әр минутында шайқаңыз (уақытты жылдамдатыңыз); эфир қабаты жоғалып, 10–15 мин өткенде пробирканы алып, иісін алақанмен анықтаңыз.', en: '→ shake every minute of heating (speed up time); when the ester layer has gone and 10–15 min have passed, take the tube out and smell it by wafting.' };
@@ -47,7 +47,7 @@ const s1 = {
       when: (S) => S.sap.loaded && !S.sap.out, whenText: L('Сначала внесите в пробирку эфир и щёлочь.', 'Алдымен пробиркаға эфир мен сілті салыңыз.', 'Put the ester and alkali into the tube first.'),
       onChange(S, lc, on, ctx) { if (on) ctx.log(L('Пробирка помещена в кипящую водяную баню', 'Пробирка қайнаған су моншасына қойылды', 'Tube placed in the boiling water bath')); } },
     { kind: 'action', id: 'shake', once: false, group: L('Баня', 'Монша', 'Bath'), label: L('Встряхнуть пробирку', 'Пробирканы шайқау', 'Shake the tube'), advance: 10, disabled: (S) => !S.sap.loaded || S.sap.out,
-      do(S, lc, ctx) { S.sap.mixed = true; S.sap.lastShake = ctx.now(); S.sap.shakes = (S.sap.shakes || 0) + 1; } },
+      do(S, lc, ctx) { S.sap.mixed = true; S.sap.lastShake = ctx.now(); S.sap.shakes = (S.sap.shakes || 0) + 1; S.sap.btnShakes = (S.sap.btnShakes || 0) + 1; } },
     { kind: 'action', id: 'out', cls: 'pri', group: L('Завершение', 'Аяқтау', 'Finishing'), label: L('Вынуть пробирку из бани, охладить', 'Пробирканы моншадан алып, суыту', 'Take the tube out of the bath and cool it'), disabled: (S) => S.sap.out || S.sap.t < 60,
       do(S, lc, ctx) {
         const P = S.sap; P.out = true; lc.c.bath = false; P.mixed = false; ctx.advance(120);

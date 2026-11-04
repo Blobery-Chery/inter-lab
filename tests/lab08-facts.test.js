@@ -87,3 +87,14 @@ test('подсказка 3 шагов-процессов цитирует кно
   }
   assert.ok(checked > 20);
 });
+
+test('работа 8: шаги после кипячения не падают, если кипячение закрыто без расчёта', async () => {
+  const { ensureOrg } = await import('../labs/lab-08/model.js');
+  const S = { vAlc: 9.2, vAcid: 11.5, cat: 0.5, char: false, org: null, ledger: null, reflux: null };
+  ensureOrg(S, 'n');
+  assert.ok(S.org && S.ledger, 'состояние восстановлено');
+  for (const k of ['ester', 'alc', 'acid', 'water', 'heavy', 'h2so4']) assert.ok(Number.isFinite(S.org[k]), k);
+  const before = S.org;
+  ensureOrg(S, 'n');
+  assert.equal(S.org, before, 'существующее состояние не перезаписывается');
+});

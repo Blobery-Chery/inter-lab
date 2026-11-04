@@ -6,7 +6,7 @@ import { L, tr, n } from '../../app/i18n.js';
 import { relax } from '../../app/instruments/thermal.js';
 import {
   ALC, M, afterReflux, molAlc, theoretical, percentYield, orgVolume, liquidMass, vapourT, thermoShown, distRate,
-  distil, addTo, purity, lossBreakdown,
+  distil, addTo, purity, lossBreakdown, ensureOrg,
 } from './model.js';
 import { hoodScene, flaskRight, chargeScene, refluxApparatus, refluxScene, funnelScene, dryScene, distApparatus, distScene, thermoReadScene } from './scene.js';
 
@@ -361,7 +361,7 @@ export function makeSynthesis(kind, opts = {}) {
       '<ol><li>Эфирді <b>1–2 г сусыз Na₂SO₄</b> үстінде <b>10–15 минут</b> бойы, анда-санда шайқай отырып, сұйық мөлдір болғанша кептіріңіз.</li><li>Кептірілген сұйықты тұнбадан құрғақ айдау колбасына декантациялаңыз (ағызыңыз).</li></ol><p class="note">Кептіргіш кесектерге жабысып тұрса, су әлі көп; құрғақ кептіргіш үгілгіш болып қалады.</p>',
       '<ol><li>Dry the ester over <b>1–2 g of anhydrous Na₂SO₄</b> for <b>10–15 minutes</b>, swirling occasionally, until the liquid is clear.</li><li>Decant the dried liquid off the solid into a dry distillation flask.</li></ol><p class="note">While the drying agent clumps there is still a lot of water; dry drying agent stays free-flowing.</p>'),
     need: L('Высушите эфир и декантируйте', 'Эфирді кептіріп, декантациялаңыз', 'Dry the ester and decant it'),
-    setup(S, lc) { if (!S.dry || S.dry.w0 == null) S.dry = { g: 0, t: 0, bound: 0, w0: S.org.water, water: S.org.water, decanted: false, withSalt: false }; lc.vol = orgVolume(S.org); },
+    setup(S, lc) { ensureOrg(S, kind); if (!S.dry || S.dry.w0 == null) S.dry = { g: 0, t: 0, bound: 0, w0: S.org.water, water: S.org.water, decanted: false, withSalt: false }; lc.vol = orgVolume(S.org); },
     controls: [
       { kind: 'action', id: 'add', once: false, group: L('Осушитель', 'Кептіргіш', 'Drying agent'), label: L('Насыпать ≈ 0,5 г безводного Na₂SO₄', '≈ 0,5 г сусыз Na₂SO₄ салу', 'Add ≈ 0.5 g of anhydrous Na₂SO₄'), advance: 20, disabled: (S) => S.dry.decanted,
         do(S, lc, ctx) { S.dry.g = +(S.dry.g + 0.5).toFixed(1); ctx.log({ ru: `Добавлено 0,5 г безводного Na₂SO₄ (всего ${n(S.dry.g, 1)} г)`, kk: `0,5 г сусыз Na₂SO₄ қосылды (барлығы ${n(S.dry.g, 1)} г)`, en: `0.5 g of anhydrous Na₂SO₄ added (total ${n(S.dry.g, 1)} g)` }); } },
@@ -499,8 +499,9 @@ export function makeSynthesis(kind, opts = {}) {
     need: T3((l) => ({ ru: `Соберите фракцию ${lo}–${hi} °C`, kk: `${lo}–${hi} °C фракциясын жинаңыз`, en: `Collect the ${lo}–${hi} °C fraction` })[l]),
     setup(S, lc) {
       if (S.dist && S.dist.L) return;
+      ensureOrg(S, kind);
       const L0 = { water: S.org.water, alc: S.org.alc, acid: S.org.acid, ester: S.org.ester, heavy: S.org.heavy };
-      if (S.dry.withSalt) L0.water += S.dry.bound * 0.9;
+      if (S.dry && S.dry.withSalt) L0.water += S.dry.bound * 0.9;
       if (S.dapp.noFlask) L0.ester *= 0.97;
       S.dist = { L: L0, T: 22, Th: 22, fore: {}, main: {}, lo: null, hi: null, rec: S.dapp.recW ? 'main' : 'fore', boiling: false, started: false, stopped: false, water: false, flaskMass: liquidMass(L0), rate: 0, usedHigh: false, foreCloudy: false, cloudyNow: false, boilTime: 0, lostVap: 0, mainMass: 0, foreMass: 0, Tshow: 22 };
       lc.c.rec = S.dist.rec;
@@ -648,21 +649,24 @@ export function makeSynthesis(kind, opts = {}) {
     title: L('Взвешивание продукта', 'Өнімді өлшеу', 'Weighing the product'),
     instr: L('<p>Остудите приёмник с основной фракцией, закройте пробкой и взвесьте на тех же весах. Масса продукта — разность масс приёмника с продуктом и пустого.</p>', '<p>Негізгі фракциясы бар қабылдағышты суытып, тығынмен жабыңыз да, сол таразыда өлшеңіз. Өнім массасы — өнімі бар және бос қабылдағыш массаларының айырмасы.</p>', '<p>Cool the receiver with the main fraction, stopper it and weigh it on the same balance. The product mass is the difference between the receiver with product and the empty receiver.</p>'),
     need: L('Запишите массу приёмника с продуктом', 'Өнімі бар қабылдағыштың массасын жазыңыз', 'Record the mass of the receiver with the product'),
-    mass: (S) => S.recMass + S.dist.res.mass,
+    mass: (S) => (S.recMass || 0) + ((S.dist && S.dist.res && S.dist.res.mass) || 0),
     onRecord(S, m, ctx) {
       S.mProd = +(m - S.m0).toFixed(2);
       ctx.log({ ru: `Масса приёмника с продуктом ${n(m, 2)} г; масса ${tr(N.esterG, 'ru')} <b>${n(S.mProd, 2)} г</b>`, kk: `Өнімі бар қабылдағыш массасы ${n(m, 2)} г; ${tr(N.esterG, 'kk')} массасы <b>${n(S.mProd, 2)} г</b>`, en: `Receiver with product ${n(m, 2)} g; mass of ${tr(N.esterG, 'en')} <b>${n(S.mProd, 2)} g</b>` }, 'obs');
     },
   };
 
+  // Середина собранной фракции; если перегонка не была проведена (принудительный переход) — т. кип. по литературе.
+  const distTmid = (S) => (S.dist && S.dist.res ? S.dist.res.Tmid : C.bp);
+
   const sBp = {
     type: 'read', id: 'bp',
     title: L('Температура кипения фракции', 'Фракцияның қайнау температурасы', 'Boiling point of the fraction'),
     instr: L('<p>Во время отгонки основной фракции температура паров держалась почти постоянной. Снимите отсчёт термометра (цена деления 1 °C) и запишите его.</p>', '<p>Негізгі фракцияны айдау кезінде будың температурасы тұрақты дерлік болды. Термометр көрсеткішін (бөлік құны 1 °C) алып, жазыңыз.</p>', '<p>While the main fraction distilled, the vapour temperature stayed almost constant. Read the thermometer (1 °C divisions) and record it.</p>'),
     need: L('Запишите отсчёт термометра', 'Термометр көрсеткішін жазыңыз', 'Record the thermometer reading'),
-    value: (S) => S.dist.res.Tmid, div: 1, unit: '°C', decimals: 1, saveAs: 'bpRead',
+    value: (S) => distTmid(S), div: 1, unit: '°C', decimals: 1, saveAs: 'bpRead',
     label: L('Температура паров (основная фракция)', 'Будың температурасы (негізгі фракция)', 'Vapour temperature (main fraction)'),
-    scene: (S) => thermoReadScene(S.dist.res.Tmid),
+    scene: (S) => thermoReadScene(distTmid(S)),
   };
 
   const sCalc = {

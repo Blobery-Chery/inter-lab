@@ -10,7 +10,7 @@
 import { h } from '../../../app/dom.js';
 import { L, tr, n } from '../../../app/i18n.js';
 import { btn, row, group } from '../../../app/ui/controls.js';
-import { washWater, washBicarb, washBrine, orgVolume, acidMmol } from '../model.js';
+import { washWater, washBicarb, washBrine, orgVolume, acidMmol, ensureOrg } from '../model.js';
 import { funnelScene } from '../scene.js';
 
 const LIQ = {
@@ -68,6 +68,7 @@ export default {
   },
   render(step, ctx) {
     const { local: F, state: S } = ctx;
+    ensureOrg(S, step.kind);
     const wrap = h('div', { class: 'wfull' });
     const ml = (v) => ({ ru: n(v, 0) + ' мл', kk: n(v, 0) + ' мл', en: n(v, 0) + ' mL' });
     const done = !!F.prod;
