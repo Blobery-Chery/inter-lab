@@ -168,6 +168,7 @@ async function walkLab(browser, id) {
   await page.goto(BASE + '#/'); await sleep(300); await textIssues('home');
   out.status = await page.evaluate((lid) => [...document.querySelectorAll('.labcard')].map((c) => c.getAttribute('href') + ' ' + c.querySelector('.badge').textContent).find((x) => x.includes(lid.slice(4))), id);
   out.errors = [...new Set(errors)].slice(0, 20);
+  if (opt.save) await ctxB.storageState({ path: `${opt.save}/${id}-${MODE}.json` }); // localStorage готовой работы — для tests/e2e/demo.mjs
   await ctxB.close();
   return out;
 }

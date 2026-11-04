@@ -244,6 +244,49 @@ export async function act(mode) {
       if (!rh.length && local.added < step.add.total && M.n % 4 === 0) { click(step.add.label); return did('add-one'); }
       break;
     }
+    case 'lab00-spot': {
+      const T = V.types[step.type];
+      if (step.mode === 'locate') { const cur = local.order[local.k]; const el = document.querySelector(`.scenebox [data-l00="${bad && !M.wrong ? step.spots.find((x) => x.id !== cur).id : cur}"]`); M.wrong = 1; if (el) { el.dispatchEvent(new MouseEvent('click', { bubbles: true })); return did('spot'); } break; }
+      const tgt = step.spots.find((x) => x.bad && !local.found[x.id]);
+      const safe = step.spots.find((x) => !x.bad && !local.found['_ok_' + x.id]);
+      const id = bad && !M.wrong && safe ? safe.id : tgt && tgt.id;
+      M.wrong = 1;
+      const el = id && document.querySelector(`.scenebox [data-l00="${id}"]`);
+      if (el) { el.dispatchEvent(new MouseEvent('click', { bubbles: true })); return did('spot'); }
+      if (id) { T.hit(step, ctx, id); return did('spot-direct'); }
+      break;
+    }
+    case 'lab00-dress': {
+      const T = V.types[step.type];
+      for (const g of step.groups) {
+        if (T.isOk(g, local)) continue;
+        const o = bad && !M.wrong ? g.options.find((x) => !x.ok) : g.options.find((x) => x.ok);
+        M.wrong = 1;
+        if (click(o.label)) return did('dress');
+      }
+      break;
+    }
+    case 'lab00-catalog': {
+      const R0 = local.rounds[local.k];
+      if (!R0) break;
+      const { EQUIPMENT } = await import('/app/equipment.js');
+      const id = bad && !M.wrong ? R0.opts.find((x) => x !== R0.id) : R0.id;
+      M.wrong = 1;
+      const want = strip(EQUIPMENT[id].name);
+      const b = [...ctl.querySelectorAll('button.opt')].find((x) => norm(x.textContent) === want);
+      if (b) { b.click(); return did('catalog'); }
+      break;
+    }
+    case 'test': {
+      if (local.finished && step.observe) {
+        const right = step.observe.correct(S, local.tubes);
+        const ci = step.observe.options.findIndex((o) => o.id === right);
+        if (bad) M.wrong = 1;
+        answer(qblocks()[qblocks().length - 1], { options: step.observe.options.map((o) => o.label) }, ci, bad);
+        return did('test-observe');
+      }
+      break;
+    }
     case 'read': {
       if (!step.mode || step.mode === 'value') {
         const inp = ctl.querySelector('input');
@@ -277,12 +320,12 @@ export async function act(mode) {
     const q = quoted[M.hqi];
     if (/^Далее$/.test(q)) continue;
     const b = bs.find((x) => norm(x.textContent) === q) || bs.find((x) => norm(x.textContent).startsWith(q)) || bs.find((x) => q.length > 4 && norm(x.textContent).toLowerCase().includes(q.toLowerCase()));
-    if (b) { M.hqi++; b.click(); return { ...did('hint3-click'), label: q }; }
+    if (b) { M.hqi++; b.click(); return { ...did('hint3-click'), label: q, k: quoted[M.hqi] === q ? 'wait' : 'hint3-click', ms: 2500 }; }
     if (!M.hqw || M.hqw < 3) { M.hqw = (M.hqw || 0) + 1; return { k: 'idle', i: R.stepIndex, wait: q }; } // кнопка ещё недоступна — подождать
     M.hqw = 0;
   }
   // ничего из подсказки не подошло — подождать (процесс идёт во времени)
   M.idle = (M.idle || 0) + 1;
-  if (M.idle % 20 === 0) M.hqi = 0; // ещё раз пройтись по подсказке
+  if (M.idle % 40 === 0 && M.hqi >= quoted.length && !quoted.some((q, i) => quoted.indexOf(q) !== i)) M.hqi = 0; // ещё раз пройтись по подсказке (кроме порционных)
   return { k: 'idle', i: R.stepIndex, type: step.type, idle: M.idle, quoted, buttons: bs.map((b) => norm(b.textContent)).slice(0, 14) };
 }
