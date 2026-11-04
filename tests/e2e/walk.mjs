@@ -80,7 +80,7 @@ async function walkLab(browser, id) {
         await page.locator('fieldset.q').nth(k).locator('button.opt').nth(idx).click({ timeout: 5000 });
       }
       await textIssues('admission');
-      await page.locator('main button.pri', { hasText: /Проверить|Тексеру|Check/ }).first().click();
+      await page.locator('main button.pri', { hasText: /Проверить|[Тт]ексеру|Check/ }).first().click();
       await sleep(400);
     }
     const s = await page.evaluate(async (lid) => (await (await import('/app/api.js')).default.getStatus(lid)), id);
@@ -146,7 +146,7 @@ async function walkLab(browser, id) {
         await page.reload(); await page.waitForSelector('article.doc');
         const i = await page.evaluate(async (folder) => (await import(`/labs/${folder}/lab.js`)).default.report.assignment.findIndex((t) => t.kind === 'order'), id);
         const box = page.locator('.assign .q').nth(i);
-        await box.locator('button', { hasText: /Проверить|Тексеру|Check/ }).first().click();
+        await box.locator('button', { hasText: /Проверить|[Тт]ексеру|Check/ }).first().click();
       }
       await sleep(250);
     }
