@@ -541,9 +541,10 @@ const s15 = {
   instr: L('<p>Взвесьте продукт на часовом стекле: стекло → тарирование → продукт → закрыть дверцы → записать.</p>', '<p>Өнімді сағат шынысында өлшеңіз: шыны → тарировкалау → өнім → есікшелерді жабу → жазу.</p>', '<p>Weigh the product on a watch glass: glass → tare → product → close the doors → record.</p>'),
   need: L('Запишите массу продукта', 'Өнім массасын жазыңыз', 'Record the mass of the product'),
   reagent: L('продукт', 'өнім', 'product'), mode: 'transfer', container: 'watch', saveAs: 'mFin', product: 'var(--solid-y)',
-  mass: (S) => S.fin.m * (1 + S.water),
+  // S.fin нет, если шаг перекристаллизации пропущен принудительным переходом (бот): считаем по имеющимся данным
+  mass: (S) => { if (!S.fin && S.crude) makeFin(S); return S.fin ? S.fin.m * (1 + S.water) : 0; },
   onRecord(S, m, ctx) {
-    const white = S.fin.purity > 0.965 && S.water < 0.02;
+    const white = !!(S.fin && S.fin.purity > 0.965 && S.water < 0.02);
     ctx.log(white ? L(`Белые игольчатые кристаллы, масса <b>${g(m)} г</b>`, `Ақ ине тәрізді кристалдар, массасы <b>${g(m)} г</b>`, `White needle-like crystals, mass <b>${g(m)} g</b>`) : L(`Бледно-жёлтые кристаллы, масса <b>${g(m)} г</b>`, `Ақшыл сары кристалдар, массасы <b>${g(m)} г</b>`, `Pale yellow crystals, mass <b>${g(m)} g</b>`), 'obs');
   },
 };
