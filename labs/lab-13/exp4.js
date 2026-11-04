@@ -20,7 +20,7 @@ const nameA = L('Изомер A', 'A изомері', 'Isomer A'), nameB = L('И
 const nmr = (id, name, key) => ({
   type: 'lab13-spectrum', id, mode: 'nmr', name, saveAs: key,
   iso: (S) => S.cinn[key],
-  title: L(`Коричная кислота: изомер ${key}`, `Дарын қышқылы: ${key} изомері`, `Cinnamic acid: isomer ${key}`),
+  title: L(`Коричная кислота: изомер ${key}`, `Даршын қышқылы: ${key} изомері`, `Cinnamic acid: isomer ${key}`),
   instr: L('<ol><li>Перед вами фрагмент спектра ЯМР ¹H (400 МГц) одной из изомерных коричных кислот C₆H₅–CH=CH–COOH: сигналы двух винильных протонов — два дублета. Над пиками — их положения (м. д.).</li><li>Рассчитайте ³J(H,H) = Δδ × 400 (Гц) по расстоянию между линиями одного дублета.</li><li>Отнесите конфигурацию E или Z.</li></ol>',
     '<ol><li>Алдыңызда изомерлі дарын қышқылдарының C₆H₅–CH=CH–COOH біреуінің ¹H ЯМР спектрінің (400 МГц) үзіндісі: екі винил протонының сигналдары — екі дублет. Шыңдардың үстінде — олардың орындары (м. ү.).</li><li>Бір дублет сызықтарының арасындағы қашықтық бойынша ³J(H,H) = Δδ × 400 (Гц) есептеңіз.</li><li>E немесе Z конфигурациясын анықтаңыз.</li></ol>',
     '<ol><li>This is part of the ¹H NMR spectrum (400 MHz) of one of the isomeric cinnamic acids C₆H₅–CH=CH–COOH: the two vinyl protons give two doublets. Peak positions (ppm) are printed above the peaks.</li><li>Calculate ³J(H,H) = Δδ × 400 (Hz) from the spacing of the lines of one doublet.</li><li>Assign the configuration E or Z.</li></ol>'),
