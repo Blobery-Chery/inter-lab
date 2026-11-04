@@ -96,7 +96,7 @@ const s1 = {
     ],
     correct: (S, tb) => (tb.g.key === 'strong' && tb.e.key === 'strong' ? 'both' : tb.g.key === 'none' && tb.e.key === 'none' ? 'none' : 'weak'),
     why: (S, tb) => (tb.g.key === 'strong' && tb.e.key === 'strong'
-      ? L('Свободные α-аминогруппы глицина и белка (N-концевые остатки, ε-NH₂ лизина) при нагревании дают с нингидрином сине-фиолетовый пурпур Руэмана.', 'Глицин мен ақуыздың бос α-аминотоптары (N-соңғы қалдықтар, лизиннің ε-NH₂) қыздырғанда нингидринмен көкшіл-күлгін Руэман пурпурын береді.', 'The free α-amino groups of glycine and of the protein (N-terminal residues, ε-NH₂ of lysine) give blue-violet Ruhemann’s purple with ninhydrin on heating.')
+      ? L('Свободные аминогруппы глицина (α-NH₂) и белка (N-концевые α-NH₂, а также ε-NH₂ остатков лизина) при нагревании дают с нингидрином сине-фиолетовый пурпур Руэмана.', 'Глицин (α-NH₂) мен ақуыздың (N-соңғы α-NH₂, сондай-ақ лизин қалдықтарының ε-NH₂) бос аминотоптары қыздырғанда нингидринмен көкшіл-күлгін Руэман пурпурын береді.', 'The free amino groups of glycine (α-NH₂) and of the protein (N-terminal α-NH₂, and also ε-NH₂ of lysine residues) give blue-violet Ruhemann’s purple with ninhydrin on heating.')
       : L('Реакция идёт при нагревании: в не кипящей бане или с 1–2 каплями нингидрина окраска развивается слабо. Пробу нужно повторить.', 'Реакция қыздырғанда жүреді: қайнамаған моншада немесе 1–2 тамшы нингидринмен түс әлсіз дамиды. Сынаманы қайталау керек.', 'The reaction needs heat: in a bath that is not boiling, or with only 1–2 drops of ninhydrin, the colour develops weakly. The test should be repeated.')),
   },
   onDone(S, tb, ctx) {

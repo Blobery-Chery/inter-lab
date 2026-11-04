@@ -38,7 +38,7 @@ const s0 = {
         if (!t.v) { ctx.feedback(L('Сначала налейте исследуемый раствор.', 'Алдымен зерттелетін ерітіндіні құйыңыз.', 'Pour the test solution first.'), 'warn'); return; }
         if ((t.oh || 0) >= 1) { ctx.feedback(L('В эту пробирку щёлочь уже прилита.', 'Бұл пробиркаға сілті құйылып қойған.', 'Alkali has already been added to this tube.'), 'warn'); return; }
         t.oh = 1; t.v += 1; look(t);
-        if ((t.pb || 0) > 0) ctx.log(L('После прибавления щёлочи белый осадок растворился — образовался плюмбит натрия', 'Сілті қосқаннан кейін ақ тұнба еріді — натрий плюмбиті түзілді', 'On adding the alkali the white precipitate dissolved — sodium plumbite formed'), 'obs');
+        if ((t.pb || 0) > 0 && t.sub === 'egg') ctx.log(L('После прибавления щёлочи белый осадок растворился — образовался плюмбит натрия', 'Сілті қосқаннан кейін ақ тұнба еріді — натрий плюмбиті түзілді', 'On adding the alkali the white precipitate dissolved — sodium plumbite formed'), 'obs');
       } },
     { id: 'pb', group: G, label: L('Pb(CH₃COO)₂ 5 %: +1 кап.', 'Pb(CH₃COO)₂ 5 %: +1 тамшы', 'Pb(CH₃COO)₂ 5 %: +1 drop'), advance: 5,
       apply(t, S, ctx, id) {

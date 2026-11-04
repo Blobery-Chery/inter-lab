@@ -42,7 +42,7 @@ const s0 = {
   hints: [
     L('Порядок: сахар → щёлочь → немного CuSO₄. Cu(OH)₂ образуется в щелочной среде и растворяется полиолом.', 'Рет: қант → сілті → аздап CuSO₄. Cu(OH)₂ сілтілі ортада түзіледі және полиолда ериді.', 'Order: sugar → alkali → a little CuSO₄. Cu(OH)₂ forms in alkaline medium and is dissolved by the polyol.'),
     L('CuSO₄ — всего 3–5 капель: избыток Cu(OH)₂ сахар растворить не сможет.', 'CuSO₄ — небәрі 3–5 тамшы: Cu(OH)₂ артығын қант ерітуге қабілетсіз.', 'Only 3–5 drops of CuSO₄: the sugar cannot dissolve an excess of Cu(OH)₂.'),
-    L('«Внести по 1 мл» → «1 мл NaOH» → «+1 капля CuSO₄» четыре раза → «Встряхнуть».', '«1 мл-ден салу» → «1 мл NaOH» → «+1 тамшы CuSO₄» төрт рет → «Шайқау».', '“Add 1 mL” → “1 mL NaOH” → “+1 drop CuSO₄” four times → “Shake”.'),
+    L('«Внести по 1 мл» → «1 мл NaOH» → «+1 капля CuSO₄» четыре раза → «Встряхнуть».', '«Әрқайсысына 1 мл қант ерітіндісін салу» → «1 мл NaOH» → «+1 тамшы CuSO₄» төрт рет → «Шайқау».', '“Add 1 mL” → “1 mL NaOH” → “+1 drop CuSO₄” four times → “Shake”.'),
   ],
 };
 
@@ -56,7 +56,7 @@ const s1 = {
     cuso4: { severity: 'major', text: L('не прибавлена щёлочь: Cu(OH)₂ не образовался, проба на полиол не проведена', 'сілті қосылмаған: Cu(OH)₂ түзілмеді, полиолға сынама жүргізілмеді', 'no alkali added: Cu(OH)₂ did not form and the polyol test was not done'),
       whatif: L('Без NaOH в растворе остаётся только бледно-голубой CuSO₄: хелатного комплекса нет, и при нагревании медь(II) тоже не восстановится — все пробы выйдут «отрицательными».', 'NaOH болмаса, ерітіндіде тек ақшыл көгілдір CuSO₄ қалады: хелат кешені жоқ, қыздырғанда мыс(II) де тотықсызданбайды — барлық сынама «теріс» шығады.', 'Without NaOH only pale-blue CuSO₄ remains: there is no chelate, and on heating copper(II) will not be reduced either — every test will come out “negative”.') },
   },
-  why: (t, code) => (code === 'chelate' ? L('Вицинальные OH-группы сахара образуют с Cu(OH)₂ растворимый ярко-синий хелат — это проба на многоатомный спирт, поэтому её дают все сахара, и сахароза тоже.', 'Қанттың вициналь OH-топтары Cu(OH)₂-мен еритін ашық көк хелат түзеді — бұл көпатомды спиртке сынама, сондықтан оны барлық қант, сахароза да береді.', 'The vicinal OH groups of the sugar form a soluble deep-blue chelate with Cu(OH)₂ — a test for a polyol, so every sugar gives it, sucrose included.') : null),
+  why: (t, code) => (code === 'chelate' ? L('Вицинальные OH-группы сахара образуют с Cu(OH)₂ растворимый ярко-синий хелат — это проба на многоатомный спирт, поэтому её дают все сахара, и сахароза тоже.', 'Қанттың вициналь OH-топтары Cu(OH)₂-мен еритін қанық көк хелат түзеді — бұл көпатомды спиртке сынама, сондықтан оны барлық қант, сахароза да береді.', 'The vicinal OH groups of the sugar form a soluble deep-blue chelate with Cu(OH)₂ — a test for a polyol, so every sugar gives it, sucrose included.') : null),
 };
 
 const s2 = {
@@ -117,7 +117,7 @@ export default {
   id: '2',
   title: L('Проба Троммера', 'Троммер сынамасы', 'Trommer’s test'),
   principle: L('На холоду Cu(OH)₂ растворяется полиольной структурой сахара (хелат — проба на вицинальные диолы); при нагревании восстанавливающие сахара восстанавливают Cu(II) до Cu(I).', 'Суықта Cu(OH)₂ қанттың полиол құрылымымен ериді (хелат — вициналь диолдарға сынама); қыздырғанда тотықсыздандырғыш қанттар Cu(II)-ні Cu(I)-ге дейін тотықсыздандырады.', 'In the cold Cu(OH)₂ is dissolved by the polyol structure of the sugar (chelate — a test for vicinal diols); on heating reducing sugars reduce Cu(II) to Cu(I).'),
-  equation: ['CuSO₄ + 2NaOH → Cu(OH)₂↓ + Na₂SO₄', L('сахар (полиол) + Cu(OH)₂ → ярко-синий хелат меди(II)', 'қант (полиол) + Cu(OH)₂ → мыс(II)-тің ашық көк хелаты', 'sugar (polyol) + Cu(OH)₂ → deep-blue copper(II) chelate'), 'CH₂OH–(CHOH)₄–CHO + 2Cu(OH)₂ → CH₂OH–(CHOH)₄–COOH + Cu₂O↓ + 2H₂O'],
+  equation: ['CuSO₄ + 2NaOH → Cu(OH)₂↓ + Na₂SO₄', L('сахар (полиол) + Cu(OH)₂ → ярко-синий хелат меди(II)', 'қант (полиол) + Cu(OH)₂ → мыс(II)-тің қанық көк хелаты', 'sugar (polyol) + Cu(OH)₂ → deep-blue copper(II) chelate'), 'CH₂OH–(CHOH)₄–CHO + 2Cu(OH)₂ → CH₂OH–(CHOH)₄–COOH + Cu₂O↓ + 2H₂O'],
   initialState: (a) => baseState(a),
   checkpoints: [0, 2],
   steps: [s0, s1, s2, s3, s4],

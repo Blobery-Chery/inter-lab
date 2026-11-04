@@ -28,7 +28,7 @@ const s0 = {
       wrong: { severity: 'safety', text: L('попытка работать в контактных линзах без защитных очков (п. 3.2 правил ТБ)', 'қорғаныс көзілдірігінсіз контакт линзаларымен жұмыс істеу әрекеті (ҚТ ережелерінің 3.2-тармағы)', 'tried to work in contact lenses without goggles (safety rule 3.2)'),
         whatif: L('Пары HCl скапливаются под линзой, а капля концентрированной H₂SO₄ попадает прямо в глаз — тяжёлый химический ожог роговицы. Очки обязательны при любой работе с реактивами.', 'HCl булары линза астына жиналады, ал концентрлі H₂SO₄ тамшысы тікелей көзге түседі — қасаңқабықтың ауыр химиялық күйігі. Реактивтермен кез келген жұмыста көзілдірік міндетті.', 'HCl vapour collects under the lens and a drop of concentrated H₂SO₄ goes straight into the eye — a severe chemical burn of the cornea. Goggles are compulsory for any work with reagents.') } },
     { id: 'taste', label: L('Попробовать раствор сахара на вкус, чтобы не перепутать', 'Шатастырмау үшін қант ерітіндісінің дәмін тату', 'Taste the sugar solution to avoid mixing them up'),
-      wrong: { severity: 'safety', text: L('попытка попробовать реактив на вкус (п. 2.2 правил ТБ)', 'реактивтің дәмін татуға әрекет (ҚТ ережелерінің 2.2-тармағы)', 'tried to taste a reagent (safety rule 2.2)'),
+      wrong: { severity: 'safety', text: L('попытка попробовать реактив на вкус (п. 2.5 правил ТБ)', 'реактивтің дәмін татуға әрекет (ҚТ ережелерінің 2.5-тармағы)', 'tried to taste a reagent (safety rule 2.5)'),
         whatif: L('В лаборатории ничего не пробуют на вкус, даже «безобидный» сахар: склянки и пипетки загрязнены кислотами, щёлочами и солями меди и серебра. Растворы различают только по этикеткам.', 'Зертханада ештеңенің дәмін татпайды, тіпті «зиянсыз» қантты да: склянкалар мен пипеткалар қышқылдармен, сілтілермен, мыс пен күміс тұздарымен ластанған. Ерітінділерді тек жапсырмалары бойынша ажыратады.', 'Nothing is ever tasted in the laboratory, not even “harmless” sugar: bottles and pipettes are contaminated with acids, alkalis and copper and silver salts. Solutions are told apart only by their labels.') } },
   ],
 };
@@ -107,7 +107,7 @@ const s3 = {
   hints: [
     L('Порядок по методичке: раствор сахара → 2–3 капли α-нафтола → кислота по стенке наклонённой пробирки.', 'Әдістеме бойынша рет: қант ерітіндісі → 2–3 тамшы α-нафтол → еңкейтілген пробирканың қабырғасымен қышқыл.', 'The order in the manual: sugar solution → 2–3 drops of α-naphthol → acid down the wall of the tilted tube.'),
     L('Кольцо образуется только на границе двух слоёв; кислоту не вливают струёй и пробирки не встряхивают.', 'Сақина тек екі қабаттың шекарасында түзіледі; қышқылды ағынмен құймайды және пробиркаларды шайқамайды.', 'The ring forms only at the boundary between two layers; the acid is not poured in a stream and the tubes are not shaken.'),
-    L('Нажмите «Внести по 1 мл», затем «+1 капля» два-три раза, затем «1 мл по стенке» — и подождите ≈ полминуты.', '«1 мл-ден салу», содан кейін «+1 тамшы» екі-үш рет, содан кейін «қабырғамен 1 мл» басыңыз — шамамен жарты минут күтіңіз.', 'Tap “Add 1 mL”, then “+1 drop” two or three times, then “1 mL down the wall” — and wait about half a minute.'),
+    L('Нажмите «Внести по 1 мл», затем «+1 капля» два-три раза, затем «1 мл по стенке» — и подождите ≈ полминуты.', '«Әрқайсысына 1 мл қант ерітіндісін салу», содан кейін «+1 тамшы» екі-үш рет, содан кейін «қабырғамен 1 мл» басыңыз — шамамен жарты минут күтіңіз.', 'Tap “Add 1 mL”, then “+1 drop” two or three times, then “1 mL down the wall” — and wait about half a minute.'),
   ],
 };
 

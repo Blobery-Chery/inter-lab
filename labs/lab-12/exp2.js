@@ -344,7 +344,7 @@ const s11 = {
   speeds: null,
   setup(S, lc) { S.vNaOH = 0; S.vWater = 15; lc.water = false; lc.dissolved = false; lc.pH = null; lc.checkedAt = -1; S.lib = { free: 0 }; },
   controls: [
-    { kind: 'action', id: 'water', group: L('Раствор соли', 'Тұз ерітіндісі', 'Salt solution'), label: L('Растворить соль в 15 мл воды', 'Тұзды 15 мл суда ерітү', 'Dissolve the salt in 15 mL of water'), advance: 120,
+    { kind: 'action', id: 'water', group: L('Раствор соли', 'Тұз ерітіндісі', 'Salt solution'), label: L('Растворить соль в 15 мл воды', 'Тұзды 15 мл суда еріту', 'Dissolve the salt in 15 mL of water'), advance: 120,
       do(S, lc) { lc.water = true; lc.dissolved = true; }, obs: L('Соль растворилась в воде — прозрачный бесцветный раствор', 'Тұз суда еріді — мөлдір түссіз ерітінді', 'The salt dissolved in water — a clear colourless solution') },
     ...[[1, '+1'], [0.5, '+0,5']].map(([v, lab]) => ({ kind: 'action', id: 'naoh' + v, once: false, group: L('Щёлочь (NaOH 50 %)', 'Сілті (NaOH 50 %)', 'Alkali (NaOH 50 %)'), label: L(`NaOH ${lab} мл`, `NaOH ${lab} мл`, `NaOH ${lab.replace(',', '.')} mL`), advance: 30,
       do(S, lc, ctx) {
@@ -542,7 +542,7 @@ const s19 = {
   switches: [
     { id: 'bath', label: L('Выключить водяную баню', 'Су моншасын өшіру', 'Switch off the water bath') },
     { id: 'pump', label: L('Отсоединить шланг и закрыть воду насоса', 'Шлангты ажыратып, сорғы суын жабу', 'Disconnect the hose and turn off the aspirator') },
-    { id: 'ether', label: L('Закрыть склянку с эфиром, убрать в шкаф для ЛВЖ', 'Эфир склянкасын жауып, ОТС шкафына қою', 'Close the ether bottle and return it to the flammables cupboard'), log: L('Склянка с эфиром закрыта и убрана в шкаф для ЛВЖ (п. 5.4 правил ТБ)', 'Эфир склянкасы жабылып, ОТС шкафына қойылды (ҚТ ережелерінің 5.4-тармағы)', 'Ether bottle closed and returned to the flammables cupboard (safety rule 5.4)') },
+    { id: 'ether', label: L('Закрыть склянку с эфиром, убрать в шкаф для ЛВЖ', 'Эфир склянкасын жауып, ТТС шкафына қою', 'Close the ether bottle and return it to the flammables cupboard'), log: L('Склянка с эфиром закрыта и убрана в шкаф для ЛВЖ (п. 5.4 правил ТБ)', 'Эфир склянкасы жабылып, ТТС шкафына қойылды (ҚТ ережелерінің 5.4-тармағы)', 'Ether bottle closed and returned to the flammables cupboard (safety rule 5.4)') },
     { id: 'hands', label: L('Вымыть руки', 'Қолды жуу', 'Wash your hands') },
   ],
 };

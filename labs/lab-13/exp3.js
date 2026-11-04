@@ -194,7 +194,7 @@ const s7 = {
     const heaterT = A.heat === 'bath' ? 100 : A.heat === 'mantle' || A.heat === 'plate' ? 130 + (c.power === 2 ? 30 : 0) : 22;
     const k = A.heat === 'bath' ? 0.0046 : A.heat === 'plate' ? 0.0035 : 0.0055;
     const Tb = S.Tb;
-    // водяная баня не доводит до бурного кипения смесь с т. кип. ≈ 104 °C — кипение за счёт пара бани и крышки (допущение: бани хватает для слабого кипения)
+    // водяная баня не доводит до бурного кипения смесь с т. кип. ≈ 101 °C (boilT) — кипение за счёт пара бани и крышки (допущение: бани хватает для слабого кипения)
     const target = c.heat ? (A.heat === 'bath' ? Tb + 8 + (c.power === 2 ? 4 : 0) : heaterT) : 22;
     S.T = Math.min(Tb, relax(S.T, target, (c.heat ? k * 1.3 : 0.0027), dt));
     const boiling = c.heat && S.T >= Tb - 0.4;
@@ -421,9 +421,9 @@ const s13 = {
 const s14 = {
   type: 'process', id: 'ident-heat',
   title: L('Идентификация: не плавится ниже 200 °C', 'Сәйкестендіру: 200 °C-тан төмен балқымайды', 'Identification: no melting below 200 °C'),
-  instr: L('<ol><li>Набейте капилляр продуктом и поместите в прибор т. пл.</li><li>Нагрейте до <b>200 °C</b> и наблюдайте в лупу: чистая фумаровая кислота ниже 200 °C не плавится.</li></ol><p class="note">Если в продукте осталась малеиновая кислота, проба спекается и частично плавится около 125–130 °C.</p>',
-    '<ol><li>Капиллярды өніммен толтырып, балқу t құралына салыңыз.</li><li><b>200 °C</b>-қа дейін қыздырып, лупамен бақылаңыз: таза фумар қышқылы 200 °C-тан төмен балқымайды.</li></ol><p class="note">Өнімде малеин қышқылы қалса, сынама 125–130 °C шамасында жентектеліп, жартылай балқиды.</p>',
-    '<ol><li>Pack a capillary with the product and put it into the m.p. apparatus.</li><li>Heat to <b>200 °C</b> and watch through the magnifier: pure fumaric acid does not melt below 200 °C.</li></ol><p class="note">If maleic acid is left in the product, the sample sinters and partly melts at about 125–130 °C.</p>'),
+  instr: L('<ol><li>Набейте капилляр продуктом и поместите в прибор т. пл.</li><li>Нагрейте до <b>200 °C</b> и наблюдайте в лупу: чистая фумаровая кислота ниже 200 °C не плавится.</li></ol><p class="note">Если в продукте осталась малеиновая кислота, проба спекается и частично плавится около 120–130 °C.</p>',
+    '<ol><li>Капиллярды өніммен толтырып, балқу t құралына салыңыз.</li><li><b>200 °C</b>-қа дейін қыздырып, лупамен бақылаңыз: таза фумар қышқылы 200 °C-тан төмен балқымайды.</li></ol><p class="note">Өнімде малеин қышқылы қалса, сынама 120–130 °C шамасында жентектеліп, жартылай балқиды.</p>',
+    '<ol><li>Pack a capillary with the product and put it into the m.p. apparatus.</li><li>Heat to <b>200 °C</b> and watch through the magnifier: pure fumaric acid does not melt below 200 °C.</li></ol><p class="note">If maleic acid is left in the product, the sample sinters and partly melts at about 120–130 °C.</p>'),
   need: L('Нагрейте пробу до 200 °C', 'Сынаманы 200 °C-қа дейін қыздырыңыз', 'Heat the sample to 200 °C'),
   speeds: [10, 30, 60],
   setup(S, lc) { lc.m = { Tb: 25, on: false, rate: 10, inside: false }; lc.melt = 0; lc.sinter = false; },
@@ -467,7 +467,7 @@ const s15 = {
     { id: 'mal', label: L('Получена исходная малеиновая кислота — изомеризация не прошла', 'Бастапқы малеин қышқылы алынды — изомерлеу жүрмеді', 'The starting maleic acid was recovered — no isomerisation') },
   ],
   correct: (S) => (S.ident && S.ident.sinter ? 'mix' : 'pure'),
-  why: (S) => (S.ident && S.ident.sinter ? L('Частичное плавление около 125–130 °C — признак примеси малеиновой кислоты (короткое кипячение и/или плохая промывка).', '125–130 °C шамасында жартылай балқу — малеин қышқылы қоспасының белгісі (қысқа қайнату және/немесе нашар жуу).', 'Partial melting at about 125–130 °C points to maleic acid impurity (short reflux and/or poor washing).') : L('Свойства продукта совпадают со свойствами фумаровой кислоты.', 'Өнімнің қасиеттері фумар қышқылының қасиеттерімен сәйкес келеді.', 'The properties of the product match fumaric acid.')),
+  why: (S) => (S.ident && S.ident.sinter ? L('Частичное плавление около 120–130 °C — признак примеси малеиновой кислоты (короткое кипячение и/или плохая промывка).', '120–130 °C шамасында жартылай балқу — малеин қышқылы қоспасының белгісі (қысқа қайнату және/немесе нашар жуу).', 'Partial melting at about 120–130 °C points to maleic acid impurity (short reflux and/or poor washing).') : L('Свойства продукта совпадают со свойствами фумаровой кислоты.', 'Өнімнің қасиеттері фумар қышқылының қасиеттерімен сәйкес келеді.', 'The properties of the product match fumaric acid.')),
 };
 
 /* ---------------------------------------------------------------- 16. уборка */

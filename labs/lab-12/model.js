@@ -60,6 +60,8 @@ export function crystallise(S) {
   const h = S.hours ?? 24;
   if (h < 24) fS *= 0.45 + 0.55 * Math.min(1, h / 24);
   fS = Math.max(0.05, Math.min(0.95, fS)); fR = Math.max(0, Math.min(0.6, fR));
+  // соль (R)-амина более растворима: даже при самой грубой кристаллизации кристаллы не обогащаются ею (ee ≥ 0)
+  fR = Math.min(fR, fS);
   const nS = fS * nEach, nR = fR * nEach;
   return { nS, nR, fS, fR, nEach, de: (nS - nR) / (nS + nR) };
 }
