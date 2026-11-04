@@ -70,10 +70,12 @@ export default {
     const t = b.tubes.find((x) => !(ctx.local.m[x.id] && ctx.local.m[x.id].right != null)) || b.tubes[0];
     const code = M.look(step.test, t, env).code;
     const name = t.label ? { ru: `Пробирка ${t.label}`, kk: `${t.label} пробиркасы`, en: `Tube ${t.label}` } : M.NAME_CAP[t.sug];
+    // код без описания (реактивы не внесены) — та же подпись, что и в render
+    const d = M.OBS[step.test][code] || { label: () => L('изменений нет — реактивы не внесены', 'өзгеріс жоқ — реактивтер қосылмаған', 'no change — the reagents were not added') };
     return [
       L('Смотрите на стенд, а не на ожидаемый по теории результат: записывают то, что видно в пробирке, — цвет, осадок, зеркало, время появления.', 'Теориядағы күтілетін нәтижеге емес, стендке қараңыз: пробиркада көрінетінді жазады — түсі, тұнба, айна, пайда болу уақыты.', 'Look at the bench, not at the result you expect from theory: record what is actually in the tube — colour, precipitate, mirror, time of appearance.'),
       L('Если раньше в пробе была ошибка, картина может отличаться от описанной в методичке — так её и запишите.', 'Егер сынамада бұрын қате болса, көрініс әдістемедегіден өзгеше болуы мүмкін — солай жазыңыз.', 'If there was a mistake earlier, the picture may differ from the manual — record it as it is.'),
-      { ru: `${tr(name, 'ru')}: ${tr(M.OBS[step.test][code].label(t), 'ru')}`, kk: `${tr(name, 'kk')}: ${tr(M.OBS[step.test][code].label(t), 'kk')}`, en: `${tr(name, 'en')}: ${tr(M.OBS[step.test][code].label(t), 'en')}` },
+      { ru: `${tr(name, 'ru')}: ${tr(d.label(t), 'ru')}`, kk: `${tr(name, 'kk')}: ${tr(d.label(t), 'kk')}`, en: `${tr(name, 'en')}: ${tr(d.label(t), 'en')}` },
     ];
   },
 };

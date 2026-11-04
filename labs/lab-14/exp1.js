@@ -596,12 +596,13 @@ const s17 = {
   speeds: [10, 20, 40],
   setup(S, lc) { S.iso = S.iso || { nacl: 0, boilOver: 0, Tfilt: 22 }; lc.boiled = 0; lc.ice = false; lc.low = false; S.dz.inBath = false; },
   controls: [
-    { kind: 'toggle', id: 'heat', group: L('Плитка', 'Плита', 'Hot plate'), label: L('Плитка: включить', 'Плита: қосу', 'Hot plate: on'), labelOn: L('Плитка: выключить', 'Плита: өшіру', 'Hot plate: off'), disabled: (S, lc) => lc.ice,
-      onChange(S, lc, on, ctx) { lc.low = false; ctx.log(on ? L('Стакан на плитке, нагрев включён', 'Стақан плитада, қыздыру қосылды', 'Beaker on the hot plate, heating on') : L('Плитка выключена, стакан остывает на термостойкой подставке', 'Плита өшірілді, стақан ыстыққа төзімді тұғырда суып жатыр', 'Hot plate off; the beaker is cooling on a heat-resistant mat')); } },
+    { kind: 'toggle', id: 'heat', group: L('Плитка', 'Плита', 'Hot plate'), label: L('Плитка: включить', 'Плита: қосу', 'Hot plate: on'), labelOn: L('Плитка: выключить', 'Плита: өшіру', 'Hot plate: off'), disabled: (S, lc) => lc.ice && lc.boiled > 0,
+      onChange(S, lc, on, ctx) { lc.low = false; if (on) lc.ice = false; ctx.log(on ? L('Стакан на плитке, нагрев включён', 'Стақан плитада, қыздыру қосылды', 'Beaker on the hot plate, heating on') : L('Плитка выключена, стакан остывает на термостойкой подставке', 'Плита өшірілді, стақан ыстыққа төзімді тұғырда суып жатыр', 'Hot plate off; the beaker is cooling on a heat-resistant mat')); } },
     { kind: 'toggle', id: 'stir', group: L('Плитка', 'Плита', 'Hot plate'), label: L('Перемешивать', 'Араластыру', 'Stir'), labelOn: L('Перемешивание: вкл.', 'Араластыру: қосулы', 'Stirring: on') },
     { kind: 'action', id: 'nacl', once: false, group: L('Высаливание', 'Тұздау', 'Salting out'), label: L('NaCl +1 г', 'NaCl +1 г', 'NaCl +1 g'), advance: 20,
       do(S, lc, ctx) { S.iso.nacl += 1; ctx.log({ ru: `Добавлен 1 г NaCl (всего ${S.iso.nacl} г)`, kk: `1 г NaCl қосылды (барлығы ${S.iso.nacl} г)`, en: `1 g of NaCl added (${S.iso.nacl} g in total)` }); } },
-    { kind: 'action', id: 'ice', group: L('Охлаждение', 'Салқындату', 'Cooling'), label: L('Поставить в ледяную баню', 'Мұз моншасына қою', 'Put in the ice bath'), advance: 20,
+    { kind: 'action', id: 'ice', once: false, group: L('Охлаждение', 'Салқындату', 'Cooling'), label: L('Поставить в ледяную баню', 'Мұз моншасына қою', 'Put in the ice bath'), advance: 20,
+      disabled: (S, lc) => !!lc.ice,
       do(S, lc, ctx) {
         lc.ice = true; lc.c.heat = false;
         if (S.T > 60) ctx.remark({ key: 'iso-shock', severity: 'minor', text: L(`горячий стакан (${n(S.T, 0)} °C) сразу поставлен в лёд — мелкие кристаллы, стакан может треснуть (п. 9.4 правил ТБ)`, `ыстық стақан (${n(S.T, 0)} °C) бірден мұзға қойылды — ұсақ кристалдар, стақан жарылуы мүмкін (ҚТ ережелерінің 9.4-тармағы)`, `the hot beaker (${n(S.T, 0)} °C) went straight into ice — small crystals, and the beaker may crack (safety rule 9.4)`) });
