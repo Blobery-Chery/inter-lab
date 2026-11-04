@@ -46,18 +46,18 @@ const t1 = {
 
 const t2 = {
   type: 'test', id: 'brom',
-  title: L('Проба с бромной водой', 'Бром суымен сынама', 'Test with bromine water'),
+  title: L('Проба с бромной водой', 'Бромды сумен сынама', 'Test with bromine water'),
   instr: L('<ol><li>Охладите пробирку.</li><li>Прибавляйте <b>бромную воду</b> по каплям и наблюдайте.</li></ol><p class="note">Бромная вода вредна, пары брома ядовиты — только в вытяжном шкафу, только в холодный раствор.</p>',
-    '<ol><li>Пробирканы салқындатыңыз.</li><li><b>Бром суын</b> тамшылатып қосып, бақылаңыз.</li></ol><p class="note">Бром суы зиянды, бром булары улы — тек тартпа шкафта, тек суық ерітіндіге.</p>',
+    '<ol><li>Пробирканы салқындатыңыз.</li><li><b>Бромды суды</b> тамшылатып қосып, бақылаңыз.</li></ol><p class="note">Бромды су зиянды, бром булары улы — тек тартпа шкафта, тек суық ерітіндіге.</p>',
     '<ol><li>Cool the tube.</li><li>Add <b>bromine water</b> dropwise and observe.</li></ol><p class="note">Bromine water is harmful and bromine vapour is toxic — fume hood only, cold solution only.</p>'),
-  need: L('Проведите пробу с бромной водой', 'Бром суымен сынама жүргізіңіз', 'Do the bromine water test'),
+  need: L('Проведите пробу с бромной водой', 'Бромды сумен сынама жүргізіңіз', 'Do the bromine water test'),
   tubes: [{ id: 'd', label: L('после нагревания', 'қыздырғаннан кейін', 'after warming'), init: { v: 1.4, color: 'rgba(226,208,160,.55)' } }],
   reagents: [
     { id: 'cool', group: L('Пробирка', 'Пробирка', 'Tube'), label: L('Охладить под струёй холодной воды', 'Суық су ағынымен салқындату', 'Cool under running cold water'), advance: 60, disabled: (t) => t.cool,
       apply(t, S, ctx) { t.cool = true; ctx.log(L('Пробирка охлаждена под струёй воды', 'Пробирка су ағынымен салқындатылды', 'Tube cooled under running water')); } },
-    ...[2, 5].map((k) => ({ id: 'br' + k, group: L('Бромная вода', 'Бром суы', 'Bromine water'), label: L(`+${k} капли`, `+${k} тамшы`, `+${k} drops`), advance: 10 * k,
+    ...[2, 5].map((k) => ({ id: 'br' + k, group: L('Бромная вода', 'Бромды су', 'Bromine water'), label: L(`+${k} капли`, `+${k} тамшы`, `+${k} drops`), advance: 10 * k,
       apply(t, S, ctx) {
-        if (!t.cool) ctx.remark({ key: 'brHot', severity: 'safety', text: L('бромную воду прибавляли к горячему раствору — пары брома', 'бром суы ыстық ерітіндіге қосылды — бром булары', 'bromine water added to the hot solution — bromine vapour'), whatif: L('Из горячего раствора бром улетучивается: над пробиркой бурые ядовитые пары брома, а для пробы его остаётся меньше. Раствор сначала охлаждают.', 'Ыстық ерітіндіден бром ұшып кетеді: пробирка үстінде қоңыр улы бром булары, ал сынамаға ол азырақ қалады. Ерітіндіні алдымен салқындатады.', 'Bromine evaporates from a hot solution: toxic brown bromine vapour forms above the tube and less is left for the test. Cool the solution first.') });
+        if (!t.cool) ctx.remark({ key: 'brHot', severity: 'safety', text: L('бромную воду прибавляли к горячему раствору — пары брома', 'бромды су ыстық ерітіндіге қосылды — бром булары', 'bromine water added to the hot solution — bromine vapour'), whatif: L('Из горячего раствора бром улетучивается: над пробиркой бурые ядовитые пары брома, а для пробы его остаётся меньше. Раствор сначала охлаждают.', 'Ыстық ерітіндіден бром ұшып кетеді: пробирка үстінде қоңыр улы бром булары, ал сынамаға ол азырақ қалады. Ерітіндіні алдымен салқындатады.', 'Bromine evaporates from a hot solution: toxic brown bromine vapour forms above the tube and less is left for the test. Cool the solution first.') });
         t.v += 0.05 * k; t.drops = (t.drops || 0) + k;
         const phenol = S.q2 > 0.05;
         if (phenol) { t.ppt = Math.min(1, (t.ppt || 0) + 0.06 * k); t.pptColor = 'var(--solid)'; t.color = 'rgba(232,226,200,.5)'; }
@@ -66,9 +66,9 @@ const t2 = {
   ],
   done: (tubes) => (tubes.d.ppt || 0) >= 0.5,
   observe: {
-    question: L('Что происходит при прибавлении бромной воды?', 'Бром суын қосқанда не болады?', 'What happens when bromine water is added?'),
+    question: L('Что происходит при прибавлении бромной воды?', 'Бромды суды қосқанда не болады?', 'What happens when bromine water is added?'),
     options: [
-      { id: 'white', label: L('Бромная вода обесцвечивается, выпадает белый осадок', 'Бром суы түссізденеді, ақ тұнба түзіледі', 'The bromine water is decolourised and a white precipitate forms'), log: (S, tubes) => L(`Бромная вода (${tubes.d.drops} кап.) обесцвечивается, выпадает белый осадок 2,4,6-трибромфенола`, `Бром суы (${tubes.d.drops} тамшы) түссізденеді, 2,4,6-трибромфенолдың ақ тұнбасы түзіледі`, `The bromine water (${tubes.d.drops} drops) is decolourised and a white precipitate of 2,4,6-tribromophenol forms`) },
+      { id: 'white', label: L('Бромная вода обесцвечивается, выпадает белый осадок', 'Бромды су түссізденеді, ақ тұнба түзіледі', 'The bromine water is decolourised and a white precipitate forms'), log: (S, tubes) => L(`Бромная вода (${tubes.d.drops} кап.) обесцвечивается, выпадает белый осадок 2,4,6-трибромфенола`, `Бромды су (${tubes.d.drops} тамшы) түссізденеді, 2,4,6-трибромфенолдың ақ тұнбасы түзіледі`, `The bromine water (${tubes.d.drops} drops) is decolourised and a white precipitate of 2,4,6-tribromophenol forms`) },
       { id: 'stay', label: L('Окраска брома сохраняется, осадка нет', 'Бромның түсі сақталады, тұнба жоқ', 'The bromine colour persists; no precipitate') },
       { id: 'orange', label: L('Выпадает оранжево-красный осадок', 'Қызғылт сары-қызыл тұнба түзіледі', 'An orange-red precipitate forms') },
       { id: 'gas', label: L('Выделяется бурый газ, раствор синеет', 'Қоңыр газ бөлініп, ерітінді көгереді', 'A brown gas is evolved and the solution turns blue') },
@@ -96,7 +96,7 @@ const t3 = {
 export default {
   id: '3',
   title: L('Гидролиз соли диазония (реакция с выделением азота)', 'Диазоний тұзының гидролизі (азот бөлінетін реакция)', 'Hydrolysis of the diazonium salt (reaction with loss of nitrogen)'),
-  principle: L('При нагревании катион диазония реагирует с водой: выделяется азот и образуется фенол; фенол обнаруживают бромной водой (белый осадок 2,4,6-трибромфенола).', 'Қыздырғанда диазоний катионы сумен әрекеттеседі: азот бөлініп, фенол түзіледі; фенолды бром суымен анықтайды (2,4,6-трибромфенолдың ақ тұнбасы).', 'On warming the diazonium ion reacts with water: nitrogen is released and phenol is formed; the phenol is detected with bromine water (white precipitate of 2,4,6-tribromophenol).'),
+  principle: L('При нагревании катион диазония реагирует с водой: выделяется азот и образуется фенол; фенол обнаруживают бромной водой (белый осадок 2,4,6-трибромфенола).', 'Қыздырғанда диазоний катионы сумен әрекеттеседі: азот бөлініп, фенол түзіледі; фенолды бромды сумен анықтайды (2,4,6-трибромфенолдың ақ тұнбасы).', 'On warming the diazonium ion reacts with water: nitrogen is released and phenol is formed; the phenol is detected with bromine water (white precipitate of 2,4,6-tribromophenol).'),
   equation: ['C₆H₅N₂⁺ Cl⁻ + H₂O → C₆H₅OH + N₂↑ + HCl', 'C₆H₅OH + 3Br₂ → 2,4,6-Br₃C₆H₂OH↓ + 3HBr'],
   initialState: ({ prev }) => {
     const r = prev['1'] || { Dz: 24, nAn: 25, P: 0.3 };
@@ -108,6 +108,6 @@ export default {
   results: (S) => ({ ...S.e3 }),
   summary: (r) => [
     { label: L('Нагревание', 'Қыздыру', 'Warming'), value: r.gas ? L('N₂ ↑, запах фенола', 'N₂ ↑, фенол иісі', 'N₂ ↑, phenol odour') : '—', st: r.gas ? 'ok' : '' },
-    { label: L('Бромная вода', 'Бром суы', 'Bromine water'), value: r.br ? L('белый осадок', 'ақ тұнба', 'white precipitate') : '—', st: r.br ? 'ok' : '' },
+    { label: L('Бромная вода', 'Бромды су', 'Bromine water'), value: r.br ? L('белый осадок', 'ақ тұнба', 'white precipitate') : '—', st: r.br ? 'ok' : '' },
   ],
 };
