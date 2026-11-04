@@ -50,6 +50,11 @@ const s1 = {
   ],
   done: (S, lc) => (neat(S) ? !!lc.done.neat : !!lc.done.mix) && { text: L('Проба готова.', 'Сынама дайын.', 'The sample is ready.') },
   scene: (S, lc) => (neat(S) ? polBench() : volFlask(!!(lc.done && lc.done.mark))),
+  hints: [
+    L('Способ выбран на предыдущем шаге: неразбавленный амин или раствор в метаноле.', 'Тәсіл алдыңғы қадамда таңдалды: сұйылтылмаған амин немесе метанолдағы ерітінді.', 'The method was chosen in the previous step: neat amine or a methanol solution.'),
+    L('Для раствора вся проба должна попасть в мерную колбу, объём доводят точно до метки и перемешивают — иначе c рассчитана неверно.', 'Ерітінді үшін бүкіл сынама өлшегіш колбаға түсуі тиіс, көлемді дәл белгіге дейін жеткізіп, араластырады — әйтпесе c қате есептеледі.', 'For the solution the whole sample must go into the volumetric flask, the volume made up exactly to the mark and mixed — otherwise c is wrong.'),
+    L('Неразбавленный амин: «Амин готов к заполнению трубки». Раствор: «Перенести пробу в мерную колбу, смыть метанолом» → «Довести метанолом до метки (по нижнему мениску)» → «Закрыть пробкой и перемешать, переворачивая».', 'Сұйылтылмаған амин: «Амин түтікті толтыруға дайын». Ерітінді: «Сынаманы өлшегіш колбаға ауыстырып, метанолмен шаю» → «Метанолмен белгіге дейін жеткізу (төменгі мениск бойынша)» → «Тығынмен жауып, аударып араластыру».', 'Neat amine: “The amine is ready for filling the tube”. Solution: “Transfer the sample into the flask and rinse in with methanol” → “Make up to the mark with methanol (bottom of the meniscus)” → “Stopper and mix by inverting”.'),
+  ],
 };
 
 const s2 = {
@@ -92,9 +97,9 @@ const s4 = {
   need: L('Рассчитайте оптическую чистоту', 'Оптикалық тазалықты есептеңіз', 'Calculate the optical purity'),
   fields: [
     { id: 'a', label: L('Угол вращения α (исправленный)', 'Айналу бұрышы α (түзетілген)', 'Angle of rotation α (corrected)'), unit: '°', decimals: 2, tol: 0.01, answer: aCorr,
-      formula: (S) => L(`α = ${sg(S.sample.mean)} − (${sg(zeroOf(S))})`, `α = ${sg(S.sample.mean)} − (${sg(zeroOf(S))})`, `α = ${sg(S.sample.mean)} − (${sg(zeroOf(S))})`) },
+      formula: (S) => L(`α = ${sg(S.sample ? S.sample.mean : 0)} − (${sg(zeroOf(S))})`, `α = ${sg(S.sample ? S.sample.mean : 0)} − (${sg(zeroOf(S))})`, `α = ${sg(S.sample ? S.sample.mean : 0)} − (${sg(zeroOf(S))})`) },
     { id: 'spec', label: L('Удельное вращение [α]', 'Меншікті айналу [α]', 'Specific rotation [α]'), unit: '°', decimals: 1, tol: 0.01, answer: spec,
-      formula: (S) => L(`[α] = ${sg(aCorr(S))} / (${S.sample.tube} × ${n(conc(S), 4)})`, `[α] = ${sg(aCorr(S))} / (${S.sample.tube} × ${n(conc(S), 4)})`, `[α] = ${sg(aCorr(S))} / (${S.sample.tube} × ${n(conc(S), 4)})`),
+      formula: (S) => L(`[α] = ${sg(aCorr(S))} / (${S.sample ? S.sample.tube : 1} × ${n(conc(S), 4)})`, `[α] = ${sg(aCorr(S))} / (${S.sample ? S.sample.tube : 1} × ${n(conc(S), 4)})`, `[α] = ${sg(aCorr(S))} / (${S.sample ? S.sample.tube : 1} × ${n(conc(S), 4)})`),
       hint1: L('Для неразбавленной жидкости c = плотность (0,95 г/мл); для раствора c = масса пробы / 10 мл.', 'Сұйылтылмаған сұйықтық үшін c = тығыздық (0,95 г/мл); ерітінді үшін c = сынама массасы / 10 мл.', 'For the neat liquid c = density (0.95 g/mL); for the solution c = sample mass / 10 mL.') },
     { id: 'op', label: L('Оптическая чистота (≈ ee)', 'Оптикалық тазалық (≈ ee)', 'Optical purity (≈ ee)'), unit: '%', decimals: 1, tol: 0.01, answer: op,
       formula: (S) => L(`${sg(spec(S), 1)} / (${n(ref(S), 1)}) × 100 %`, `${sg(spec(S), 1)} / (${n(ref(S), 1)}) × 100 %`, `${sg(spec(S), 1)} / (${n(ref(S), 1)}) × 100 %`) },
@@ -164,7 +169,7 @@ export default {
   principle: L('Оптическую чистоту расщеплённого амина находят, сравнивая его удельное вращение с удельным вращением чистого энантиомера ((S)-(−)-1-фенилэтиламин, [α]D ≈ −40°, неразбавленная жидкость).',
     'Ажыратылған аминнің оптикалық тазалығын оның меншікті айналуын таза энантиомердің ((S)-(−)-1-фенилэтиламин, [α]D ≈ −40°, сұйылтылмаған сұйықтық) меншікті айналуымен салыстыру арқылы табады.',
     'The optical purity of the resolved amine is found by comparing its specific rotation with that of the pure enantiomer ((S)-(−)-1-phenylethylamine, [α]D ≈ −40°, neat liquid).'),
-  equation: ['optical purity (%) = [α]obs / (−40°) × 100', '% (S) = (100 + ee) / 2;  % (R) = (100 − ee) / 2'],
+  equation: [L('оптическая чистота (%) = [α]набл / (−40°) × 100', 'оптикалық тазалық (%) = [α]бақ / (−40°) × 100', 'optical purity (%) = [α]obs / (−40°) × 100'), '% (S) = (100 + ee) / 2;  % (R) = (100 − ee) / 2'],
   initialState: ({ prev, rng }) => {
     const p = prev['2'] || {};
     const p1 = prev['1'] || {};

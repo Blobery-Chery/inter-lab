@@ -16,8 +16,9 @@ export const hclMmol = (V) => (V * 1.18 * 0.36 / M.HCL) * 1000;
 export const naohMmol = (V) => (V * 1.11 * 0.1 / 40.0) * 1000;
 /** Ледяная уксусная кислота, ммоль в V мл (d 1,049). */
 export const acohMmol = (V) => (V * 1.049 / M.ACOH) * 1000;
-/** N,N-диметиланилин, ммоль в V мл (d 0,956: 1,3 мл = 1,24 г ≈ 10 ммоль; методичка округляет до 1,21 г). */
-export const dmaMmol = (V) => (V * 0.93 / M.DMA) * 1000;
+/** N,N-диметиланилин, ммоль в V мл (d 0,956 г/мл: 1,3 мл = 1,24 г = 10,3 ммоль; в методичке 1,3 мл (1,21 г, 10 ммоль) — вопрос автору в ASSUMPTIONS.md). */
+export const DMA_DENSITY = 0.956;
+export const dmaMmol = (V) => (V * DMA_DENSITY / M.DMA) * 1000;
 
 export const theoretical = (mSA) => (mSA / M.SA) * M.MO;
 export const percentYield = (m, mSA) => (mSA > 0 ? (m / theoretical(mSA)) * 100 : 0);
@@ -81,7 +82,7 @@ export function acidInventory(S) {
   };
 }
 
-/** Доля кислотной (красной, хиноидной) формы метилового оранжевого при данном pH (pKa 3,4; переход 3,1–4,4). */
+/** Доля кислотной (красной, хиноидной) формы метилового оранжевого при данном pH (справочный pKa ≈ 3,4; видимый переход 3,1–4,4 несимметричен относительно pKa). */
 export const acidFraction = (pH) => 1 / (1 + 10 ** (pH - 3.4));
 
 /**
@@ -112,7 +113,7 @@ export function coupled(S) {
   const nDz = nSA * conv * surv;
   const nDMA = dmaMmol(S.vDMA || 1.3) / 1000;
   const cp = S.cp || {};
-  const eff = (cp.medium === 'alk' ? 0.25 : cp.medium === 'warm' ? 0.6 : 0.93) * (cp.stirred === false ? 0.9 : 1) * (cp.time >= 600 ? 1 : 0.85 + 0.15 * clamp((cp.time || 0) / 600, 0, 1));
+  const eff = (cp.medium === 'alk' ? 0.25 : cp.medium === 'strong' ? 0.6 : 0.93) * (cp.stirred === false ? 0.9 : 1) * (cp.time >= 600 ? 1 : 0.85 + 0.15 * clamp((cp.time || 0) / 600, 0, 1));
   return Math.max(0, Math.min(nDz, nDMA) * eff);
 }
 

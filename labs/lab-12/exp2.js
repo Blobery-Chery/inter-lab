@@ -131,6 +131,11 @@ const s4 = {
     return false;
   },
   scene: (S, lc) => flaskBath({ T: S.T, Tb: S.Tb, vol: 55 - (S.lostMeOH || 0), solid: S.und * 0.8, boil: S.T >= BP_MEOH && S.Tb > 68 }),
+  hints: [
+    L('Метанол легко воспламеняется: греют только на водяной бане. Перемешивание ускоряет растворение.', 'Метанол оңай тұтанады: тек су моншасында қыздырады. Араластыру ерітуді жылдамдатады.', 'Methanol is flammable: heat only on a water bath. Swirling speeds up dissolution.'),
+    L('Бани 60 °C достаточно, чтобы раствор нагрелся почти до кипения (т. кип. метанола 64,7 °C); баня 90 °C — бурное кипение и потеря растворителя.', '60 °C монша ерітіндіні қайнауға жақын қыздыруға жеткілікті (метанолдың қайнау t 64,7 °C); 90 °C монша — қатты қайнау және еріткіштің жоғалуы.', 'A 60 °C bath is enough to bring the solution almost to the boil (methanol b.p. 64.7 °C); a 90 °C bath means vigorous boiling and loss of solvent.'),
+    L('«60 °C» → «Покачивать колбу» → дождитесь, пока кислота растворится (раствор ≥ 55 °C, «не растворилось: нет»).', '«60 °C» → «Колбаны шайқау» → қышқыл ерігенше күтіңіз (ерітінді ≥ 55 °C, «ерімеді: жоқ»).', '“60 °C” → “Swirl the flask” → wait until the acid has dissolved (solution ≥ 55 °C, “undissolved: none”).'),
+  ],
 };
 
 /* ---------------- 5. амин пипеткой ---------------- */
@@ -221,6 +226,11 @@ const s6 = {
   }],
   done: (S, lc) => lc.added >= PORTIONS && (lc.surge || 0) < 1.5 && S.T < BP_MEOH && { text: L('Весь амин прибавлен.', 'Бүкіл амин қосылды.', 'All of the amine has been added.') },
   scene: (S, lc) => flaskBath({ T: S.T, Tb: lc.c && lc.c.warm ? 60 : 22, bath: !!(lc.c && lc.c.warm), vol: 55 - (S.lostMeOH || 0) + (lc.added || 0) * 0.3, boil: S.T >= BP_MEOH - 0.05, drip: true, dripKey: lc.dropKey, solid: S.early ? 0.15 : 0 }),
+  hints: [
+    L('Нейтрализация амина кислотой экзотермична: большая порция сразу доводит метанол до бурного кипения.', 'Аминді қышқылмен бейтараптау экзотермиялық: үлкен порция метанолды бірден қатты қайнатады.', 'Neutralising the amine with the acid is exothermic: a large portion at once brings the methanol to a violent boil.'),
+    L('Прибавляйте по ≈ 0,3 мл с паузами, держите колбу на бане 60 °C, чтобы раствор не остыл ниже 50 °C.', '≈ 0,3 мл-ден үзіліспен қосыңыз, ерітінді 50 °C-тан төмен суымауы үшін колбаны 60 °C моншада ұстаңыз.', 'Add ≈ 0.3 mL at a time with pauses and keep the flask on the 60 °C bath so that the solution does not cool below 50 °C.'),
+    L('«Подогревать на бане (60 °C)» → интервал «40 с» → 11 раз «Порция амина ≈ 0,3 мл»; при бурном вскипании — прекратить прибавление и подождать.', '«Моншада жылыту (60 °C)» → аралық «40 с» → 11 рет «Амин порциясы ≈ 0,3 мл»; қатты қайнаса — қосуды тоқтатып, күту.', '“Keep warm on the bath (60 °C)” → interval “40 s” → 11 × “Portion of amine ≈ 0.3 mL”; on violent boiling stop adding and wait.'),
+  ],
 };
 
 /* ---------------- 7. кристаллизация ---------------- */
@@ -242,10 +252,10 @@ const s7 = {
     { kind: 'action', id: 'shake', group: L('Как кристаллизовать', 'Қалай кристалдау керек', 'How to crystallise'), label: L('Время от времени встряхивать, чтобы кристаллы росли быстрее', 'Кристалдар тезірек өсуі үшін анда-санда шайқау', 'Shake now and then to make the crystals grow faster'),
       disabled: (S, lc) => !!lc.mode, do(S, lc, ctx) { lc.mode = 'shake'; S.cryst = 'disturbed'; ctx.remark({ key: 'shake', severity: 'major', text: L('кристаллизующийся раствор встряхивали — выпадает мелкая смесь кристаллов обеих солей', 'кристалданып жатқан ерітінді шайқалды — екі тұздың да ұсақ кристалдар қоспасы түседі', 'the crystallising solution was shaken — a fine mixture of both salts comes down'),
         whatif: L('Встряхивание вызывает массовое зарождение мелких кристаллов: соль (R)-амина захватывается вместе с солью (S)-амина, и разделение диастереомеров ухудшается — оптическая чистота амина будет ниже.', 'Шайқау ұсақ кристалдардың жаппай түзілуін тудырады: (R)-амин тұзы (S)-амин тұзымен бірге ілесіп түседі, диастереомерлердің бөлінуі нашарлайды — аминнің оптикалық тазалығы төмен болады.', 'Shaking causes mass nucleation of small crystals: the (R)-amine salt is trapped together with the (S)-amine salt and the separation of the diastereomers worsens — the optical purity of the amine will be lower.') }); }, log: L('Колбу периодически встряхивают', 'Колба мезгіл-мезгіл шайқалады', 'The flask is shaken from time to time') },
-    { kind: 'action', id: 'wait', cls: 'pri', group: L('Время', 'Уақыт', 'Time'), label: L('Оставить до следующего занятия (≥ 24 ч)', 'Келесі сабаққа дейін қалдыру (≥ 24 сағ)', 'Leave until the next session (≥ 24 h)'), requires: ['stop'],
+    { kind: 'action', id: 'wait', cls: 'pri', group: L('Продолжительность', 'Ұзақтығы', 'Duration'), label: L('Оставить до следующего занятия (≥ 24 ч)', 'Келесі сабаққа дейін қалдыру (≥ 24 сағ)', 'Leave until the next session (≥ 24 h)'), requires: ['stop'],
       when: (S, lc) => !!lc.mode && lc.h >= 1, whenText: L('Сначала выберите, как кристаллизовать, и понаблюдайте за колбой хотя бы час.', 'Алдымен қалай кристалдау керегін таңдап, колбаны кем дегенде бір сағат бақылаңыз.', 'First choose how to crystallise and watch the flask for at least an hour.'),
       do(S, lc, ctx) { ctx.nextDay(); S.hours = 24; lc.h = 24; lc.fin = true; ctx.log(L(`Следующее занятие. На дне колбы — ${S.cryst === 'slow' && !S.needlesKept ? 'бесцветные призматические кристаллы' : 'масса мелких игольчатых кристаллов'}`, `Келесі сабақ. Колба түбінде — ${S.cryst === 'slow' && !S.needlesKept ? 'түссіз призма тәрізді кристалдар' : 'ұсақ ине тәрізді кристалдар массасы'}`, `Next session. At the bottom of the flask: ${S.cryst === 'slow' && !S.needlesKept ? 'colourless prismatic crystals' : 'a mass of small needle-like crystals'}`), 'obs'); } },
-    { kind: 'action', id: 'early', cls: 'danger', group: L('Время', 'Уақыт', 'Time'), label: L('Отфильтровать уже сегодня', 'Бүгін-ақ сүзу', 'Filter it today'), requires: ['stop'],
+    { kind: 'action', id: 'early', cls: 'danger', group: L('Продолжительность', 'Ұзақтығы', 'Duration'), label: L('Отфильтровать уже сегодня', 'Бүгін-ақ сүзу', 'Filter it today'), requires: ['stop'],
       when: (S, lc) => !!lc.mode, whenText: L('Сначала выберите, как кристаллизовать.', 'Алдымен қалай кристалдау керегін таңдаңыз.', 'First choose how to crystallise.'),
       do(S, lc, ctx) { S.hours = Math.max(0.5, lc.h); lc.fin = true; ctx.remark({ key: 'short', severity: 'major', text: L(`кристаллизация прервана через ${n(lc.h, 1)} ч вместо 24 ч — соль выпала не полностью`, `кристалдау 24 сағ орнына ${n(lc.h, 1)} сағ кейін үзілді — тұз толық түспеді`, `crystallisation stopped after ${n(lc.h, 1)} h instead of 24 h — the salt has not crystallised fully`) }); } },
   ],
@@ -275,6 +285,11 @@ const s7 = {
   }],
   done: (S, lc) => !!lc.fin && { text: L('Кристаллизация закончена — можно фильтровать.', 'Кристалдау аяқталды — сүзуге болады.', 'Crystallisation complete — ready to filter.') },
   scene: (S, lc) => flaskBath({ bath: false, th: false, stopper: !!(lc.done && lc.done.stop), vol: 58, crystals: { n: Math.min(1, lc.h / 6), needles: !!lc.needles } }),
+  hints: [
+    L('Хорошие (призматические) кристаллы менее растворимой соли растут медленно, в покое, при комнатной температуре.', 'Аз еритін тұздың жақсы (призма тәрізді) кристалдары бөлме температурасында, тыныштықта баяу өседі.', 'Good (prismatic) crystals of the less soluble salt grow slowly, undisturbed, at room temperature.'),
+    L('Лёд и встряхивание дают иглы, захватывающие соль (R)-амина. Иглы растворяют нагреванием и снова дают медленно остыть.', 'Мұз бен шайқау (R)-амин тұзын ілестіретін инелер береді. Инелерді қыздырып ерітіп, қайта баяу суытады.', 'Ice and shaking give needles that trap the (R)-amine salt. Needles are redissolved by warming and cooled slowly again.'),
+    L('«Закрыть колбу пробкой» → «Оставить в шкафу при комнатной температуре, не трогая» → через час «Оставить до следующего занятия (≥ 24 ч)».', '«Колбаны тығынмен жабу» → «Шкафта бөлме температурасында қозғамай қалдыру» → бір сағаттан кейін «Келесі сабаққа дейін қалдыру (≥ 24 сағ)».', '“Stopper the flask” → “Leave in the cupboard at room temperature, undisturbed” → after an hour “Leave until the next session (≥ 24 h)”.'),
+  ],
 };
 
 /* ---------------- 8. фильтрование соли ---------------- */
@@ -344,7 +359,7 @@ const s11 = {
   speeds: null,
   setup(S, lc) { S.vNaOH = 0; S.vWater = 15; lc.water = false; lc.dissolved = false; lc.pH = null; lc.checkedAt = -1; S.lib = { free: 0 }; },
   controls: [
-    { kind: 'action', id: 'water', group: L('Раствор соли', 'Тұз ерітіндісі', 'Salt solution'), label: L('Растворить соль в 15 мл воды', 'Тұзды 15 мл суда ерітү', 'Dissolve the salt in 15 mL of water'), advance: 120,
+    { kind: 'action', id: 'water', group: L('Раствор соли', 'Тұз ерітіндісі', 'Salt solution'), label: L('Растворить соль в 15 мл воды', 'Тұзды 15 мл суда еріту', 'Dissolve the salt in 15 mL of water'), advance: 120,
       do(S, lc) { lc.water = true; lc.dissolved = true; }, obs: L('Соль растворилась в воде — прозрачный бесцветный раствор', 'Тұз суда еріді — мөлдір түссіз ерітінді', 'The salt dissolved in water — a clear colourless solution') },
     ...[[1, '+1'], [0.5, '+0,5']].map(([v, lab]) => ({ kind: 'action', id: 'naoh' + v, once: false, group: L('Щёлочь (NaOH 50 %)', 'Сілті (NaOH 50 %)', 'Alkali (NaOH 50 %)'), label: L(`NaOH ${lab} мл`, `NaOH ${lab} мл`, `NaOH ${lab.replace(',', '.')} mL`), advance: 30,
       do(S, lc, ctx) {
@@ -377,6 +392,11 @@ const s11 = {
       whatif: L('Ион аммония R–NH₃⁺ эфиром не извлекается. Пока pH ниже ~12, заметная часть амина остаётся протонированной в воде — масса выделенного амина будет меньше.', 'R–NH₃⁺ аммоний ионы эфирмен бөлінбейді. pH ~12-ден төмен болғанда аминнің едәуір бөлігі суда протондалған күйде қалады — бөлінген амин массасы аз болады.', 'The ammonium ion R–NH₃⁺ is not extracted by ether. While the pH is below ~12 a noticeable part of the amine stays protonated in the water — the mass of amine isolated will be lower.') });
   },
   scene: alkaliScene,
+  hints: [
+    L('Амин связан в соли как ион аммония R–NH₃⁺; освобождает его только сильная щёлочь.', 'Амин тұзда R–NH₃⁺ аммоний ионы түрінде байланысқан; оны тек күшті сілті бөліп шығарады.', 'The amine is bound in the salt as the ammonium ion R–NH₃⁺; only strong alkali liberates it.'),
+    L('Сначала растворите соль в воде, затем прибавьте 3 мл 50 % NaOH и проверьте, что pH ≥ 12 (должен появиться маслянистый слой).', 'Алдымен тұзды суда ерітіп, содан кейін 3 мл 50 % NaOH қосып, pH ≥ 12 екенін тексеріңіз (майлы қабат пайда болуы тиіс).', 'Dissolve the salt in water first, then add 3 mL of 50 % NaOH and check that the pH is ≥ 12 (an oily layer should appear).'),
+    L('«Растворить соль в 15 мл воды» → 3 × «NaOH +1 мл» → «Проверить индикаторной бумагой».', '«Тұзды 15 мл суда еріту» → 3 × «NaOH +1 мл» → «Индикатор қағазымен тексеру».', '“Dissolve the salt in 15 mL of water” → 3 × “NaOH +1 mL” → “Check with indicator paper”.'),
+  ],
 };
 
 /* ---------------- 12. экстракция эфиром ---------------- */
@@ -442,6 +462,14 @@ const FIRE = L('Пары эфира вспыхнули от раскалённо
   'Эфир булары қызған беттен тұтанды: колба үстінде эфир жанып жатыр, от еріткіштер салынған склянкаларға ауысуы мүмкін. Нақты зертханада: қыздыруды өшіру, жанып жатқан ыдысты сағат шынысымен немесе ылғал матамен жабу, ірі өртте — өрт сөндіргіш және эвакуация (11.2, 11.4-тармақтар); жанып жатқан эфирді сумен сөндірмейді. Эфирді тек тартпа шкафта жылы су моншасында буландырады (5.2-тармақ).',
   'Ether vapour ignited on the hot surface: ether is burning above the flask and the fire may spread to the solvent bottles. In a real lab: switch off the heating, cover the burning vessel with a watch glass or a damp cloth, and for a larger fire use the extinguisher and evacuate (rules 11.2, 11.4); burning ether is never put out with water. Ether is evaporated only on a warm water bath in the fume hood (rule 5.2).');
 
+function takeOff(S, lc, ctx) {
+
+  lc.c.bath = 0; lc.fin = true; S.etherLeft = Math.max(0, lc.E.ether);
+  if (lc.E.ether > 0.3) ctx.remark({ key: 'ether-left', severity: 'major', text: L(`упаривание прекращено рано — в колбе осталось ≈ ${n(lc.E.ether, 1)} мл эфира`, `буландыру ерте тоқтатылды — колбада ≈ ${n(lc.E.ether, 1)} мл эфир қалды`, `evaporation stopped too early — ≈ ${n(lc.E.ether, 1)} mL of ether left in the flask`),
+    whatif: L('Остаток эфира увеличит массу «амина» и разбавит его: удельное вращение и оптическая чистота получатся заниженными.', 'Эфир қалдығы «амин» массасын арттырып, оны сұйылтады: меншікті айналу мен оптикалық тазалық төмен шығады.', 'Leftover ether adds to the mass of the “amine” and dilutes it: the specific rotation and optical purity come out too low.') });
+  ctx.log(L(`Эфир удалён; в колбе — ${lc.E.ether > 0.3 ? 'жидкость с сильным запахом эфира' : 'бесцветная маслянистая жидкость с аммиачным запахом'}`, `Эфир кетірілді; колбада — ${lc.E.ether > 0.3 ? 'эфирдің қатты иісі бар сұйықтық' : 'аммиак иісті түссіз майлы сұйықтық'}`, `Ether removed; the flask contains ${lc.E.ether > 0.3 ? 'a liquid smelling strongly of ether' : 'a colourless oily liquid with an ammonia-like odour'}`), 'obs');
+}
+
 const s16 = {
   type: 'process', id: 'evap',
   title: L('Упаривание эфира', 'Эфирді буландыру', 'Evaporating the ether'),
@@ -452,17 +480,16 @@ const s16 = {
   speeds: [10, 30, 60],
   setup(S, lc) { lc.E = { ether: (S.portions || [10, 10]).reduce((a, b) => a + b, 0) - 1.5, Tb: 22, boil: false, amineV: 1 }; lc.src = null; },
   controls: [
-    { kind: 'action', id: 'dec', group: L('Раствор', 'Ерітінді', 'Solution'), label: L('Декантировать раствор в взвешенную колбу', 'Ерітіндіні өлшенген колбаға декантациялау', 'Decant the solution into the weighed flask'), advance: 60, log: L('Эфирный раствор декантирован с осушителя в предварительно взвешенную колбу; осушитель промыт 1–2 мл эфира', 'Эфир ерітіндісі кептіргіштен алдын ала өлшенген колбаға декантацияланды; кептіргіш 1–2 мл эфирмен шайылды', 'The ether solution was decanted off the drying agent into the pre-weighed flask; the drying agent was rinsed with 1–2 mL of ether') },
+    { kind: 'action', id: 'dec', group: L('Раствор', 'Ерітінді', 'Solution'), label: L('Декантировать раствор во взвешенную колбу', 'Ерітіндіні өлшенген колбаға декантациялау', 'Decant the solution into the weighed flask'), advance: 60, log: L('Эфирный раствор декантирован с осушителя в предварительно взвешенную колбу; осушитель промыт 1–2 мл эфира', 'Эфир ерітіндісі кептіргіштен алдын ала өлшенген колбаға декантацияланды; кептіргіш 1–2 мл эфирмен шайылды', 'The ether solution was decanted off the drying agent into the pre-weighed flask; the drying agent was rinsed with 1–2 mL of ether') },
     { kind: 'seg', id: 'bath', group: L('Водяная баня', 'Су моншасы', 'Water bath'), label: L('Температура бани', 'Монша температурасы', 'Bath temperature'), options: [[0, L('выкл.', 'өшір.', 'off')], [45, '45 °C'], [70, '70 °C'], [95, '95 °C']], default: 0 },
     { kind: 'action', id: 'plate', cls: 'danger', group: L('Быстрее', 'Тезірек', 'Faster'), label: L('Поставить колбу прямо на электроплитку', 'Колбаны тікелей электр плитасына қою', 'Put the flask straight on the hot plate'), requires: ['dec'],
       do(S, lc, ctx) { lc.src = 'plate'; ctx.remark({ key: 'fire', severity: 'critical', text: L('эфир нагревали на электроплитке — пары эфира вспыхнули', 'эфир электр плитасында қыздырылды — эфир булары тұтанды', 'ether heated on a hot plate — the ether vapour caught fire'), critical: { text: FIRE } }); } },
     { kind: 'action', id: 'off', cls: 'pri', group: L('Завершение', 'Аяқтау', 'Finishing'), label: L('Снять колбу с бани — эфир отогнан', 'Колбаны моншадан алу — эфир айдалды', 'Take the flask off the bath — the ether is gone'), requires: ['dec'],
-      do(S, lc, ctx) {
-        lc.c.bath = 0; lc.fin = true; S.etherLeft = Math.max(0, lc.E.ether);
-        if (lc.E.ether > 0.3) ctx.remark({ key: 'ether-left', severity: 'major', text: L(`упаривание прекращено рано — в колбе осталось ≈ ${n(lc.E.ether, 1)} мл эфира`, `буландыру ерте тоқтатылды — колбада ≈ ${n(lc.E.ether, 1)} мл эфир қалды`, `evaporation stopped too early — ≈ ${n(lc.E.ether, 1)} mL of ether left in the flask`),
-          whatif: L('Остаток эфира увеличит массу «амина» и разбавит его: удельное вращение и оптическая чистота получатся заниженными.', 'Эфир қалдығы «амин» массасын арттырып, оны сұйылтады: меншікті айналу мен оптикалық тазалық төмен шығады.', 'Leftover ether adds to the mass of the “amine” and dilutes it: the specific rotation and optical purity come out too low.') });
-        ctx.log(L(`Эфир удалён; в колбе — ${lc.E.ether > 0.3 ? 'жидкость с сильным запахом эфира' : 'бесцветная маслянистая жидкость с аммиачным запахом'}`, `Эфир кетірілді; колбада — ${lc.E.ether > 0.3 ? 'эфирдің қатты иісі бар сұйықтық' : 'аммиак иісті түссіз майлы сұйықтық'}`, `Ether removed; the flask contains ${lc.E.ether > 0.3 ? 'a liquid smelling strongly of ether' : 'a colourless oily liquid with an ammonia-like odour'}`), 'obs');
-      } },
+      disabled: (S, lc) => !!lc.fin, when: (S, lc) => !!lc.E && lc.E.ether <= 0.3,
+      whenText: L('Эфир ещё не отогнан — следите за показанием «Эфир в колбе» (≤ 0,3 мл). Снять колбу раньше можно кнопкой «Снять колбу с бани сейчас».', 'Эфир әлі айдалмады — «Колбадағы эфир» көрсеткішін бақылаңыз (≤ 0,3 мл). Колбаны ертерек «Колбаны моншадан қазір алу» батырмасымен алуға болады.', 'The ether has not gone yet — watch the “Ether in the flask” readout (≤ 0.3 mL). To take the flask off earlier, use “Take the flask off the bath now”.'),
+      do: (S, lc, ctx) => takeOff(S, lc, ctx) },
+    { kind: 'action', id: 'offEarly', group: L('Завершение', 'Аяқтау', 'Finishing'), label: L('Снять колбу с бани сейчас', 'Колбаны моншадан қазір алу', 'Take the flask off the bath now'), requires: ['dec'],
+      disabled: (S, lc) => !!lc.fin, do: (S, lc, ctx) => takeOff(S, lc, ctx) },
   ],
   tick(S, lc, dt) {
     if (lc.fin) return;
@@ -497,6 +524,11 @@ const s16 = {
   }],
   done: (S, lc) => !!lc.fin && { text: L('Эфир удалён. Взвесьте колбу с амином.', 'Эфир кетірілді. Амині бар колбаны өлшеңіз.', 'The ether is removed. Weigh the flask with the amine.') },
   scene: evapScene,
+  hints: [
+    L('Эфир кипит при 34,6 °C и чрезвычайно легко воспламеняется: только тёплая водяная баня, никакого огня и плиток.', 'Эфир 34,6 °C-та қайнайды және өте оңай тұтанады: тек жылы су моншасы, ешқандай от пен плита жоқ.', 'Ether boils at 34.6 °C and is extremely flammable: a warm water bath only, no flames or hot plates.'),
+    L('Баня 45 °C — спокойное испарение; горячая баня даёт толчки и выброс. Снимайте колбу, когда эфира останется ≤ 0,3 мл.', '45 °C монша — бірқалыпты булану; ыстық монша сілкініс пен лақтыруға әкеледі. Эфир ≤ 0,3 мл қалғанда колбаны алыңыз.', 'A 45 °C bath gives quiet evaporation; a hot bath causes bumping. Take the flask off when ≤ 0.3 mL of ether is left.'),
+    L('«Декантировать раствор во взвешенную колбу» → «45 °C» → дождитесь «эфир ≈ 0,3 мл» → «Снять колбу с бани — эфир отогнан».', '«Ерітіндіні өлшенген колбаға декантациялау» → «45 °C» → «эфир ≈ 0,3 мл» болғанша күтіңіз → «Колбаны моншадан алу — эфир айдалды».', '“Decant the solution into the weighed flask” → “45 °C” → wait for “ether ≈ 0.3 mL” → “Take the flask off the bath — the ether is gone”.'),
+  ],
 };
 
 /* ---------------- 17. масса амина ---------------- */
@@ -542,7 +574,7 @@ const s19 = {
   switches: [
     { id: 'bath', label: L('Выключить водяную баню', 'Су моншасын өшіру', 'Switch off the water bath') },
     { id: 'pump', label: L('Отсоединить шланг и закрыть воду насоса', 'Шлангты ажыратып, сорғы суын жабу', 'Disconnect the hose and turn off the aspirator') },
-    { id: 'ether', label: L('Закрыть склянку с эфиром, убрать в шкаф для ЛВЖ', 'Эфир склянкасын жауып, ОТС шкафына қою', 'Close the ether bottle and return it to the flammables cupboard'), log: L('Склянка с эфиром закрыта и убрана в шкаф для ЛВЖ (п. 5.4 правил ТБ)', 'Эфир склянкасы жабылып, ОТС шкафына қойылды (ҚТ ережелерінің 5.4-тармағы)', 'Ether bottle closed and returned to the flammables cupboard (safety rule 5.4)') },
+    { id: 'ether', label: L('Закрыть склянку с эфиром, убрать в шкаф для ЛВЖ', 'Эфир склянкасын жауып, ТТС шкафына қою', 'Close the ether bottle and return it to the flammables cupboard'), log: L('Склянка с эфиром закрыта и убрана в шкаф для ЛВЖ (п. 5.4 правил ТБ)', 'Эфир склянкасы жабылып, ТТС шкафына қойылды (ҚТ ережелерінің 5.4-тармағы)', 'Ether bottle closed and returned to the flammables cupboard (safety rule 5.4)') },
     { id: 'hands', label: L('Вымыть руки', 'Қолды жуу', 'Wash your hands') },
   ],
 };
