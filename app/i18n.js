@@ -105,6 +105,14 @@ export function plural(nm, forms) {
 /* ------------------------------------------------------------------------------------------ */
 /* Строки интерфейса                                                                           */
 /* ------------------------------------------------------------------------------------------ */
+/** Название работы для заголовков: «Работа № 8» или «Вводное занятие». */
+export function labName(lab) {
+  if (!lab) return '';
+  return lab.id === 'lab-00' ? t('intro') : t('labNo', { n: tr(lab.display || lab.number) });
+}
+/** «Опыт 2» или «Этап 2» (lab.expWord: 'stage' — у вводного занятия этапы, а не опыты). */
+export function expName(lab, id) { return t(lab && lab.expWord === 'stage' ? 'stageN' : 'expN', { n: id }); }
+
 export const UI = {
   appName: L('Виртуальная лаборатория', 'Виртуалды зертхана', 'Virtual laboratory'),
   discipline: L('Химия функциональных производных органических молекул', 'Органикалық молекулалардың функционалдық туындыларының химиясы', 'Chemistry of the Functional Derivatives of Organic Molecules'),
@@ -164,6 +172,7 @@ export const UI = {
   stDenied: L('Не допущен — можно пересдать', 'Рұқсат берілмеді — қайта тапсыруға болады', 'Not admitted — you may retake'),
   stAdmitted: L('Допуск получен', 'Рұқсат алынды', 'Admitted'),
   stProgress: L('В процессе: опыт {e}, шаг {s}', 'Орындалуда: {e}-тәжірибе, {s}-қадам', 'In progress: experiment {e}, step {s}'),
+  stProgressStage: L('В процессе: этап {e}, шаг {s}', 'Орындалуда: {e}-кезең, {s}-қадам', 'In progress: stage {e}, step {s}'),
   stDone: L('Выполнено — оценка {g}', 'Орындалды — баға {g}', 'Completed — grade {g}'),
   stDraft: L('В разработке', 'Әзірленуде', 'In development'),
   stBriefingDone: L('Инструктаж пройден', 'Нұсқаулықтан өтті', 'Briefing completed'),
@@ -180,6 +189,14 @@ export const UI = {
   teacherComment: L('Комментарий преподавателя', 'Оқытушының пікірі', 'Instructor’s comment'),
   experiments: L('Опыты', 'Тәжірибелер', 'Experiments'),
   expN: L('Опыт {n}', '{n}-тәжірибе', 'Experiment {n}'),
+  stageN: L('Этап {n}', '{n}-кезең', 'Stage {n}'),
+  stages: L('Этапы', 'Кезеңдер', 'Stages'),
+  finalTest: L('Итоговый тест', 'Қорытынды тест', 'Final test'),
+  finalTestTake: L('Пройти итоговый тест', 'Қорытынды тесттен өту', 'Take the final test'),
+  finalTestLocked: L('Итоговый тест откроется после всех этапов инструктажа', 'Қорытынды тест нұсқаулықтың барлық кезеңдерінен кейін ашылады', 'The final test opens after all the stages of the briefing'),
+  finalTestReady: L('Все этапы пройдены — остался итоговый тест', 'Барлық кезең өтті — қорытынды тест қалды', 'All stages done — the final test remains'),
+  stBriefingTodo: L('Инструктаж не пройден', 'Нұсқаулықтан өтпеген', 'Briefing not completed'),
+  briefingApproved: L('Инструктаж засчитан — работы 6–15 открыты. Оформите запись в журнале инструктажа (протокол).', 'Нұсқаулық есептелді — 6–15-жұмыстар ашық. Нұсқаулық журналына жазбаны (хаттаманы) толтырыңыз.', 'Briefing accepted — labs 6–15 are open. Complete the briefing log entry (the report).'),
   optional: L('необязательный', 'міндетті емес', 'optional'),
   start: L('Начать', 'Бастау', 'Start'),
   continue: L('Продолжить', 'Жалғастыру', 'Continue'),

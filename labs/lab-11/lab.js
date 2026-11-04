@@ -97,7 +97,7 @@ export default {
     { id: 'ac', name: L('Уксусная кислота', 'Сірке қышқылы', 'Acetic acid'), formula: 'CH₃COOH', conc: L('1 % раствор', '1 % ерітінді', '1 % solution'), hazard: [] },
     { id: 'etoh', name: L('Этанол', 'Этанол', 'Ethanol'), formula: 'C₂H₅OH', conc: '96 %', hazard: ['flammable'] },
   ],
-  equipment: ['test-tube', 'tube-rack', 'dropping-pipette', 'graduated-pipette', 'water-bath', 'hot-plate', 'funnel', 'filter-paper', 'glass-rod', 'fume-hood', 'goggles', 'gloves', 'lab-coat'],
+  equipment: ['test-tube', 'tube-rack', 'dropping-pipette', 'graduated-pipette', 'water-bath', 'hot-plate', 'funnel', 'filter-paper', 'glass-rod', 'tube-holder', 'fume-hood', 'goggles', 'gloves', 'lab-coat'],
   safety: [
     L('Конц. HNO₃ и 30 % NaOH сильно едкие. Пробирки с ними нагревают в вытяжном шкафу, направив отверстие от себя и от других.', 'Конц. HNO₃ және 30 % NaOH қатты күйдіргіш. Олар бар пробиркаларды тартпа шкафта, аузын өзіңізден және басқалардан аулақ бағыттап қыздырады.', 'Conc. HNO₃ and 30 % NaOH are highly corrosive. Heat tubes containing them in the fume hood, pointing the opening away from yourself and others.'),
     L('Ацетат свинца(II) токсичен (тяжёлый металл, репродуктивный токсикант): малые количества, перчатки, все свинецсодержащие отходы — в отдельную ёмкость.', 'Қорғасын(II) ацетаты улы (ауыр металл, репродуктивтік уытты зат): аз мөлшер, қолғап, құрамында қорғасын бар барлық қалдықтар — бөлек ыдысқа.', 'Lead(II) acetate is toxic (heavy metal, reproductive toxin): small amounts, gloves, and all lead-containing waste into the designated container.'),
@@ -108,7 +108,6 @@ export default {
   ],
   admission: { pick: 5, pass: 4, bank },
   experiments: [exp1, exp2, exp3, exp4, exp5, exp6],
-  customSteps: ['./steps/waste.js'],
 
   report: {
     experiments: {

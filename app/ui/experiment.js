@@ -3,7 +3,7 @@
  * Смена языка перерисовывает экран из сохранённого состояния — шаг не перезапускается.
  */
 import { h, morph, esc } from '../dom.js';
-import { tr, t, L, getLang, num, pts } from '../i18n.js';
+import { tr, t, L, getLang, num, pts, labName, expName } from '../i18n.js';
 import * as store from '../store.js';
 import { Runner, newRun, clockText, nextHintCost } from '../engine.js';
 import { typesFor } from '../steps/index.js';
@@ -48,7 +48,7 @@ export async function experimentPage(root, env, lab, exp) {
     if (await confirmDialog(t('redoConfirm'), t('restartExp'))) { destroy(); run = newRun(lab, exp, progress, api.getStudent().deviceId); if (progress.results) delete progress.results[exp.id]; progress.report = null; save(); env.rerender(); }
   }, 'sm danger');
   const head = h('div', { class: 'top' },
-    h('div', null, h('div', { class: 'eyebrow' }, t('labNo', { n: tr(lab.display || lab.number) }) + ' · ' + tr(lab.title)), h('h1', null, t('expN', { n: exp.id }) + '. ' + tr(exp.title))),
+    h('div', null, h('div', { class: 'eyebrow' }, labName(lab) + ' · ' + tr(lab.title)), h('h1', null, expName(lab, exp.id) + '. ' + tr(exp.title))),
     h('div', { class: 'topr' }, clock, restartB));
   root.append(head, stages);
   if (!hintsEnabled) root.append(h('div', { class: 'banner warn' }, mode === 'exam' ? t('examMode') : t('hintsOff')));
@@ -109,10 +109,11 @@ export async function experimentPage(root, env, lab, exp) {
     lab.experiments.forEach((e, i) => {
       const done = progress.results && progress.results[e.id] && (!progress.runs[e.id] || progress.runs[e.id].status === 'done');
       const cls = e.id === exp.id ? 'now' : done ? 'done' : '';
-      const a = h('a', { class: 'stg ' + cls, href: `#/lab/${lab.number}/exp/${e.id}`, 'aria-current': e.id === exp.id ? 'step' : null }, (done && e.id !== exp.id ? '✓ ' : '') + t('expN', { n: e.id }));
+      const a = h('a', { class: 'stg ' + cls, href: `#/lab/${lab.number}/exp/${e.id}`, 'aria-current': e.id === exp.id ? 'step' : null }, (done && e.id !== exp.id ? '✓ ' : '') + expName(lab, e.id));
       if (i > ri && !done && !(progress.results || {})[lab.experiments[i - 1]?.id]) { a.removeAttribute('href'); a.setAttribute('aria-disabled', 'true'); }
       stages.append(a);
     });
+    if (lab.admissionAfterExperiments) stages.append(h('a', { class: 'stg', href: `#/lab/${lab.number}/admission` }, t('finalTest')));
     stages.append(h('a', { class: 'stg', href: `#/lab/${lab.number}/report` }, t('report')));
     stages.prepend(h('a', { class: 'stg', href: `#/lab/${lab.number}` }, '← ' + t('toLab')));
   }
@@ -173,7 +174,7 @@ export async function experimentPage(root, env, lab, exp) {
     const step = runner.step, type = runner.type;
     ctx = makeCtx();
     const n = exp.steps.length, k = runner.stepIndex + 1;
-    meta.textContent = t('expN', { n: exp.id }) + ' · ' + t('step', { k, n }) + (step.stage ? ' · ' + tr(step.stage) : '');
+    meta.textContent = expName(lab, exp.id) + ' · ' + t('step', { k, n }) + (step.stage ? ' · ' + tr(step.stage) : '');
     title.textContent = tr(step.title);
     instr.innerHTML = tr(step.instr || '');
     controls.innerHTML = '';
@@ -211,7 +212,7 @@ export async function experimentPage(root, env, lab, exp) {
 
   function drawDone() {
     destroyStep();
-    meta.textContent = t('expN', { n: exp.id });
+    meta.textContent = expName(lab, exp.id);
     title.textContent = t('expComplete') + ' ✓';
     const res = (progress.results || {})[exp.id] || {};
     instr.innerHTML = '';
@@ -221,7 +222,9 @@ export async function experimentPage(root, env, lab, exp) {
     const i = lab.experiments.findIndex((e) => e.id === exp.id);
     const nx = lab.experiments[i + 1];
     controls.append(h('div', { class: 'row', style: 'margin-top:12px' },
-      nx ? h('a', { class: 'b pri', href: `#/lab/${lab.number}/exp/${nx.id}` }, t('expN', { n: nx.id }) + ' →') : h('a', { class: 'b pri', href: `#/lab/${lab.number}/report` }, t('report') + ' →'),
+      nx ? h('a', { class: 'b pri', href: `#/lab/${lab.number}/exp/${nx.id}` }, expName(lab, nx.id) + ' →')
+        : lab.admissionAfterExperiments ? h('a', { class: 'b pri', href: `#/lab/${lab.number}/admission` }, t('finalTest') + ' →')
+        : h('a', { class: 'b pri', href: `#/lab/${lab.number}/report` }, t('report') + ' →'),
       h('a', { class: 'b', href: `#/lab/${lab.number}` }, t('toLab')),
       nx ? h('a', { class: 'b', href: `#/lab/${lab.number}/report` }, t('report')) : null));
     fb.hidden = true; hintBox.hidden = true; readouts.innerHTML = '';

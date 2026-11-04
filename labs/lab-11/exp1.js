@@ -38,9 +38,9 @@ const s1 = {
     '<p>All the experiments of this work are qualitative tests in test tubes. Take from the shelf what you will need (section 5 of the manual) and nothing extra.</p>'),
   need: L('Соберите нужный набор', 'Қажетті жиынтықты жинаңыз', 'Collect the right set'),
   shelf: ['test-tube', 'tube-rack', 'dropping-pipette', 'graduated-pipette', 'water-bath', 'hot-plate', 'funnel', 'filter-paper', 'glass-rod',
-    { id: 'holder', label: L('Пробиркодержатель', 'Пробирка ұстағыш', 'Test-tube holder') },
+    'tube-holder',
     'rbf-50', 'reflux-condenser', 'sep-funnel', 'balance', 'mp-apparatus', 'polarimeter-tube', 'buchner'],
-  take: ['test-tube', 'tube-rack', 'dropping-pipette', 'graduated-pipette', 'water-bath', 'hot-plate', 'funnel', 'filter-paper', 'glass-rod', 'holder'],
+  take: ['test-tube', 'tube-rack', 'dropping-pipette', 'graduated-pipette', 'water-bath', 'hot-plate', 'funnel', 'filter-paper', 'glass-rod', 'tube-holder'],
   hint1: L('Нужны: пробирки и штатив, чем отмерять капли и миллилитры, кипящая водяная баня и на чём её греть, чем фильтровать (опыт 6), чем перемешивать и чем держать пробирку при нагревании.', 'Қажет: пробиркалар мен штатив, тамшылар мен миллилитрлерді өлшейтін құрал, қайнап тұрған су моншасы және оны қыздыратын құрал, сүзетін құрал (6-тәжірибе), араластыратын және қыздыру кезінде пробирканы ұстайтын құрал.', 'You need: test tubes and a rack, something to measure drops and millilitres, a boiling water bath and something to heat it on, something to filter with (exp. 6), something to stir with and something to hold a tube while heating.'),
 };
 

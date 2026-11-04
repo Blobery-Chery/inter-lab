@@ -3,8 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { glycinate, ninhydrin, heatGain, biuret, xantho, fohl, saltOut, heatCoag, heavyMetal, ethanolPpt, pHof, bathStep } from '../labs/lab-11/model.js';
 import lab from '../labs/lab-11/lab.js';
-import waste from '../labs/lab-11/steps/waste.js';
-import { BINS } from '../labs/lab-11/steps/waste.js';
+import { BINS } from '../app/steps/cleanup.js';
 import { isTri, tr } from '../app/i18n.js';
 
 test('опыт 1: Cu(OH)₂ растворяется в глицине; избыток CuSO₄ — частично; без встряхивания — нет', () => {
@@ -70,10 +69,9 @@ test('работа 11: статус ready, 6 опытов, критическа�
   assert.equal(lab.status, 'ready');
   assert.equal(lab.experiments.length, 6);
   const src = JSON.stringify(lab.experiments.map((e) => e.steps.map((s) => s.type)));
-  assert.ok(src.includes('lab11-waste'));
-  assert.equal(waste.type, 'lab11-waste');
+  assert.ok(src.includes('cleanup'));
   for (const v of Object.values(BINS)) assert.ok(isTri(v) && v.ru && v.kk && v.en);
-  for (const e of lab.experiments) for (const s of e.steps) if (s.type === 'lab11-waste') for (const it of s.items) assert.ok(BINS[it.bin], it.id);
+  for (const e of lab.experiments) for (const s of e.steps) if (s.type === 'cleanup') for (const it of s.items) { assert.ok(BINS[it.bin], it.id); assert.ok(s.bins.includes(it.bin), it.id); }
 });
 
 test('протокол: итоговая таблица по образцу методички, задания с верными ответами', () => {

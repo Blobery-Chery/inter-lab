@@ -3,7 +3,7 @@
  * результат с разбором → заявка преподавателю через api.submitAdmission → ожидание решения (опрос раз в 30 с).
  */
 import { h, esc } from '../dom.js';
-import { tr, t, getLang } from '../i18n.js';
+import { tr, t, getLang, labName } from '../i18n.js';
 import * as store from '../store.js';
 import { createRng, hashSeed } from '../rng.js';
 import { btn } from './controls.js';
@@ -19,7 +19,7 @@ export async function admissionPage(root, env, entry, lab) {
   const save = () => store.saveLab(entry.id, progress);
   const back = `#/lab/${entry.number}`;
   root.append(h('a', { class: 'b sm ghost', href: back }, '← ' + t('toLab')),
-    h('div', { class: 'section' }, h('div', { class: 'eyebrow' }, t('labNo', { n: tr(entry.display) }) + ' · ' + tr(lab.title)), h('h1', null, t('admission'))));
+    h('div', { class: 'section' }, h('div', { class: 'eyebrow' }, labName({ id: entry.id, display: entry.display }) + ' · ' + tr(lab.title)), h('h1', null, lab.admissionAfterExperiments ? t('finalTest') : t('admission'))));
   const main = h('div');
   root.append(main);
 
@@ -106,8 +106,9 @@ export async function admissionPage(root, env, entry, lab) {
     if (A && A.checked) box.append(h('h2', null, t('result') + ': ' + t('admScore', { s: A.score, t: A.qs.length })));
     if (fresh) box.append(h('p', { class: 'fb info' }, t('sentToTeacher')));
     if (st.status === 'approved') {
-      box.append(h('p', { class: 'fb good' }, t('admApproved')), st.comment ? h('p', null, h('b', null, t('teacherComment') + ': '), st.comment) : '',
-        h('div', { class: 'row' }, h('a', { class: 'b pri', href: back }, t('toExperiments') + ' →')));
+      const after = lab.admissionAfterExperiments;
+      box.append(h('p', { class: 'fb good' }, after ? t('briefingApproved') : t('admApproved')), st.comment ? h('p', null, h('b', null, t('teacherComment') + ': '), st.comment) : '',
+        h('div', { class: 'row' }, h('a', { class: 'b pri', href: after ? `#/lab/${entry.number}/report` : back }, (after ? t('report') : t('toExperiments')) + ' →')));
     } else if (st.status === 'pending') {
       box.append(h('p', { class: 'fb info' }, t('waitDecision')), h('div', { class: 'row' }, btn(t('checkNow'), () => show())));
       timer = setInterval(async () => { const s = await api.getStatus(entry.id); if (s && s.status !== 'pending') { clearInterval(timer); timer = null; show(); } }, 30000);

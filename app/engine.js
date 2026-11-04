@@ -29,7 +29,8 @@ export function clockText(sec, short = false) {
 export function dayOf(sec) { return Math.floor((Math.max(0, sec) + DAY0) / 86400) + 1; }
 
 /** Подпись шага для замечаний и протокола: «Опыт 1, шаг 3». */
-export function stepLabel(expId, i) {
+export function stepLabel(expId, i, word) {
+  if (word === 'stage') return L(`Этап ${expId}, шаг ${i + 1}`, `${expId}-кезең, ${i + 1}-қадам`, `Stage ${expId}, step ${i + 1}`);
   return L(`Опыт ${expId}, шаг ${i + 1}`, `${expId}-тәжірибе, ${i + 1}-қадам`, `Experiment ${expId}, step ${i + 1}`);
 }
 
@@ -117,7 +118,7 @@ export class Runner {
     const severity = r.severity || 'major';
     const rec = {
       key: r.key, severity, points: pointsFor(severity, r.points), text: r.text,
-      step: stepLabel(this.exp.id, this.run.step), stepIndex: this.run.step, exp: this.exp.id, t: this.run.t,
+      step: stepLabel(this.exp.id, this.run.step, this.lab.expWord), stepIndex: this.run.step, exp: this.exp.id, t: this.run.t,
     };
     if (r.whatif) rec.whatif = r.whatif;
     if (r.critical) rec.critical = r.critical;
@@ -188,7 +189,7 @@ export class Runner {
     const lvl = (loc._hint || 0) + 1;
     if (lvl > 3) return 0;
     loc._hint = lvl;
-    this.run.hints.push({ step: stepLabel(this.exp.id, this.run.step), stepIndex: this.run.step, exp: this.exp.id, level: lvl, t: this.run.t });
+    this.run.hints.push({ step: stepLabel(this.exp.id, this.run.step, this.lab.expWord), stepIndex: this.run.step, exp: this.exp.id, level: lvl, t: this.run.t });
     this.log({ ru: `Подсказка ${lvl}`, kk: `${lvl}-кеңес`, en: `Hint ${lvl}` }, 'hint');
     this.save();
     return lvl;
@@ -199,7 +200,7 @@ export class Runner {
     const loc = this.local();
     if ((loc._hint || 0) >= 3) return;
     loc._hint = 3;
-    this.run.hints.push({ step: stepLabel(this.exp.id, this.run.step), stepIndex: this.run.step, exp: this.exp.id, level: 3, t: this.run.t, forced: true });
+    this.run.hints.push({ step: stepLabel(this.exp.id, this.run.step, this.lab.expWord), stepIndex: this.run.step, exp: this.exp.id, level: 3, t: this.run.t, forced: true });
     this.log(L('Показано решение (засчитано как подсказка 3)', 'Шешім көрсетілді (3-кеңес ретінде есептелді)', 'Solution shown (counted as hint 3)'), 'hint');
     this.save();
   }

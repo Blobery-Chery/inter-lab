@@ -7,7 +7,7 @@ import { CONFIG } from '../config.js';
 import apiBase from './api.js';
 import { withPreview } from './preview.js';
 import { h, esc } from './dom.js';
-import { t, tr, getLang, setLang, onLang, LANGS, LANG_LABEL } from './i18n.js';
+import { t, tr, getLang, setLang, onLang, LANGS, LANG_LABEL, labName } from './i18n.js';
 import * as store from './store.js';
 import { LABS, byNumber } from '../labs/manifest.js';
 import { homePage, labPage, accessPage } from './ui/pages.js';
@@ -104,10 +104,15 @@ function parse() {
   return { name: 'home' };
 }
 
-async function guard(entry, lab, needAdmission) {
-  const { labStatus } = await import('./ui/status.js');
+async function guard(entry, lab, needAdmission, what) {
+  const { labStatus, allDone } = await import('./ui/status.js');
   const st = await labStatus(entry, lab, env);
   if (['draft', 'closed', 'briefing'].includes(st.key)) return false;
+  if (lab.admissionAfterExperiments) {
+    // вводное занятие: этапы — без допуска; итоговый тест — после всех этапов (или для просмотра решения)
+    if (what === 'exp') return true;
+    if (what === 'admission') return !!st.adm || allDone(lab, store.loadLab(entry.id));
+  }
   if (needAdmission && (!st.adm || st.adm.status !== 'approved')) return false;
   return true;
 }
@@ -142,21 +147,21 @@ async function doRender() {
   const entry = byNumber(r.num);
   const lab = entry && labs.get(entry.id);
   if (!entry || !lab) { root.append(h('h1', null, t('notFound')), h('a', { class: 'b', href: '#/' }, t('home'))); return; }
-  document.title = `${entry.id === 'lab-00' ? t('intro') : t('labNo', { n: tr(entry.display) })} · ${t('appName')}`;
+  document.title = `${labName({ ...entry, ...lab, display: entry.display })} · ${t('appName')}`;
   const acc = lab.accent || entry.accent;
   app.style.setProperty('--accent', isDark() ? acc.dark : acc.light);
   if (r.name === 'lab') { await labPage(root, env, entry, lab); return; }
   if (r.name === 'admission') {
-    if (!(await guard(entry, lab, false))) { location.hash = `#/lab/${entry.number}`; return; }
+    if (!(await guard(entry, lab, false, 'admission'))) { location.hash = `#/lab/${entry.number}`; return; }
     page = await admissionPage(root, env, entry, lab); return;
   }
   if (r.name === 'report') {
-    if (!(await guard(entry, lab, true))) { location.hash = `#/lab/${entry.number}`; return; }
+    if (!(await guard(entry, lab, true, 'report'))) { location.hash = `#/lab/${entry.number}`; return; }
     page = await reportPage(root, env, entry, lab); return;
   }
   if (r.name === 'exp') {
     const exp = lab.experiments.find((e) => e.id === r.exp);
-    if (!exp || !(await guard(entry, lab, true))) { location.hash = `#/lab/${entry.number}`; return; }
+    if (!exp || !(await guard(entry, lab, true, 'exp'))) { location.hash = `#/lab/${entry.number}`; return; }
     const progress = store.loadLab(entry.id);
     const i = lab.experiments.indexOf(exp);
     const prev = lab.experiments[i - 1];

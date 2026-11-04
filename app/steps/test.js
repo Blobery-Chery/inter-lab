@@ -28,7 +28,7 @@ export default {
   render(step, ctx) {
     const { local, state } = ctx;
     const wrap = h('div', { class: 'wfull' });
-    if (step.tubes.length > 1) wrap.append(group(L('Пробирка', 'Пробирка', 'Test tube'), seg(step.tubes.map((t) => [t.id, t.label]), () => local.sel, (v) => { local.sel = v; ctx.save(); ctx.update(); }, L('Пробирка', 'Пробирка', 'Test tube'))));
+    if (step.tubes.length > 1) wrap.append(group(L('Пробирка', 'Пробирка', 'Test tube'), seg(step.tubes.map((t) => [t.id, t.label]), () => local.sel, (v) => { local.sel = v; ctx.save(); ctx.rerender(); }, L('Пробирка', 'Пробирка', 'Test tube'))));
     const groups = new Map();
     for (const r of step.reagents) {
       const b = btn(r.label, () => {
