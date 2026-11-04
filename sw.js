@@ -1,6 +1,6 @@
 /* Офлайн-кэш виртуальной лаборатории. При каждом релизе меняйте CACHE и APP_VERSION в config.js.
    CORE — все файлы приложения, работ и панели (тест tests/sw.test.js проверяет, что список полный). */
-const CACHE = 'vlab-v1.0.4';
+const CACHE = 'vlab-v1.0.5';
 const CORE = [
   "./",
   "index.html",
@@ -172,7 +172,8 @@ const CORE = [
 ];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => Promise.all(CORE.map((u) => c.add(u).catch(() => null)))).then(() => self.skipWaiting()));
+  // cache: 'reload' — мимо HTTP-кэша браузера (GitHub Pages отдаёт файлы с max-age 10 мин), иначе новая версия кэша могла бы набраться старыми файлами.
+  e.waitUntil(caches.open(CACHE).then((c) => Promise.all(CORE.map((u) => c.add(new Request(u, { cache: 'reload' })).catch(() => null)))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (e) => {
@@ -188,9 +189,18 @@ self.addEventListener('fetch', (e) => {
   const own = url.origin === self.location.origin;
   const font = /fonts\.(googleapis|gstatic)\.com$/.test(url.hostname);
   if (!own && !font) return;
+  // Свои файлы перепроверяются в сети мимо HTTP-кэша браузера.
+  const refresh = () => (own && req.mode !== 'navigate' ? fetch(req.url, { cache: 'no-cache', credentials: 'same-origin' }) : fetch(req));
+  // config.js (адрес сервера преподавателя, версия) — сначала сеть: новая настройка действует сразу; без сети — из кэша.
+  if (own && url.pathname.endsWith('/config.js')) {
+    e.respondWith(caches.open(CACHE).then((c) => refresh()
+      .then((res) => { if (res && res.ok) { c.put(req, res.clone()); return res; } return c.match(req, { ignoreSearch: true }).then((hit) => hit || res); })
+      .catch(() => c.match(req, { ignoreSearch: true }).then((hit) => hit || new Response('', { status: 504, statusText: 'offline' })))));
+    return;
+  }
   e.respondWith(caches.open(CACHE).then(async (c) => {
     const hit = await c.match(req, { ignoreSearch: own });
-    const net = fetch(req).then((res) => { if (res && (res.ok || res.type === 'opaque')) c.put(req, res.clone()); return res; }).catch(() => null);
+    const net = refresh().then((res) => { if (res && (res.ok || res.type === 'opaque')) c.put(req, res.clone()); return res; }).catch(() => null);
     return hit || (await net) || new Response('', { status: 504, statusText: 'offline' });
   }));
 });
