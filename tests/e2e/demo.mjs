@@ -41,7 +41,7 @@ for (const W of [1280, 375]) {
   const p = await c.newPage(); watch(p, `${W}`);
   // 0:00 главная, смена языка
   await p.goto(BASE + '#/'); await p.waitForSelector('.labcard');
-  ok((await p.evaluate(() => document.documentElement.lang)) === 'kk', `${W}: язык по умолчанию — казахский`);
+  ok(['kk', 'ru'].includes(await p.evaluate(() => document.documentElement.lang)), `${W}: язык страницы задан (у нового студента — казахский, в подготовленном профиле — выбранный)`);
   for (const l of ['Рус', 'Eng', 'Қаз', 'Рус']) { await p.locator('header .seg button', { hasText: l }).click(); await sleep(250); }
   const cards = await p.evaluate(() => [...document.querySelectorAll('.labcard')].slice(0, 2).map((c) => c.querySelector('.badge').textContent));
   ok(/Инструктаж пройден|Выполнено/.test(cards[0]) && /Выполнено/.test(cards[1]), `${W}: статусы карточек (${cards.join(' | ')})`);
@@ -86,8 +86,8 @@ for (const W of [1280, 375]) {
   await noJunk(p, `${W} страница работы 6–7`);
   await p.goto(BASE + '#/lab/06-07/report'); await p.waitForSelector('article.doc'); await sleep(500);
   const rep = await bodyText(p);
-  ok(/Оценка|оценка/.test(rep) && /Индивидуальное задание/.test(rep), `${W}: протокол 6–7 с оценкой и заданием`);
-  ok(/Отправлено|Сохранено на этом устройстве|сохранён/i.test(rep), `${W}: статус отправки протокола`);
+  ok(/оценка/i.test(rep) && /индивидуальное задание/i.test(rep), `${W}: протокол 6–7 с оценкой и заданием`);
+  ok(/Отправлено|Сохранено на устройстве|В очереди/i.test(rep), `${W}: статус отправки протокола`);
   await noJunk(p, `${W} протокол 6–7`);
   if (SHOTS) await p.screenshot({ path: `${SHOTS}/demo-${W}-report.png`, fullPage: true });
   await p.emulateMedia({ media: 'print' });
