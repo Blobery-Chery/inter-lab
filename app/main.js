@@ -21,10 +21,15 @@ const params = new URLSearchParams(location.search);
 const mode = params.get('mode') === 'exam' ? 'exam' : 'train';
 const previewMode = params.get('preview');
 // Быстрый слой (app/fastapi.js): кэш статусов и мгновенный доступ/настройки; в режиме ?preview= — без него.
+let changeTimer = null;
 const api = previewMode ? withPreview(apiBase, previewMode) : withFastApi(apiBase, { onChange: (what, data) => {
   if (what === 'settings' && data) settings = data;
-  const r = parse();
-  if (r.name === 'home' || r.name === 'lab') render();
+  // Сервер ответил иначе, чем помнило устройство: перерисовать главную или страницу работы (опыт не трогаем).
+  clearTimeout(changeTimer);
+  changeTimer = setTimeout(() => {
+    const r = parse();
+    if (what === 'access' || r.name === 'home' || r.name === 'lab') render();
+  }, 400);
 } });
 const app = document.getElementById('app');
 

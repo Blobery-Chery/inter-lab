@@ -34,15 +34,27 @@ export function withFastApi(api, { onChange } = {}) {
   };
   const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
-  const getStatus = (labId) => fresh('status:' + labId, () => api.getStatus(labId));
+  const lsStatus = (labId) => { const a = (readLS('vlab_api_admissions', {}) || {})[labId]; return a ? { status: a.status, score: a.score, comment: a.comment || '', decidedAt: a.decidedAt || null } : null; };
+  const liveStatus = (labId) => fresh('status:' + labId, () => api.getStatus(labId));
+  // Статус: последний известный на устройстве — сразу, сервер — в фоне; если ответ другой — onChange('status').
+  const getStatus = (labId) => {
+    const m = memo.get('status:' + labId);
+    if (m && Date.now() - m.at < TTL_MS) return m.p;
+    const last = lsStatus(labId);
+    const live = liveStatus(labId);
+    if (!last) return live;
+    live.then((s) => { if (!same(s && { status: s.status, comment: s.comment || '' }, { status: last.status, comment: last.comment || '' }) && onChange) onChange('status'); }).catch(() => {});
+    return Promise.resolve(last);
+  };
 
   // Доступ к сайту: последнее известное решение — сразу, проверка — в фоне.
   const getAccess = () => {
     const last = readLS('vlab_api_access', null);
     const live = fresh('access', () => api.getAccess(), 60000);
-    if (last && (last.status === 'open' || last.status === 'approved')) {
-      live.then((a) => { if (a && a.status !== last.status && onChange) onChange('access'); }).catch(() => {});
-      return Promise.resolve({ status: last.status, comment: last.comment || '' });
+    if (!last || last.status === 'open' || last.status === 'approved') {
+      // Без сохранённого ответа не ждём сервер: по умолчанию сайт открыт всем; если окажется иначе — перерисуем.
+      live.then((a) => { if (a && a.status !== (last ? last.status : 'open') && onChange) onChange('access'); }).catch(() => {});
+      return Promise.resolve(last ? { status: last.status, comment: last.comment || '' } : { status: 'open', comment: '' });
     }
     return live;
   };
@@ -51,11 +63,10 @@ export function withFastApi(api, { onChange } = {}) {
   const getSettings = () => {
     const last = readLS('vlab_api_settings', null);
     const live = fresh('settings', () => api.getSettings(), 60000);
-    if (last && last.labs) {
-      live.then((s) => { if (s && !same(s.labs || {}, last.labs) && onChange) onChange('settings', s); }).catch(() => {});
-      return Promise.resolve({ labs: last.labs });
-    }
-    return live;
+    // Без сохранённых настроек — умолчания (всё открыто, подсказки есть), свежие — в фоне.
+    const known = (last && last.labs) || {};
+    live.then((s) => { if (s && !same(s.labs || {}, known) && onChange) onChange('settings', s); }).catch(() => {});
+    return Promise.resolve({ labs: known });
   };
 
   return {
@@ -74,7 +85,7 @@ export function withFastApi(api, { onChange } = {}) {
       return res;
     },
     /** Сбросить кэш статуса (кнопка «Проверить сейчас» и т. п.). */
-    refreshStatus: (labId) => { memo.delete('status:' + labId); return getStatus(labId); },
+    refreshStatus: (labId) => { memo.delete('status:' + labId); return liveStatus(labId); },
     /** Последний известный статус допуска без запроса к серверу (или null). */
     cachedStatus: (labId) => (readLS('vlab_api_admissions', {}) || {})[labId] || null,
   };
