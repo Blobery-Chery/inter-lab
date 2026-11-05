@@ -9,6 +9,9 @@
  *    а свежий ответ приходит в фоне; если он что-то меняет — onChange() перерисовывает страницу;
  *  - cachedStatus(labId) — последний известный статус синхронно, для мгновенной отрисовки карточек.
  * После submitAdmission / requestAccess соответствующий кэш сбрасывается.
+ * Очередь неотправленного (нет связи, сервер не ответил вовремя) api.js отправляет только при старте сайта и по событию
+ * online. Здесь, пока в очереди что-то есть, отправка повторяется каждые 20 с и при возврате на вкладку; после удачной
+ * отправки — onChange('status'). queuedFor(labId) — заявка по работе ещё не ушла; flushNow() — «Отправить сейчас».
  */
 
 const TTL_MS = 20000;
@@ -22,8 +25,12 @@ function readLS(key, fallback) {
   }
 }
 
+const RETRY_MS = 20000;
+const outbox = () => { const q = readLS('vlab_api_outbox', []); return Array.isArray(q) ? q : []; };
+const queuedFor = (labId) => outbox().some((x) => x && x.action === 'submitAdmission' && x.data && x.data.payload && x.data.payload.lab === labId);
+
 export function withFastApi(api, { onChange } = {}) {
-  if (!api.isConnected()) return { ...api, cachedStatus: (id) => (readLS('vlab_api_admissions', {}) || {})[id] || null, cachedSettings: () => null };
+  if (!api.isConnected()) return { ...api, cachedStatus: (id) => (readLS('vlab_api_admissions', {}) || {})[id] || null, cachedSettings: () => null, queuedFor: () => false, flushNow: async () => ({ sent: 0, pending: 0 }) };
   const memo = new Map(); // key → { at, p }
   const fresh = (key, fn, ttl = TTL_MS) => {
     const m = memo.get(key);
@@ -69,6 +76,16 @@ export function withFastApi(api, { onChange } = {}) {
     return Promise.resolve({ labs: known });
   };
 
+  // Повтор очереди: пока есть неотправленное — каждые RETRY_MS и при возврате на вкладку.
+  const flushNow = async () => {
+    if (!outbox().length) return { sent: 0, pending: 0 };
+    const res = await api.flushOutbox();
+    if (res && res.sent) { memo.clear(); if (onChange) onChange('status'); }
+    return res || { sent: 0, pending: outbox().length };
+  };
+  if (typeof setInterval === 'function') setInterval(() => { if (outbox().length && !(globalThis.document && document.hidden)) flushNow().catch(() => {}); }, RETRY_MS);
+  if (globalThis.document && typeof document.addEventListener === 'function') document.addEventListener('visibilitychange', () => { if (!document.hidden && outbox().length) flushNow().catch(() => {}); });
+
   return {
     ...api,
     getStatus,
@@ -86,6 +103,10 @@ export function withFastApi(api, { onChange } = {}) {
     },
     /** Сбросить кэш статуса (кнопка «Проверить сейчас» и т. п.). */
     refreshStatus: (labId) => { memo.delete('status:' + labId); return liveStatus(labId); },
+    /** Заявка по работе ещё лежит в очереди на устройстве (не дошла до сервера). */
+    queuedFor,
+    /** Отправить очередь сейчас (кнопка «Отправить сейчас»). */
+    flushNow,
     /** Последний известный статус допуска без запроса к серверу (или null). */
     cachedStatus: (labId) => (readLS('vlab_api_admissions', {}) || {})[labId] || null,
   };

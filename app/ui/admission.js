@@ -14,7 +14,9 @@ export async function admissionPage(root, env, entry, lab) {
   const bank = cfg.bank || [];
   const pick = cfg.pick || 5, pass = cfg.pass || 4;
   let timer = null;
+  let lastErr = '';
   const destroy = () => { if (timer) clearInterval(timer); };
+  const queued = () => !!(api.queuedFor && api.queuedFor(entry.id));
   const progress = store.loadLab(entry.id);
   const save = () => store.saveLab(entry.id, progress);
   const back = `#/lab/${entry.number}`;
@@ -71,6 +73,7 @@ export async function admissionPage(root, env, entry, lab) {
     });
     main.append(form);
     const msg = h('div', { role: 'status', 'aria-live': 'polite' });
+    if (lastErr) { msg.className = 'fb bad'; msg.textContent = lastErr; lastErr = ''; }
     if (!A.checked) {
       main.append(h('div', { class: 'row' }, btn(t('check'), () => {
         if (Object.keys(A.answers).length < A.qs.length) { msg.className = 'fb warn'; msg.textContent = t('answerAll'); return; }
@@ -88,30 +91,51 @@ export async function admissionPage(root, env, entry, lab) {
         answers: A.qs.map((qi, k) => ({ q: strip(tr(bank[qi].q)), chosen: A.answers[k] != null ? strip(tr(bank[qi].options[A.answers[k]])) : '', correct: strip(tr(bank[qi].options[bank[qi].correct])), ok: A.answers[k] === bank[qi].correct })),
         lang: getLang(), startedAt: A.startedAt, finishedAt: A.finishedAt,
       };
+      main.querySelectorAll('button').forEach((b) => { b.disabled = true; });
+      msg.className = 'fb info'; msg.textContent = t('sendingNow');
       try {
         const res = await api.submitAdmission(payload);
+        // Сервер отверг запрос (не «нет связи») — заявки нет, говорим об этом и даём отправить снова.
+        if (!res || res.ok === false) throw new Error((res && (tr(res.text) || res.message || res.error)) || '');
         A.submitted = true; A.retake = false; A.result = res; save();
         main.innerHTML = '';
         showDecision({ status: res.status, score: A.score, comment: '' }, true);
       } catch (e) {
-        msg.className = 'fb bad'; msg.textContent = t('sendError', { e: e.message || String(e) });
+        lastErr = t('sendError', { e: (e && e.message) || String(e) });
         main.innerHTML = ''; showTest();
       }
     }
   }
 
   function showDecision(st, fresh) {
+    if (timer) { clearInterval(timer); timer = null; }
     const A = progress.admission;
     const box = h('section', { class: 'card section' });
+    const q = st.status === 'pending' && queued();
     if (A && A.checked) box.append(h('h2', null, t('result') + ': ' + t('admScore', { s: A.score, t: A.qs.length })));
-    if (fresh) box.append(h('p', { class: 'fb info' }, t('sentToTeacher')));
+    // Заявка ещё в очереди на устройстве — честно говорим, что до преподавателя она не дошла.
+    if (q) box.append(h('p', { class: 'fb warn' }, t('notSentYet')));
+    else if (fresh) box.append(h('p', { class: 'fb info' }, t('sentToTeacher')));
     if (st.status === 'approved') {
       const after = lab.admissionAfterExperiments;
       box.append(h('p', { class: 'fb good' }, after ? t('briefingApproved') : t('admApproved')), st.comment ? h('p', null, h('b', null, t('teacherComment') + ': '), st.comment) : '',
         h('div', { class: 'row' }, h('a', { class: 'b pri', href: after ? `#/lab/${entry.number}/report` : back }, (after ? t('report') : t('toExperiments')) + ' →')));
+    } else if (st.status === 'pending' && q) {
+      const note = h('p', { class: 'muted', role: 'status', 'aria-live': 'polite' });
+      const sendB = btn(t('sendNow'), async () => {
+        sendB.disabled = true; note.textContent = t('sendingNow');
+        try { await api.flushNow(); } catch (e) { /* повторим */ }
+        if (queued()) { sendB.disabled = false; note.textContent = t('stillNotSent'); } else show();
+      }, 'pri');
+      box.append(h('div', { class: 'row' }, sendB), note);
+      // Пока заявка в очереди — повтор каждые 20 с; как только ушла — показываем статус с сервера.
+      timer = setInterval(async () => {
+        try { await api.flushNow(); } catch (e) { /* повторим */ }
+        if (!queued()) show();
+      }, 20000);
     } else if (st.status === 'pending') {
       box.append(h('p', { class: 'fb info' }, t('waitDecision')), h('div', { class: 'row' }, btn(t('checkNow'), () => show())));
-      timer = setInterval(async () => { const s = await (api.refreshStatus ? api.refreshStatus(entry.id) : api.getStatus(entry.id)); if (s && s.status !== 'pending') { clearInterval(timer); timer = null; show(); } }, 30000);
+      timer = setInterval(async () => { const s = await (api.refreshStatus ? api.refreshStatus(entry.id) : api.getStatus(entry.id)); if (s && s.status !== 'pending') show(); }, 30000);
     } else {
       box.append(h('p', { class: 'fb bad' }, t('admDenied')), st.comment ? h('p', null, h('b', null, t('teacherComment') + ': '), st.comment) : h('p', null, t('admDeniedAuto', { p: pass })),
         h('div', { class: 'row' }, btn(t('admRetake'), () => { newSession(); progress.admission.retake = true; save(); main.innerHTML = ''; showTest(); }, 'pri')));

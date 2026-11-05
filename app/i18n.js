@@ -236,6 +236,10 @@ export const UI = {
   toLab: L('К работе', 'Жұмысқа', 'To the lab'),
   toExperiments: L('К опытам', 'Тәжірибелерге', 'To the experiments'),
   sendError: L('Не удалось отправить: {e}', 'Жіберу мүмкін болмады: {e}', 'Could not send: {e}'),
+  sendingNow: L('Отправляем преподавателю… (до 30 секунд)', 'Оқытушыға жіберіп жатырмыз… (30 секундқа дейін)', 'Sending to the instructor… (up to 30 seconds)'),
+  notSentYet: L('Ответ пока не дошёл до преподавателя: сервер не ответил. Он сохранён на этом устройстве и отправится автоматически — оставьте сайт открытым или нажмите «Отправить сейчас».', 'Жауап оқытушыға әлі жеткен жоқ: сервер жауап бермеді. Ол осы құрылғыда сақталды және автоматты түрде жіберіледі — сайтты ашық қалдырыңыз немесе «Қазір жіберу» батырмасын басыңыз.', 'Your answers have not reached the instructor yet: the server did not respond. They are saved on this device and will be sent automatically — keep the site open or press “Send now”.'),
+  sendNow: L('Отправить сейчас', 'Қазір жіберу', 'Send now'),
+  stillNotSent: L('Пока не удалось — повторим автоматически через 20 секунд.', 'Әзірге болмады — 20 секундтан кейін автоматты түрде қайталаймыз.', 'Not yet — we will retry automatically in 20 seconds.'),
 
   /* опыт */
   step: L('Шаг {k} из {n}', '{n} ішінен {k}-қадам', 'Step {k} of {n}'),
