@@ -358,12 +358,12 @@ const e8 = {
     { id: 'recvClosed', label: L('Приёмник с пробкой', 'Тығынды қабылдағыш', 'Stoppered receiver') },
   ],
   slots: [
-    { id: 'th', label: L('Термометр', 'Термометр', 'Thermometer'), accepts: 'thVap', x: 92, y: 26 },
-    { id: 'boil', label: L('В колбу', 'Колбаға', 'Into the flask'), accepts: 'chips', x: 92, y: 120 },
-    { id: 'flask', label: L('Колба', 'Колба', 'Flask'), accepts: 'flask', x: 92, y: 168 },
-    { id: 'heat', label: L('Нагрев', 'Қыздыру', 'Heating'), accepts: 'mantle', x: 92, y: 214 },
-    { id: 'cond', label: L('Холодильник', 'Мұздатқыш', 'Condenser'), accepts: 'air', x: 236, y: 112 },
-    { id: 'recv', label: L('Приёмник', 'Қабылдағыш', 'Receiver'), accepts: 'recv', x: 290, y: 200 },
+    { id: 'th', label: L('Термометр', 'Термометр', 'Thermometer'), accepts: 'thVap', options: ['thVap', 'thLiq'], x: 92, y: 26 },
+    { id: 'boil', label: L('В колбу', 'Колбаға', 'Into the flask'), accepts: 'chips', options: ['chips', 'nochips'], x: 92, y: 120 },
+    { id: 'flask', label: L('Колба', 'Колба', 'Flask'), accepts: 'flask', options: ['flask'], x: 92, y: 168 },
+    { id: 'heat', label: L('Нагрев', 'Қыздыру', 'Heating'), accepts: 'mantle', options: ['mantle', 'wbath'], x: 92, y: 214 },
+    { id: 'cond', label: L('Холодильник', 'Мұздатқыш', 'Condenser'), accepts: 'air', options: ['air', 'liebig'], x: 236, y: 112 },
+    { id: 'recv', label: L('Приёмник', 'Қабылдағыш', 'Receiver'), accepts: 'recv', options: ['recv', 'recvClosed'], x: 290, y: 200 },
   ],
   base: () => `<rect class="met" x="40" y="224" width="110" height="8" rx="2"/><rect class="met" x="22" y="20" width="5" height="206"/><line x1="110" y1="112" x2="262" y2="172" stroke="var(--glass)" stroke-width="3" stroke-dasharray="5 4"/>${text(200, 240, L('стол вытяжного шкафа', 'тартпа шкаф үстелі', 'fume hood bench'))}`,
   onDone(S, place) {

@@ -228,11 +228,11 @@ export function makeSynthesis(kind, opts = {}) {
     need: L('Соберите установку', 'Қондырғыны жинаңыз', 'Assemble the apparatus'),
     parts: refluxParts,
     slots: [
-      { id: 'heat', label: L('Нагрев', 'Қыздыру', 'Heating'), accepts: 'mantle', x: 180, y: 226 },
-      { id: 'flask', label: L('Реакционная колба', 'Реакциялық колба', 'Reaction flask'), accepts: 'rbf', x: 180, y: 186 },
-      { id: 'cond', label: L('Холодильник', 'Мұздатқыш', 'Condenser'), accepts: 'reflux', x: 180, y: 70 },
-      { id: 'win', label: L('Нижний штуцер', 'Төменгі штуцер', 'Lower inlet'), accepts: 'tap', x: 292, y: 104 },
-      { id: 'wout', label: L('Верхний штуцер', 'Жоғарғы штуцер', 'Upper outlet'), accepts: 'drain', x: 292, y: 30 },
+      { id: 'heat', label: L('Нагрев', 'Қыздыру', 'Heating'), accepts: 'mantle', options: ['mantle', 'burner'], x: 180, y: 226 },
+      { id: 'flask', label: L('Реакционная колба', 'Реакциялық колба', 'Reaction flask'), accepts: 'rbf', options: ['rbf', 'conical'], x: 180, y: 186 },
+      { id: 'cond', label: L('Холодильник', 'Мұздатқыш', 'Condenser'), accepts: 'reflux', options: ['reflux', 'stopper'], x: 180, y: 70 },
+      { id: 'win', label: L('Нижний штуцер', 'Төменгі штуцер', 'Lower inlet'), accepts: 'tap', options: ['tap', 'drain'], x: 292, y: 104 },
+      { id: 'wout', label: L('Верхний штуцер', 'Жоғарғы штуцер', 'Upper outlet'), accepts: 'drain', options: ['drain', 'tap'], x: 292, y: 30 },
     ],
     base: (S, lc) => refluxApparatus({ place: { heat: lc.place.heat, flask: lc.place.flask === 'rbf' ? 'rbf' : lc.place.flask === 'conical' ? 'conical' : null, cond: lc.place.cond === 'reflux' ? 'reflux' : null, win: lc.place.win, wout: lc.place.wout } }),
     onDone(S, place) {
@@ -464,13 +464,13 @@ export function makeSynthesis(kind, opts = {}) {
       { id: 'recW', label: L('Взвешенная колба для продукта', 'Өнімге арналған өлшенген колба', 'Pre-weighed flask for the product') },
     ],
     slots: [
-      { id: 'heat', label: L('Нагрев', 'Қыздыру', 'Heating'), accepts: 'mantle', x: 100, y: 214 },
-      { id: 'flask', label: L('Перегонная колба', 'Айдау колбасы', 'Distillation flask'), accepts: 'dflask', x: 100, y: 160 },
-      { id: 'therm', label: L('Термометр', 'Термометр', 'Thermometer'), accepts: 'th-ok', x: 100, y: 40 },
-      { id: 'cond', label: L('Холодильник', 'Мұздатқыш', 'Condenser'), accepts: 'liebig', x: 214, y: 128 },
-      { id: 'wout', label: L('Верхний штуцер', 'Жоғарғы штуцер', 'Upper outlet'), accepts: 'drain', x: 206, y: 84 },
-      { id: 'win', label: L('Нижний штуцер', 'Төменгі штуцер', 'Lower inlet'), accepts: 'tap', x: 262, y: 186 },
-      { id: 'rec', label: G.rec, accepts: 'recF', x: 300, y: 222 },
+      { id: 'heat', label: L('Нагрев', 'Қыздыру', 'Heating'), accepts: 'mantle', options: ['mantle', 'burner'], x: 100, y: 214 },
+      { id: 'flask', label: L('Перегонная колба', 'Айдау колбасы', 'Distillation flask'), accepts: 'dflask', options: ['dflask'], x: 100, y: 160 },
+      { id: 'therm', label: L('Термометр', 'Термометр', 'Thermometer'), accepts: 'th-ok', options: ['th-ok', 'th-low', 'th-high'], x: 100, y: 40 },
+      { id: 'cond', label: L('Холодильник', 'Мұздатқыш', 'Condenser'), accepts: 'liebig', options: ['liebig'], x: 214, y: 128 },
+      { id: 'wout', label: L('Верхний штуцер', 'Жоғарғы штуцер', 'Upper outlet'), accepts: 'drain', options: ['drain', 'tap'], x: 206, y: 84 },
+      { id: 'win', label: L('Нижний штуцер', 'Төменгі штуцер', 'Lower inlet'), accepts: 'tap', options: ['tap', 'drain'], x: 262, y: 186 },
+      { id: 'rec', label: G.rec, accepts: 'recF', options: ['recF', 'recW'], x: 300, y: 222 },
     ],
     base: (S, lc) => {
       const p = lc.place;

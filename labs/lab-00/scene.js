@@ -258,12 +258,61 @@ export function eyewashScene(S) {
 }
 
 /* ------------------------------------------------------------------ установки (основы для assemble) */
-export function refluxBase() {
-  return STYLE + stand(70, 120) + `<rect class="metd" x="70" y="60" width="90" height="4" rx="2"/>` + `<circle class="gls" cx="180" cy="176" r="28" stroke-dasharray="4 4"/><rect class="gls" x="168" y="36" width="24" height="104" stroke-dasharray="4 4"/>` + `<path class="metd" d="M146 230 L150 196 Q180 186 210 196 L214 230 Z" opacity=".25"/>`;
+/** Сборка кипячения с обратным холодильником: что поставлено — то и нарисовано (неверные детали — как есть). */
+export function refluxAssembly(pl = {}) {
+  let s = STYLE + stand(70, 112) + `<rect class="metd" x="70" y="60" width="90" height="4" rx="2"/>`;
+  // нагрев
+  if (pl.heat === 'mantle') s += `<path class="metd" d="M140 222 L144 182 Q180 168 216 182 L220 222 Z"/><circle cx="206" cy="212" r="3.5" fill="var(--metal)"/>`;
+  else if (pl.heat === 'lamp') s += `<path class="pnl" d="M162 232 L165 222 L195 222 L198 232 Z"/><rect class="metd" x="177" y="216" width="6" height="6"/>` + flames(180, 216, 16, 22);
+  else s += `<path class="metd" d="M146 230 L150 196 Q180 186 210 196 L214 230 Z" opacity=".25"/>`;
+  // колба
+  if (pl.flask === 'rbf') s += rbFlask({ id: 'l0asf', cx: 180, cy: 176, r: 30, frac: 0.42, chips: pl.chips === 'chips' });
+  else if (pl.flask === 'conical') {
+    s += `<path class="gl" d="M172 128 L172 150 L148 200 Q146 206 152 206 L208 206 Q214 206 212 200 L188 150 L188 128 Z"/><path class="liq" d="M158 186 L202 186 L210 200 Q211 204 206 204 L154 204 Q149 204 150 200 Z"/>`;
+    if (pl.chips === 'chips') s += `<circle cx="174" cy="200" r="2" class="metd"/><circle cx="185" cy="201" r="2" class="metd"/>`;
+  } else s += `<circle class="gls" cx="180" cy="176" r="28" stroke-dasharray="4 4"/>`;
+  // холодильник и вода
+  const waterTop = pl.in === 'high' || pl.out === 'low';
+  if (pl.cond === 'reflux') s += condenser({ cx: 180, by: 140, hh: 104, water: false, waterIn: waterTop ? 'top' : 'bottom' });
+  else if (pl.cond === 'air') s += `<rect class="gl" x="174" y="36" width="12" height="104"/>`;
+  else s += `<rect class="gls" x="168" y="36" width="24" height="104" stroke-dasharray="4 4"/>`;
+  if (pl.cond === 'reflux' && (pl.in || pl.out)) {
+    const yIn = pl.in === 'high' ? 52 : 124, yOut = pl.out === 'low' ? 124 : 52;
+    if (pl.in) s += `<path d="M232 ${yIn} L212 ${yIn}" stroke="var(--liquid)" stroke-width="3" marker-end="url(#l0arr)"/>` + text(222, yIn - 7, L('вход', 'кіру', 'in'), 'lblb');
+    if (pl.out) s += `<path d="M148 ${yOut} L128 ${yOut}" stroke="var(--liquid)" stroke-width="3" marker-end="url(#l0arr)"/>` + text(138, yOut - 7, L('выход', 'шығу', 'out'), 'lblb');
+    s += `<defs><marker id="l0arr" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--liquid)"/></marker></defs>`;
+  }
+  // верх холодильника
+  if (pl.top === 'stopper') s += `<rect class="metd" x="171" y="28" width="18" height="10" rx="2"/>`;
+  return s;
 }
-export function distillBase() {
-  return STYLE + stand(46, 110) + `<circle class="gls" cx="96" cy="170" r="26" stroke-dasharray="4 4"/><path class="gls" d="M118 128 L250 168" stroke-dasharray="4 4"/><path class="gls" d="M288 160 L272 222 L330 222 L314 160" stroke-dasharray="4 4"/>`;
+
+/** Сборка простой перегонки: что поставлено — то и нарисовано. */
+export function distillAssembly(pl = {}) {
+  let s = STYLE + stand(46, 112);
+  if (pl.heat === 'mantle') s += `<path class="metd" d="M64 222 L68 190 Q96 178 124 190 L128 222 Z"/>`;
+  else if (pl.heat === 'lamp') s += `<path class="pnl" d="M80 232 L83 222 L109 222 L112 232 Z"/><rect class="metd" x="93" y="216" width="6" height="6"/>` + flames(96, 216, 14, 20);
+  if (pl.flask === 'dflask') s += rbFlask({ id: 'l0adf', cx: 96, cy: 172, r: 26, frac: 0.4, chips: true }) + `<rect class="gl" x="89" y="96" width="14" height="52"/><path class="gl" d="M103 112 L134 124 L134 132 L103 120 Z"/>`;
+  else s += `<circle class="gls" cx="96" cy="170" r="26" stroke-dasharray="4 4"/>`;
+  if (pl.cond === 'liebig') {
+    // штуцеры: у приёмника — снизу, у колбы — сверху; стрелка — куда подана вода
+    const arrow = pl.water === 'w-high' ? `<path d="M156 92 L156 106" stroke="var(--liquid)" stroke-width="3" marker-end="url(#l0arr2)"/>`
+      : pl.water === 'w-low' ? `<path d="M262 164 L262 150" stroke="var(--liquid)" stroke-width="3" marker-end="url(#l0arr2)"/>` : '';
+    s += `<defs><marker id="l0arr2" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 L6 3 L0 6 Z" fill="var(--liquid)"/></marker></defs>`
+      + `<g transform="rotate(16 134 128)"><rect class="gl" x="134" y="122" width="150" height="12"/><rect x="146" y="114" width="126" height="28" rx="6" fill="none" stroke="var(--glass)" stroke-width="1.6"/>`
+      + `<line x1="262" y1="142" x2="262" y2="150" stroke="var(--glass)" stroke-width="3"/><line x1="156" y1="114" x2="156" y2="106" stroke="var(--glass)" stroke-width="3"/>${arrow}</g>`;
+  } else s += `<path class="gls" d="M118 128 L250 168" stroke-dasharray="4 4"/>`;
+  if (pl.recv) {
+    s += conical({ id: 'l0arc', cx: 300, by: 222, s: 0.32, vol: 0, cap: 50 });
+    if (pl.recv === 'recv-closed') s += `<rect class="metd" x="292" y="160" width="16" height="8" rx="2"/>`;
+  } else s += `<path class="gls" d="M288 160 L272 222 L330 222 L314 160" stroke-dasharray="4 4"/>`;
+  if (pl.thermo && pl.flask === 'dflask') {
+    const bulb = pl.thermo === 'th-high' ? 84 : pl.thermo === 'th-liq' ? 178 : 116;
+    s += `<rect x="94" y="${bulb - 70}" width="4" height="70" fill="var(--panel)" stroke="var(--glass)"/><circle cx="96" cy="${bulb}" r="4" class="redc"/>`;
+  }
+  return s;
 }
+
 export function vacuumBase() {
   return STYLE + vacuumFilter({ filtrate: 0, seal: true, paper: false, hose: true, vac: false });
 }

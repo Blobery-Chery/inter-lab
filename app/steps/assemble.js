@@ -1,7 +1,9 @@
 /**
  * assemble — собрать установку: нажать предмет, затем место (в панели или на стенде).
  * step.parts: [{ id, label }]  (могут быть лишние)
- * step.slots: [{ id, label, accepts: 'partId', x, y }]  — x, y: точка на сцене (360×250) для метки места
+ * step.parts: [{ id, label, short? }] — short: короткая подпись на сцене (иначе label, обрезанный до 24 знаков).
+ * step.slots: [{ id, label, accepts: 'partId', options?: ['partId'…], x, y }]  — x, y: точка на сцене (360×250) для метки места;
+ *   options — что вообще можно поставить на это место (верное + правдоподобно неверное); остальное не ставится (замечание minor)
  * step.onDone(state, placement, errors, ctx) — записать в state последствия неверной сборки (проявятся позже).
  * Неверная сборка разрешена; пустое место — нельзя (сначала заполнить все места).
  * В state[step.saveAs || 'assembly'] сохраняется { placement, errors:[slotId] }.
@@ -51,6 +53,21 @@ export default {
     if (!act.startsWith('slot:') || ctx.solved()) return;
     const id = act.slice(5), { local } = ctx;
     if (local.sel) {
+      // slot.options — что физически можно поставить на это место (верное и правдоподобно неверное).
+      // Остальное (кипелки вместо нагревателя и т. п.) не ставится: так установку не собрать.
+      const sl = step.slots.find((x) => x.id === id);
+      if (sl && Array.isArray(sl.options) && !sl.options.includes(local.sel)) {
+        const pl = step.parts.find((x) => x.id === local.sel);
+        ctx.remark({ key: (step.id || 'asm') + '-impossible', severity: 'minor',
+          text: L('при сборке детали ставились не на свои места', 'жинау кезінде бөлшектер өз орындарына қойылмады', 'parts were put in the wrong places during assembly') });
+        ctx.feedback({
+          ru: `«${tr(pl.label, 'ru')}» нельзя поставить на место «${tr(sl.label, 'ru')}» — так установку не собрать. Посмотрите на рисунок: что должно быть в этом месте?`,
+          kk: `«${tr(pl.label, 'kk')}» бөлшегін «${tr(sl.label, 'kk')}» орнына қоюға болмайды — қондырғыны бұлай жинау мүмкін емес. Суретке қараңыз: бұл орында не болуы керек?`,
+          en: `“${tr(pl.label, 'en')}” cannot go in the “${tr(sl.label, 'en')}” position — the apparatus cannot be built that way. Look at the drawing: what belongs here?`,
+        }, 'warn');
+        local.sel = null; ctx.save(); ctx.rerender();
+        return;
+      }
       for (const k of Object.keys(local.place)) if (local.place[k] === local.sel) delete local.place[k];
       local.place[id] = local.sel; local.sel = null;
     } else if (local.place[id]) delete local.place[id];
@@ -62,7 +79,9 @@ export default {
     let s = step.base ? step.base(ctx.state, local) : '';
     for (const sl of step.slots) {
       const p = step.parts.find((x) => x.id === local.place[sl.id]);
-      s += `<g data-act="slot:${esc(sl.id)}" class="slot${p ? ' full' : ''}" tabindex="0" role="button" aria-label="${esc(tr(sl.label))}"><rect x="${sl.x - 46}" y="${sl.y - 13}" width="92" height="26" rx="6"/>${text(sl.x, sl.y + 4, p ? p.label : sl.label, p ? 'lblb' : 'lbl')}</g>`;
+      // На сцене — короткая подпись детали (part.short), длинная обрезается: полная — в кнопках справа.
+      const lb = p ? clip(tr(p.short || p.label)) : tr(sl.label);
+      s += `<g data-act="slot:${esc(sl.id)}" class="slot${p ? ' full' : ''}" tabindex="0" role="button" aria-label="${esc(tr(sl.label) + (p ? ': ' + tr(p.label) : ''))}"><rect x="${sl.x - 46}" y="${sl.y - 13}" width="92" height="26" rx="6"/>${text(sl.x, sl.y + 4, lb, p ? 'lblb' : 'lbl')}</g>`;
     }
     return scene(s);
   },
@@ -75,3 +94,5 @@ export default {
     ];
   },
 };
+
+const clip = (s, max = 24) => (s.length > max ? s.slice(0, max - 1).trimEnd() + '…' : s);

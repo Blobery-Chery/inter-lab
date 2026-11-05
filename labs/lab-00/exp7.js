@@ -2,7 +2,7 @@
 import { L, n } from '../../app/i18n.js';
 import { relax } from '../../app/instruments/thermal.js';
 import { ETHANOL_BP, MANTLE_T } from './model.js';
-import { refluxScene, refluxBase, distillBase, distillScene, funnelScene, vacuumScene, iconScene } from './scene.js';
+import { refluxScene, refluxAssembly, distillAssembly, distillScene, funnelScene, vacuumScene, iconScene } from './scene.js';
 import { stageResults } from './common.js';
 
 /** Каталог: по одному предмету на рисунок (одинаковые значки не путаем). */
@@ -17,7 +17,7 @@ const sCatalog = {
 };
 
 /* ------------------------------------------------------------ обратный холодильник */
-const P = (id, ru, kk, en) => ({ id, label: L(ru, kk, en) });
+const P = (id, ru, kk, en, short) => ({ id, label: L(ru, kk, en), ...(short ? { short: L(...short) } : {}) });
 const sReflux = {
   type: 'assemble', id: 'asmReflux', saveAs: 'asmR',
   title: L('Сборка: кипячение с обратным холодильником', 'Жинау: кері мұздатқышпен қайнату', 'Assembly: heating under reflux'),
@@ -32,15 +32,15 @@ const sReflux = {
     P('open', 'Открыт', 'Ашық', 'Open'), P('stopper', 'Резиновая пробка', 'Резеңке тығын', 'Rubber stopper'),
   ],
   slots: [
-    { id: 'top', label: L('Верх холодильника', 'Мұздатқыштың жоғарғы ұшы', 'Top of condenser'), accepts: 'open', x: 180, y: 20 },
-    { id: 'out', label: L('Вода — выход', 'Су — шығу', 'Water — out'), accepts: 'high', x: 296, y: 50 },
-    { id: 'cond', label: L('Холодильник', 'Мұздатқыш', 'Condenser'), accepts: 'reflux', x: 180, y: 88 },
-    { id: 'in', label: L('Вода — вход', 'Су — кіру', 'Water — in'), accepts: 'low', x: 296, y: 126 },
-    { id: 'chips', label: L('Кипелки', 'Қайнату тастары', 'Boiling chips'), accepts: 'chips', x: 62, y: 172 },
-    { id: 'flask', label: L('Колба', 'Колба', 'Flask'), accepts: 'rbf', x: 180, y: 172 },
-    { id: 'heat', label: L('Нагрев', 'Қыздыру', 'Heating'), accepts: 'mantle', x: 180, y: 222 },
+    { id: 'top', label: L('Верх холодильника', 'Мұздатқыштың жоғарғы ұшы', 'Top of condenser'), accepts: 'open', options: ['open', 'stopper'], x: 180, y: 20 },
+    { id: 'out', label: L('Вода — выход', 'Су — шығу', 'Water — out'), accepts: 'high', options: ['high', 'low'], x: 296, y: 50 },
+    { id: 'cond', label: L('Холодильник', 'Мұздатқыш', 'Condenser'), accepts: 'reflux', options: ['reflux', 'air'], x: 180, y: 88 },
+    { id: 'in', label: L('Вода — вход', 'Су — кіру', 'Water — in'), accepts: 'low', options: ['low', 'high'], x: 296, y: 126 },
+    { id: 'chips', label: L('Кипелки', 'Қайнату тастары', 'Boiling chips'), accepts: 'chips', options: ['chips', 'nochips'], x: 62, y: 172 },
+    { id: 'flask', label: L('Колба', 'Колба', 'Flask'), accepts: 'rbf', options: ['rbf', 'conical'], x: 180, y: 172 },
+    { id: 'heat', label: L('Нагрев', 'Қыздыру', 'Heating'), accepts: 'mantle', options: ['mantle', 'lamp'], x: 180, y: 222 },
   ],
-  base: () => refluxBase(),
+  base: (S, lc) => refluxAssembly((lc && lc.place) || {}),
   hint1: L('Вода в холодильник — снизу вверх; верх открыт (п. 7.4); ЛВЖ — без открытого пламени (п. 5.2); кипелки — до нагрева (п. 5.3).', 'Мұздатқышқа су — төменнен жоғары; жоғарғы ұшы ашық (7.4-тармақ); тез тұтанатын сұйық — ашық жалынсыз (5.2-тармақ); қайнату тастары — қыздыруға дейін (5.3-тармақ).', 'Condenser water in at the bottom, out at the top; top open (rule 7.4); no open flame for flammable liquids (rule 5.2); chips before heating (rule 5.3).'),
   onDone(S, pl) {
     S.tr = { burner: pl.heat === 'lamp', thin: pl.flask === 'conical', noChips: pl.chips === 'nochips', air: pl.cond === 'air', waterTop: pl.in === 'high' || pl.out === 'low', closed: pl.top === 'stopper', T: 22, El: 22, water: false, power: 0, reflux: 0, lost: 0 };
@@ -150,22 +150,22 @@ const sDistill = {
   instr: L('<p>Соберите установку для простой перегонки этанола (т. кип. 78 °C): колба, термометр, холодильник Либиха, приёмник, нагрев.</p>', '<p>Этанолды жай айдауға арналған қондырғыны жинаңыз (қайнау t 78 °C): колба, термометр, Либих мұздатқышы, қабылдағыш, қыздыру.</p>', '<p>Assemble a simple distillation of ethanol (b.p. 78 °C): flask, thermometer, Liebig condenser, receiver, heating.</p>'),
   need: L('Заполните все места', 'Барлық орынды толтырыңыз', 'Fill every position'),
   parts: [
-    P('th-side', 'Шарик термометра — напротив отвода', 'Термометр шарикі — бұрманың тұсында', 'Thermometer bulb level with the side arm'), P('th-liq', 'Шарик — в жидкости', 'Шарик — сұйықта', 'Bulb in the liquid'), P('th-high', 'Шарик — выше отвода', 'Шарик — бұрмадан жоғары', 'Bulb above the side arm'),
-    P('dflask', 'Перегонная колба с отводом + кипелка', 'Бұрмасы бар айдау колбасы + қайнату тасы', 'Distillation flask with side arm + a boiling chip'),
+    P('th-side', 'Шарик термометра — напротив отвода', 'Термометр шарикі — бұрманың тұсында', 'Thermometer bulb level with the side arm', ['Шарик у отвода', 'Шарик бұрма тұсында', 'Bulb at side arm']), P('th-liq', 'Шарик — в жидкости', 'Шарик — сұйықта', 'Bulb in the liquid', ['Шарик в жидкости', 'Шарик сұйықта', 'Bulb in liquid']), P('th-high', 'Шарик — выше отвода', 'Шарик — бұрмадан жоғары', 'Bulb above the side arm', ['Шарик выше отвода', 'Шарик бұрмадан жоғары', 'Bulb above arm']),
+    P('dflask', 'Перегонная колба с отводом + кипелка', 'Бұрмасы бар айдау колбасы + қайнату тасы', 'Distillation flask with side arm + a boiling chip', ['Колба с отводом', 'Бұрмасы бар колба', 'Flask with side arm']),
     P('liebig', 'Холодильник Либиха', 'Либих мұздатқышы', 'Liebig condenser'),
-    P('w-low', 'Вход воды — нижний конец (у приёмника)', 'Судың кіруі — төменгі ұшы (қабылдағыш жанында)', 'Water in at the lower end (by the receiver)'), P('w-high', 'Вход воды — верхний конец (у колбы)', 'Судың кіруі — жоғарғы ұшы (колба жанында)', 'Water in at the upper end (by the flask)'),
-    P('recv-open', 'Приёмник, открытый (сообщается с атмосферой)', 'Қабылдағыш, ашық (атмосферамен қатынасады)', 'Receiver, open to the atmosphere'), P('recv-closed', 'Приёмник, закрытый пробкой наглухо', 'Қабылдағыш, тығынмен тұйық жабылған', 'Receiver, tightly stoppered'),
+    P('w-low', 'Вход воды — нижний конец (у приёмника)', 'Судың кіруі — төменгі ұшы (қабылдағыш жанында)', 'Water in at the lower end (by the receiver)', ['Вода — снизу', 'Су — төменнен', 'Water in low']), P('w-high', 'Вход воды — верхний конец (у колбы)', 'Судың кіруі — жоғарғы ұшы (колба жанында)', 'Water in at the upper end (by the flask)', ['Вода — сверху', 'Су — жоғарыдан', 'Water in high']),
+    P('recv-open', 'Приёмник, открытый (сообщается с атмосферой)', 'Қабылдағыш, ашық (атмосферамен қатынасады)', 'Receiver, open to the atmosphere', ['Приёмник открыт', 'Қабылдағыш ашық', 'Receiver open']), P('recv-closed', 'Приёмник, закрытый пробкой наглухо', 'Қабылдағыш, тығынмен тұйық жабылған', 'Receiver, tightly stoppered', ['Приёмник закрыт', 'Қабылдағыш жабық', 'Receiver stoppered']),
     P('mantle', 'Колбонагреватель', 'Колба қыздырғыш', 'Heating mantle'), P('lamp', 'Спиртовка', 'Спирт шамы', 'Spirit lamp'),
   ],
   slots: [
-    { id: 'thermo', label: L('Термометр', 'Термометр', 'Thermometer'), accepts: 'th-side', x: 96, y: 60 },
-    { id: 'flask', label: L('Колба', 'Колба', 'Flask'), accepts: 'dflask', x: 96, y: 162 },
-    { id: 'heat', label: L('Нагрев', 'Қыздыру', 'Heating'), accepts: 'mantle', x: 96, y: 222 },
-    { id: 'cond', label: L('Холодильник', 'Мұздатқыш', 'Condenser'), accepts: 'liebig', x: 206, y: 112 },
-    { id: 'water', label: L('Подача воды', 'Су беру', 'Water supply'), accepts: 'w-low', x: 214, y: 172 },
-    { id: 'recv', label: L('Приёмник', 'Қабылдағыш', 'Receiver'), accepts: 'recv-open', x: 300, y: 222 },
+    { id: 'thermo', label: L('Термометр', 'Термометр', 'Thermometer'), accepts: 'th-side', options: ['th-side', 'th-liq', 'th-high'], x: 96, y: 60 },
+    { id: 'flask', label: L('Колба', 'Колба', 'Flask'), accepts: 'dflask', options: ['dflask'], x: 96, y: 162 },
+    { id: 'heat', label: L('Нагрев', 'Қыздыру', 'Heating'), accepts: 'mantle', options: ['mantle', 'lamp'], x: 96, y: 222 },
+    { id: 'cond', label: L('Холодильник', 'Мұздатқыш', 'Condenser'), accepts: 'liebig', options: ['liebig'], x: 220, y: 92 },
+    { id: 'water', label: L('Подача воды', 'Су беру', 'Water supply'), accepts: 'w-low', options: ['w-low', 'w-high'], x: 196, y: 194 },
+    { id: 'recv', label: L('Приёмник', 'Қабылдағыш', 'Receiver'), accepts: 'recv-open', options: ['recv-open', 'recv-closed'], x: 300, y: 222 },
   ],
-  base: () => distillBase(),
+  base: (S, lc) => distillAssembly((lc && lc.place) || {}),
   hint1: L('Термометр меряет температуру паров, уходящих в отвод; вода в холодильнике — навстречу парам; система не замкнута; ЛВЖ — без пламени.', 'Термометр бұрмаға кететін булардың температурасын өлшейді; мұздатқыштағы су — буларға қарсы; жүйе тұйық емес; тез тұтанатын сұйық — жалынсыз.', 'The thermometer measures the vapour going into the side arm; the condenser water flows against the vapour; the system is not closed; no flame for flammable liquids.'),
   onDone(S, pl, errors, ctx) {
     S.ds = { th: pl.thermo === 'th-liq' ? 'liq' : pl.thermo === 'th-high' ? 'high' : 'side', waterTop: pl.water === 'w-high', closed: pl.recv === 'recv-closed', burner: pl.heat === 'lamp' };

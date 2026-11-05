@@ -687,10 +687,10 @@ const s18 = {
     { id: 'hose', label: L('Вакуумный шланг к насосу', 'Сорғыға вакуумдық шланг', 'Vacuum hose to the pump') },
   ],
   slots: [
-    { id: 'top', label: L('Воронка', 'Шұңғыма', 'Funnel'), accepts: 'buchner', x: 140, y: 50 },
-    { id: 'seal', label: L('Уплотнение', 'Тығыздағыш', 'Seal'), accepts: 'cone', x: 140, y: 100 },
-    { id: 'flask', label: L('Приёмник фильтрата', 'Фильтрат қабылдағышы', 'Filtrate receiver'), accepts: 'bunsen', x: 140, y: 170 },
-    { id: 'vac', label: L('Отвод → насос', 'Бұрма → сорғы', 'Side arm → pump'), accepts: 'hose', x: 250, y: 130 },
+    { id: 'top', label: L('Воронка', 'Шұңғыма', 'Funnel'), accepts: 'buchner', options: ['buchner', 'funnel'], x: 140, y: 50 },
+    { id: 'seal', label: L('Уплотнение', 'Тығыздағыш', 'Seal'), accepts: 'cone', options: ['cone', 'stopper'], x: 140, y: 100 },
+    { id: 'flask', label: L('Приёмник фильтрата', 'Фильтрат қабылдағышы', 'Filtrate receiver'), accepts: 'bunsen', options: ['bunsen', 'conical'], x: 140, y: 170 },
+    { id: 'vac', label: L('Отвод → насос', 'Бұрма → сорғы', 'Side arm → pump'), accepts: 'hose', options: ['hose'], x: 250, y: 130 },
   ],
   base: filterBase,
   onDone(S, place) {

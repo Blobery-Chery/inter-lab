@@ -129,10 +129,10 @@ const s6 = {
     { id: 'plate', label: L('Плитка', 'Плита', 'Hot plate') },
   ],
   slots: [
-    { id: 'in', label: L('В колбу', 'Колбаға', 'Into the flask'), accepts: 'chips', x: 286, y: 176 },
-    { id: 'top', label: L('На шлиф', 'Шлифке', 'On the joint'), accepts: 'cond', x: 286, y: 112 },
-    { id: 'water', label: L('Вода', 'Су', 'Water'), accepts: 'wlow', x: 286, y: 56 },
-    { id: 'heat', label: L('Нагрев', 'Қыздыру', 'Heating'), accepts: 'bath', x: 286, y: 214 },
+    { id: 'in', label: L('В колбу', 'Колбаға', 'Into the flask'), accepts: 'chips', options: ['chips', 'rod'], x: 286, y: 176 },
+    { id: 'top', label: L('На шлиф', 'Шлифке', 'On the joint'), accepts: 'cond', options: ['cond', 'stopper'], x: 286, y: 112 },
+    { id: 'water', label: L('Вода', 'Су', 'Water'), accepts: 'wlow', options: ['wlow', 'wtop'], x: 286, y: 56 },
+    { id: 'heat', label: L('Нагрев', 'Қыздыру', 'Heating'), accepts: 'bath', options: ['bath', 'mantle', 'plate'], x: 286, y: 214 },
   ],
   base: assembleBase,
   onDone(S, place, errors, ctx) {

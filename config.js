@@ -10,5 +10,5 @@ export const CONFIG = {
     kk: 'Калдыбаева Ару Рашидовна',
     en: 'Aru Kaldybayeva',
   },
-  APP_VERSION: '1.0.8',
+  APP_VERSION: '1.0.9',
 };

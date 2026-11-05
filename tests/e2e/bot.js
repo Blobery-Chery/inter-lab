@@ -144,13 +144,16 @@ export async function act(mode) {
       break;
     }
     case 'assemble': {
+      if (bad && !M.wrong) {
+        // одна ошибка сборки: правдоподобно неверная деталь из slot.options; если вариантов нет — поменять местами два первых места
+        M.wrong = 1;
+        const sw = step.slots.find((x) => Array.isArray(x.options) && x.options.some((o) => o !== x.accepts));
+        if (sw) M.alt = { slot: sw.id, part: sw.options.find((o) => o !== sw.accepts) };
+        else if (!step.slots.some((x) => Array.isArray(x.options))) M.swap = true;
+      }
       for (const sl of step.slots) {
-        const want = bad && !M.wrong ? null : sl.accepts;
-        if (bad && !M.wrong) {
-          // одна ошибка сборки: поменять местами два первых места
-          M.wrong = 1; M.swap = true;
-        }
-        const target = M.swap && step.slots.length > 1 && sl === step.slots[0] ? step.slots[1].accepts : M.swap && sl === step.slots[1] ? step.slots[0].accepts : want || sl.accepts;
+        const target = M.alt && M.alt.slot === sl.id ? M.alt.part
+          : M.swap && step.slots.length > 1 && sl === step.slots[0] ? step.slots[1].accepts : M.swap && sl === step.slots[1] ? step.slots[0].accepts : sl.accepts;
         const cur = (local.place || local.placement || {})[sl.id];
         if (cur === target) continue;
         const part = step.parts.find((p) => p.id === target);

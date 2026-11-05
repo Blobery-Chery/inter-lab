@@ -145,9 +145,11 @@ ctx.readouts([{ label, value, st }]), ctx.update() (перерисовать с�
 ### assemble — собрать установку (неправильная сборка разрешена, последствие — позже)
 ```js
 { type: 'assemble',
-  parts: [{ id: 'buchner', label }, { id: 'funnel', label }, …],
-  slots: [{ id: 'top', label, accepts: 'buchner', x: 140, y: 50 }, …],     // x, y — метка места на сцене 360×250
-  base: () => svgПодложки,
+  parts: [{ id: 'buchner', label, short? }, { id: 'funnel', label }, …],    // short — короткая подпись на сцене
+  slots: [{ id: 'top', label, accepts: 'buchner', options: ['buchner', 'funnel'], x: 140, y: 50 }, …],
+  // x, y — метка места на сцене 360×250; options — что физически можно поставить на это место
+  // (верное + правдоподобно неверное). Остальное не ставится: пояснение и замечание minor (без options — ставится всё).
+  base: (state, local) => svgПодложки,   // local.place — что уже поставлено: рисуйте установку по мере сборки
   onDone(state, placement, errors) { state.leak = placement.seal !== 'cone'; } }
 ```
 Последствие проверяйте в следующем шаге (в 6–7: тонкостенная колба под вакуумом → `critical`, нет уплотнения → потери).
