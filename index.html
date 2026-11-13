@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ru" translate="no" class="notranslate">
+<head>
+<meta charset="utf-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Виртуальная лаборатория переехала</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #edf1f3; color: #15222b;
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  @media (prefers-color-scheme: dark) { body { background: #0e1519; color: #e2eaef; } a { color: #86a6ff; } }
+  main { max-width: 560px; padding: 24px 16px; text-align: center; }
+  p { margin: 8px 0; } .m { opacity: .7; font-size: 14px; } a { color: #1f4fd1; font-weight: 600; word-break: break-all; }
+</style>
+</head>
+<body>
+<main>
+  <p><b>Виртуальная лаборатория переехала на новый адрес.</b> Переносим ваши допуски и прогресс…</p>
+  <p class="m">Виртуалды зертхана жаңа мекенжайға көшті · The Virtual Laboratory has moved</p>
+  <p><a id="go" href="https://kaldybayeva-lab.github.io/virtual-lab/">https://kaldybayeva-lab.github.io/virtual-lab/</a></p>
+</main>
+<script>
+/*
+ * Мост со старого адреса. Собирает данные студента (ключи vlab_* в хранилище браузера этого адреса),
+ * сжимает и передаёт новому адресу в части ссылки после «#» (она не уходит ни на один сервер):
+ * https://kaldybayeva-lab.github.io/virtual-lab/import.html#g.<gzip+base64url>. Новый сайт записывает их, только если там этот браузер ещё не работал.
+ * Ключи преподавателя (вход в панель) не передаются. Старый сервис-воркер и кэш удаляются.
+ */
+(async function () {
+  var NEW = 'https://kaldybayeva-lab.github.io/virtual-lab/';
+  var to = /^#\/[\w\-\/]*$/.test(location.hash) ? location.hash : '#/';
+  try {
+    if (navigator.serviceWorker) (await navigator.serviceWorker.getRegistrations()).forEach(function (r) { r.unregister(); });
+    if (window.caches) (await caches.keys()).forEach(function (k) { caches.delete(k); });
+  } catch (e) { /* не мешает переезду */ }
+  var all = {};
+  try {
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (/^vlab_/.test(k) && !/^vlab_teacher/.test(k)) all[k] = localStorage.getItem(k);
+    }
+  } catch (e) { /* хранилище недоступно */ }
+  if (!Object.keys(all).length) return location.replace(NEW + to);
+  // Если данных очень много — сначала всё, затем только главное (кто, допуски, очередь, язык), затем только кто это.
+  var essential = function (k) { return /^vlab_(api_|lang$|schemaVersion$)/.test(k); };
+  var who = function (k) { return k === 'vlab_api_student' || k === 'vlab_api_admissions' || k === 'vlab_lang'; };
+  var sets = [all, pick(all, essential), pick(all, who)];
+  for (var s = 0; s < sets.length; s++) {
+    var enc = await encode(JSON.stringify({ v: 1, to: to, ls: sets[s] }));
+    if (enc.length < 900000) return location.replace(NEW + 'import.html#' + enc);
+  }
+  location.replace(NEW + to);
+
+  function pick(o, f) { var r = {}; Object.keys(o).forEach(function (k) { if (f(k)) r[k] = o[k]; }); return r; }
+  async function encode(text) {
+    var bytes = new TextEncoder().encode(text), kind = 'j.';
+    if (window.CompressionStream) {
+      try {
+        var stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream('gzip'));
+        bytes = new Uint8Array(await new Response(stream).arrayBuffer()); kind = 'g.';
+      } catch (e) { bytes = new TextEncoder().encode(text); kind = 'j.'; }
+    }
+    var bin = '';
+    for (var i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+    return kind + btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+})();
+</script>
+</body>
+</html>
