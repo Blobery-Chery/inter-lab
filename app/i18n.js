@@ -239,6 +239,8 @@ export const UI = {
   sendingNow: L('Отправляем преподавателю… (до 30 секунд)', 'Оқытушыға жіберіп жатырмыз… (30 секундқа дейін)', 'Sending to the instructor… (up to 30 seconds)'),
   notSentYet: L('Ответ пока не дошёл до преподавателя: сервер не ответил. Он сохранён на этом устройстве и отправится автоматически — оставьте сайт открытым или нажмите «Отправить сейчас».', 'Жауап оқытушыға әлі жеткен жоқ: сервер жауап бермеді. Ол осы құрылғыда сақталды және автоматты түрде жіберіледі — сайтты ашық қалдырыңыз немесе «Қазір жіберу» батырмасын басыңыз.', 'Your answers have not reached the instructor yet: the server did not respond. They are saved on this device and will be sent automatically — keep the site open or press “Send now”.'),
   sendNow: L('Отправить сейчас', 'Қазір жіберу', 'Send now'),
+  movedOk: L('Сайт переехал на новый адрес — сохраните его в закладки. Ваши допуски и прогресс перенесены.', 'Сайт жаңа мекенжайға көшті — оны бетбелгіге сақтаңыз. Рұқсаттарыңыз бен үлгеріміңіз көшірілді.', 'The site has moved to a new address — please bookmark it. Your admissions and progress have been transferred.'),
+  movedSkip: L('Сайт переехал на новый адрес. В этом браузере вы уже работали на новом адресе, поэтому данные со старого не переносились.', 'Сайт жаңа мекенжайға көшті. Бұл браузерде сіз жаңа мекенжайда жұмыс істегенсіз, сондықтан ескі мекенжайдағы деректер көшірілмеді.', 'The site has moved to a new address. You have already used the new address in this browser, so data from the old one was not transferred.'),
   stillNotSent: L('Пока не удалось — повторим автоматически через 20 секунд.', 'Әзірге болмады — 20 секундтан кейін автоматты түрде қайталаймыз.', 'Not yet — we will retry automatically in 20 seconds.'),
 
   /* опыт */

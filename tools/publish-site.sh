@@ -10,7 +10,7 @@ mkdir -p "$DST"
 # очистить всё, кроме .git
 find "$DST" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
 cd "$SRC"
-for f in index.html .nojekyll manifest.webmanifest icon.svg icon-192.png icon-512.png sw.js config.js; do cp "$f" "$DST/"; done
+for f in index.html import.html .nojekyll manifest.webmanifest icon.svg icon-192.png icon-512.png sw.js config.js; do cp "$f" "$DST/"; done
 for d in app labs teacher; do
   git ls-files "$d" | grep -vE '\.md$' | while read -r f; do mkdir -p "$DST/$(dirname "$f")"; cp "$f" "$DST/$f"; done
 done

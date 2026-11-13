@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ru" translate="no" class="notranslate">
+<head>
+<meta charset="utf-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Виртуальная лаборатория</title>
+<style>
+  :root { color-scheme: light dark; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #edf1f3; color: #15222b;
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  @media (prefers-color-scheme: dark) { body { background: #0e1519; color: #e2eaef; } a { color: #86a6ff; } }
+  main { max-width: 520px; padding: 24px 16px; text-align: center; }
+  p { margin: 6px 0; } .m { opacity: .7; font-size: 14px; }
+  a { color: #1f4fd1; }
+</style>
+</head>
+<body>
+<main>
+  <p><b>Переносим ваши данные на новый адрес сайта…</b></p>
+  <p class="m">Деректеріңізді сайттың жаңа мекенжайына көшіріп жатырмыз… · Moving your data to the new site address…</p>
+  <p class="m"><a href="./">Открыть сайт · Сайтты ашу · Open the site</a></p>
+</main>
+<script>
+/*
+ * Переезд со старого адреса сайта (blobery-chery.github.io/inter-lab/).
+ * Старый адрес открывает страницу-мост, она собирает данные студента с ключами vlab_* из хранилища браузера
+ * (кто он, допуски, прогресс, язык) и переходит сюда: import.html#g.<gzip+base64url> или #j.<base64url>.
+ * Данные идут только в части адреса после «#» — она не уходит ни на один сервер; адрес сразу очищается.
+ * Записываем, только если на новом адресе этот браузер ещё не работал (нет имени и заявок),
+ * чтобы чужая ссылка не могла подменить данные студента. Ключи преподавателя не переносятся.
+ */
+(async function () {
+  var raw = location.hash.slice(1);
+  try { history.replaceState(null, '', location.pathname); } catch (e) { /* не страшно */ }
+  var to = '#/';
+  var flag = '';
+  try {
+    var data = await decode(raw);
+    if (data && data.v === 1 && data.ls && typeof data.ls === 'object') {
+      if (typeof data.to === 'string' && /^#\/[\w\-\/]*$/.test(data.to)) to = data.to;
+      if (isFresh()) {
+        Object.keys(data.ls).forEach(function (k) {
+          var v = data.ls[k];
+          if (/^vlab_/.test(k) && !/^vlab_teacher/.test(k) && typeof v === 'string' && v.length < 5e6) localStorage.setItem(k, v);
+        });
+        flag = 'ok';
+      } else flag = 'skip';
+    }
+  } catch (e) { flag = flag || ''; }
+  try { if (flag) sessionStorage.setItem('vlab_moved', flag); } catch (e) { /* без уведомления */ }
+  location.replace('./' + to);
+
+  function isFresh() {
+    try {
+      var st = JSON.parse(localStorage.getItem('vlab_api_student') || 'null');
+      var adm = JSON.parse(localStorage.getItem('vlab_api_admissions') || '{}') || {};
+      return !(st && st.name) && !Object.keys(adm).length;
+    } catch (e) { return true; }
+  }
+  async function decode(s) {
+    if (!s || s.length < 3) return null;
+    var kind = s.slice(0, 2), b64 = s.slice(2).replace(/-/g, '+').replace(/_/g, '/');
+    var bin = atob(b64 + '==='.slice((b64.length + 3) % 4));
+    var bytes = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    if (kind === 'g.') {
+      var stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+      return JSON.parse(await new Response(stream).text());
+    }
+    if (kind === 'j.') return JSON.parse(new TextDecoder().decode(bytes));
+    return null;
+  }
+})();
+</script>
+</body>
+</html>

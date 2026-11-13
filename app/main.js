@@ -129,6 +129,15 @@ async function guard(entry, lab, needAdmission, what) {
   return true;
 }
 
+/** Сообщение после переезда со старого адреса (import.html ставит флаг vlab_moved), показывается один раз. */
+function movedNotice() {
+  let f = null;
+  try { f = sessionStorage.getItem('vlab_moved'); sessionStorage.removeItem('vlab_moved'); } catch (e) { /* без уведомления */ }
+  if (f === 'ok') return h('p', { class: 'fb good', role: 'status' }, t('movedOk'));
+  if (f === 'skip') return h('p', { class: 'fb info', role: 'status' }, t('movedSkip'));
+  return '';
+}
+
 function render() {
   rendering = rendering.then(doRender).catch((e) => console.error(e));
   return rendering;
@@ -155,7 +164,7 @@ async function doRender() {
   }
 
   const r = parse();
-  if (r.name === 'home') { await homePage(root, env); document.title = t('appName'); return; }
+  if (r.name === 'home') { root.append(movedNotice()); await homePage(root, env); document.title = t('appName'); return; }
   const entry = byNumber(r.num);
   const lab = entry && labs.get(entry.id);
   if (!entry || !lab) { root.append(h('h1', null, t('notFound')), h('a', { class: 'b', href: '#/' }, t('home'))); return; }
