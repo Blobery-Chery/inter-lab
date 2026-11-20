@@ -209,6 +209,8 @@ canvas.tg{width:100%;height:110px;display:block;border:1px solid var(--line);bor
 .dochead{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--paper)}
 .grade{display:flex;gap:16px;align-items:center;padding:14px;border-radius:12px;background:var(--accent-soft);margin-top:12px}
 .grade b{font:700 44px/1 var(--f-display);color:var(--accent)}
+.grade.pending{background:transparent;border:1.5px dashed var(--line)}
+.grade.pending b{color:var(--muted)}
 .sev{font:600 10.5px var(--f-body);text-transform:uppercase;letter-spacing:.05em;padding:2px 6px;border-radius:5px;margin-right:6px;border:1px solid currentColor;white-space:nowrap}
 .sev.minor{color:var(--muted)}.sev.major{color:var(--warn)}.sev.critical{color:var(--bad)}.sev.safety{color:var(--bad)}
 .lossbar{display:flex;height:16px;border-radius:8px;overflow:hidden;background:var(--line);margin:6px 0 8px}

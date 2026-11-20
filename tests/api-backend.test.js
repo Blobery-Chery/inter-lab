@@ -297,3 +297,39 @@ test('доступ к сайту по одобрению', () => {
   assert.equal(s.post({ action: 'getAccess', student }).status, 'approved');
   assert.equal(s.post({ action: 'listStudents', token }).students[0].access, 'approved');
 });
+
+test('«Сейчас»: отметки студентов видит только преподаватель; since меняется при смене шага', () => {
+  const s = createServer();
+  s.setCredentials('teacher', 'Секрет-пароль-1');
+  const token = s.post({ action: 'login', login: 'teacher', password: 'Секрет-пароль-1' }).token;
+  const at = (step, extra = {}) => s.post({ action: 'activity', student, act: { view: 'exp', lab: 'lab-12', exp: '2', expTitle: { ru: 'Расщепление', kk: 'Ажырату', en: 'Resolution' }, step, steps: 9, stepTitle: { ru: '=Шаг ' + step }, status: 'active', remarks: 1, penalty: 0.5, hints: 0, ...extra } });
+  assert.equal(at(3).ok, true);
+  assert.equal(s.post({ action: 'listActivity' }).error, 'auth');
+  let list = s.post({ action: 'listActivity', token }).activity;
+  assert.equal(list.length, 1);
+  assert.equal(list[0].name, student.name);
+  assert.equal(list[0].act.step, 3);
+  assert.equal(list[0].act.stepTitle.ru, "'=Шаг 3", 'строка, похожая на формулу, обезврежена');
+  assert.equal(list[0].deviceId, undefined, 'код устройства в панель не уходит');
+  const since = list[0].since;
+  at(3);
+  assert.equal(s.post({ action: 'listActivity', token }).activity[0].since, since);
+  at(4);
+  list = s.post({ action: 'listActivity', token }).activity;
+  assert.equal(list[0].act.step, 4);
+  assert.ok(list[0].since >= since);
+  assert.equal(s.post({ action: 'activity', student: { name: 'Без устройства' }, act: { view: 'home' } }).error, 'bad_request');
+  assert.equal(s.post({ action: 'activity', student: { ...student, deviceId: 'dev-2' }, act: { view: 'что-то' } }).ok, true);
+  const views = s.post({ action: 'listActivity', token }).activity.map((e) => e.act.view).sort();
+  assert.deepEqual(views, ['exp', 'home']);
+});
+
+test('«Сейчас»: старые отметки убираются, список не растёт без предела', () => {
+  const now = Date.now();
+  let all = {};
+  for (let i = 0; i < 200; i++) all = G.mergeActivity(all, { name: 'С' + i, group: 'Г', deviceId: 'd' + i }, G.cleanAct({ view: 'home' }), now + i);
+  assert.ok(Object.keys(all).length <= 120);
+  assert.ok(JSON.stringify(all).length <= 95000);
+  all = G.mergeActivity(all, { name: 'Новый', group: 'Г', deviceId: 'n' }, G.cleanAct({ view: 'lab', lab: 'lab-08' }), now + 4 * 3600 * 1000);
+  assert.equal(Object.keys(all).length, 1, 'отметки старше 3 часов удалены');
+});

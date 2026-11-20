@@ -26,7 +26,7 @@
 /* ======================================================================= */
 
 var VLAB = {
-  VERSION: '1.0.0',
+  VERSION: '1.1.0',
   TOKEN_TTL_MS: 12 * 60 * 60 * 1000,   // токен преподавателя живёт 12 часов
   MAX_FAILS: 5,                         // неудачных входов подряд…
   LOCK_SECONDS: 15 * 60,                // …и вход закрыт на 15 минут
@@ -583,6 +583,50 @@ function touchStudent_(student, now) {
   append_(SHEETS.students, { key: key, name: student.name, group: student.group, deviceId: student.deviceId, firstSeen: new Date(now), lastSeen: new Date(now), summary: '' });
 }
 
+/* ---------- «Сейчас»: где студенты находятся (вкладка панели) ---------- */
+// Хранится не в таблице, а в кэше скрипта (быстро, без записи в лист): последнее место каждого студента
+// за последние 3 часа. Кэш живёт до 6 часов и может очиститься — это только «живая» картина, не журнал.
+var ACT = { KEY: 'vlab_activity', TTL_S: 21600, KEEP_MS: 3 * 60 * 60 * 1000, MAX: 120, MAX_JSON: 95000 };
+var ACT_VIEWS = ['home', 'lab', 'admission', 'exp', 'report'];
+
+function cleanTri_(x) {
+  if (x == null || x === '') return null;
+  if (typeof x !== 'object') return cellText(x, 300);
+  var o = {};
+  ['ru', 'kk', 'en'].forEach(function (k) { if (x[k] != null) o[k] = cellText(x[k], 300); });
+  return o;
+}
+
+function cleanAct(a) {
+  a = a || {};
+  var view = ACT_VIEWS.indexOf(String(a.view)) >= 0 ? String(a.view) : 'home';
+  return {
+    view: view, lab: cellText(a.lab || '', 20), exp: cellText(a.exp == null ? '' : a.exp, 20),
+    expTitle: cleanTri_(a.expTitle), step: a.step == null ? null : num(a.step, null), steps: a.steps == null ? null : num(a.steps, null),
+    stepTitle: cleanTri_(a.stepTitle), stage: cleanTri_(a.stage), status: cellText(a.status || '', 12),
+    remarks: num(a.remarks, 0), penalty: num(a.penalty, 0), hints: num(a.hints, 0),
+  };
+}
+
+/** Добавить отметку в общий список: since — с какого времени студент на этом месте; старые и лишние — убрать. */
+function mergeActivity(all, student, act, now) {
+  all = all || {};
+  var key = studentKey(student);
+  var prev = all[key];
+  var same = prev && prev.act && prev.act.view === act.view && prev.act.lab === act.lab && prev.act.exp === act.exp && prev.act.step === act.step;
+  all[key] = { name: student.name, group: student.group, act: act, at: now, since: same ? prev.since : now };
+  var keys = Object.keys(all).filter(function (k) { return all[k] && now - all[k].at < ACT.KEEP_MS; })
+    .sort(function (a, b) { return all[b].at - all[a].at; }).slice(0, ACT.MAX);
+  var out = {};
+  keys.forEach(function (k) { out[k] = all[k]; });
+  while (keys.length > 1 && JSON.stringify(out).length > ACT.MAX_JSON) delete out[keys.pop()];
+  return out;
+}
+
+function activityRead_() {
+  try { return JSON.parse(CacheService.getScriptCache().get(ACT.KEY) || '{}') || {}; } catch (e) { return {}; }
+}
+
 /* ======================================================================= */
 /* Действия                                                                  */
 /* ======================================================================= */
@@ -590,6 +634,20 @@ function touchStudent_(student, now) {
 var STUDENT_ACTIONS = {
   ping: function () {
     return { ok: true, service: 'vlab', version: VLAB.VERSION };
+  },
+
+  /** Где студент сейчас (для вкладки «Сейчас»). Нет блокировки за 3 с — отметку пропускаем, это не страшно. */
+  activity: function (req) {
+    var student = cleanStudent(req.student);
+    if (!student.deviceId) throw apiError_('bad_request', 'Нет кода устройства.');
+    var act = cleanAct(req.act);
+    var lock = LockService.getScriptLock();
+    if (!lock.tryLock(3000)) return { ok: true, skipped: true };
+    try {
+      var all = mergeActivity(activityRead_(), student, act, Date.now());
+      CacheService.getScriptCache().put(ACT.KEY, JSON.stringify(all), ACT.TTL_S);
+    } finally { lock.releaseLock(); }
+    return { ok: true };
   },
 
   submitAdmission: function (req) {
@@ -801,6 +859,15 @@ var TEACHER_ACTIONS = {
     });
     try { syncDigestTrigger_(res.notifyMode === 'daily'); } catch (e) { res.warning = 'Не удалось настроить ежедневную сводку: ' + e.message; }
     return res;
+  },
+
+  listActivity: function () {
+    var all = activityRead_();
+    var now = Date.now();
+    var list = Object.keys(all).map(function (k) { return all[k]; })
+      .filter(function (e) { return e && now - e.at < ACT.KEEP_MS; })
+      .map(function (e) { return { name: e.name, group: e.group, act: e.act, at: e.at, since: e.since }; });
+    return { ok: true, now: now, activity: list };
   },
 
   listStudents: function () {
@@ -1022,5 +1089,6 @@ if (typeof module !== 'undefined' && module.exports) {
     cellText: cellText, initialStatus: initialStatus, labSettingsOf: labSettingsOf, allLabSettings: allLabSettings,
     packReport: packReport, packAnswers: packAnswers, accessStatusOf: accessStatusOf, sortRequests: sortRequests,
     buildStudentMatrix: buildStudentMatrix, digestText: digestText, requestMailText: requestMailText, toMs: toMs,
+    cleanAct: cleanAct, mergeActivity: mergeActivity,
   };
 }

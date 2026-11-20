@@ -299,6 +299,8 @@ export const UI = {
   assignment: L('Индивидуальное задание', 'Жеке тапсырма', 'Individual assignment'),
   freeAnswer: L('Ответ (его прочитает преподаватель)', 'Жауап (оны оқытушы оқиды)', 'Answer (the instructor will read it)'),
   remarks: L('Замечания', 'Ескертулер', 'Remarks'),
+  noRemarksYet: L('Замечаний пока нет.', 'Әзірге ескерту жоқ.', 'No remarks so far.'),
+  gradeNotYet: L('оценка появится после всех обязательных опытов', 'баға барлық міндетті тәжірибелерден кейін қойылады', 'the grade appears after all required experiments'),
   noRemarks: L('Замечаний нет. Работа выполнена аккуратно, с соблюдением техники безопасности.', 'Ескерту жоқ. Жұмыс ұқыпты, қауіпсіздік техникасын сақтай отырып орындалды.', 'No remarks. The work was carried out carefully and safely.'),
   hintsUsed: L('Подсказки', 'Кеңестер', 'Hints'),
   hintsN: L('использовано: {n} (уровень 2 — {a}, уровень 3 — {b})', 'пайдаланылды: {n} (2-деңгей — {a}, 3-деңгей — {b})', 'used: {n} (level 2 — {a}, level 3 — {b})'),

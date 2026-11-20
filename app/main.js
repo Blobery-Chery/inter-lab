@@ -3,6 +3,7 @@
  * Маршруты: #/ · #/lab/08 · #/lab/08/admission · #/lab/08/exp/2 · #/lab/08/report
  * Параметры: ?mode=exam — без подсказок; ?preview=… — демонстрация статусов (app/preview.js).
  */
+import { createActivity } from './activity.js';
 import { CONFIG } from '../config.js';
 import apiBase from './api.js';
 import { withPreview } from './preview.js';
@@ -66,8 +67,9 @@ async function loadLabs() {
 let settings = { labs: {} };
 async function loadSettings() { try { settings = (await api.getSettings()) || { labs: {} }; } catch (e) { /* локально */ } }
 
+const activity = createActivity(apiBase, { enabled: !previewMode });
 const env = {
-  api, mode, labs,
+  api, mode, labs, activity,
   get settings() { return settings; },
   get dark() { return isDark(); },
   rerender: () => render(),
@@ -164,20 +166,22 @@ async function doRender() {
   }
 
   const r = parse();
-  if (r.name === 'home') { root.append(movedNotice()); await homePage(root, env); document.title = t('appName'); return; }
+  if (r.name === 'home') { activity.set({ view: 'home' }); root.append(movedNotice()); await homePage(root, env); document.title = t('appName'); return; }
   const entry = byNumber(r.num);
   const lab = entry && labs.get(entry.id);
   if (!entry || !lab) { root.append(h('h1', null, t('notFound')), h('a', { class: 'b', href: '#/' }, t('home'))); return; }
   document.title = `${labName({ ...entry, ...lab, display: entry.display })} · ${t('appName')}`;
   const acc = lab.accent || entry.accent;
   app.style.setProperty('--accent', isDark() ? acc.dark : acc.light);
-  if (r.name === 'lab') { await labPage(root, env, entry, lab); return; }
+  if (r.name === 'lab') { activity.set({ view: 'lab', lab: entry.id }); await labPage(root, env, entry, lab); return; }
   if (r.name === 'admission') {
     if (!(await guard(entry, lab, false, 'admission'))) { location.hash = `#/lab/${entry.number}`; return; }
+    activity.set({ view: 'admission', lab: entry.id });
     page = await admissionPage(root, env, entry, lab); return;
   }
   if (r.name === 'report') {
     if (!(await guard(entry, lab, true, 'report'))) { location.hash = `#/lab/${entry.number}`; return; }
+    activity.set({ view: 'report', lab: entry.id });
     page = await reportPage(root, env, entry, lab); return;
   }
   if (r.name === 'exp') {

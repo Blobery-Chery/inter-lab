@@ -8,7 +8,7 @@ import { EQUIPMENT, equipmentIcon } from '../equipment.js';
 import { labStatus, allDone } from './status.js';
 import { btn } from './controls.js';
 import { confirmDialog, toast } from './modal.js';
-import { gradeOf } from '../report.js';
+import { gradeOf, isComplete } from '../report.js';
 
 const hazardTx = {
   corrosive: L('едкое', 'күйдіргіш', 'corrosive'), oxidiser: L('окислитель', 'тотықтырғыш', 'oxidiser'), flammable: L('ЛВЖ', 'тез тұтанғыш', 'flammable'),
@@ -147,7 +147,7 @@ export async function labPage(root, env, entry, lab) {
   root.append(h('section', { class: 'section card' }, h('h2', null, t('report')),
     progress.report && progress.report.sentAt ? h('p', null, h('span', { class: 'badge ok' }, t('stDone', { g: progress.report.grade }))) : h('p', { class: 'muted' }, t('reportLocked')),
     h('div', { class: 'row' }, approved ? h('a', { class: 'b pri', href: `#/lab/${entry.number}/report` }, t('report') + ' →') : null,
-      Object.keys(progress.runs).length ? h('span', { class: 'muted' }, t('penalty') + ': ' + pts(g.points) + ' · ' + t('grade') + ' ' + g.grade) : null)));
+      Object.keys(progress.runs).length ? h('span', { class: 'muted' }, t('penalty') + ': ' + pts(g.points) + (isComplete(lab, progress) ? ' · ' + t('grade') + ' ' + g.grade : '')) : null)));
 
   /* реактивы, оборудование, ТБ */
   if (lab.reagents) {

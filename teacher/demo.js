@@ -303,6 +303,23 @@ function matrix(requests, reports, access) {
   return [...map.values()].sort((a, b) => String(a.group).localeCompare(b.group) || String(a.name.ru || a.name).localeCompare(String(b.name.ru || b.name)));
 }
 
+/** Демо для вкладки «Сейчас»: несколько студентов в разных местах сайта. */
+function demoActivity(now) {
+  const m = 60000;
+  const S = Object.fromEntries(STUDENTS.map((s) => [s.id, s]));
+  const row = (sid, act, ago, onStep) => ({ name: S[sid].name, group: S[sid].group, act, at: now - ago, since: now - (onStep ?? ago) });
+  return [
+    row('demo-1', { view: 'exp', lab: 'lab-08', exp: '1', expTitle: { ru: 'Синтез н-бутилацетата', kk: 'н-Бутилацетат синтезі', en: 'Synthesis of n-butyl acetate' }, step: 5, steps: 16, stepTitle: { ru: 'Катализатор и кипелки', kk: 'Катализатор және қайнату тастары', en: 'Catalyst and boiling chips' }, status: 'active', remarks: 1, penalty: 0.5, hints: 0 }, 0.4 * m, 3 * m),
+    row('demo-2', { view: 'exp', lab: 'lab-12', exp: '2', expTitle: { ru: 'Расщепление рацемического 1-фенилэтиламина через диастереомерные соли', kk: 'Рацемиялық 1-фенилэтиламинді диастереомерлі тұздар арқылы ажырату', en: 'Resolution of racemic 1-phenylethylamine via diastereomeric salts' }, step: 4, steps: 20, stepTitle: { ru: 'Метанол для кристаллизации', kk: 'Кристалдауға арналған метанол', en: 'Methanol for the crystallisation' }, status: 'active', remarks: 0, penalty: 0, hints: 2 }, 1.2 * m, 18 * m),
+    row('demo-5', { view: 'exp', lab: 'lab-00', exp: '3', expTitle: { ru: 'Реактивы, ЛВЖ, кислоты и щёлочи', kk: 'Реактивтер, тез тұтанатын сұйықтар, қышқылдар мен сілтілер', en: 'Reagents, flammable liquids, acids and alkalis' }, step: 6, steps: 9, stepTitle: { ru: 'Остатки эфира', kk: 'Эфир қалдықтары', en: 'Ether residues' }, status: 'failed', remarks: 3, penalty: 4, hints: 1 }, 0.8 * m, 1 * m),
+    row('demo-6', { view: 'admission', lab: 'lab-10' }, 2 * m),
+    row('demo-7', { view: 'report', lab: 'lab-06-07' }, 0.2 * m),
+    row('demo-3', { view: 'lab', lab: 'lab-09' }, 2.5 * m),
+    row('demo-9', { view: 'exp', lab: 'lab-10', exp: '1', expTitle: { ru: 'Реакции щавелевой кислоты', kk: 'Щавель қышқылының (қымыздық қышқылының) реакциялары', en: 'Reactions of oxalic acid' }, step: null, steps: 6, status: 'done', remarks: 0, penalty: 0, hints: 0 }, 26 * m),
+    row('demo-4', { view: 'home' }, 74 * m),
+  ];
+}
+
 const strip = ({ _data, ...rest }) => rest;
 const clone = (x) => JSON.parse(JSON.stringify(x));
 
@@ -340,6 +357,7 @@ export function createDemoClient(now = Date.now()) {
       return clone(db.settings);
     },
     listStudents: () => ({ access: db.settings.access, students: matrix(db.requests, db.reports, db.settings.access) }),
+    listActivity: () => ({ now: Date.now(), activity: demoActivity(Date.now()) }),
   };
   async function call(action, data = {}) {
     await new Promise((r) => setTimeout(r, 120)); // как будто сеть

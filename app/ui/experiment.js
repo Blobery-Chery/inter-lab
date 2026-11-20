@@ -198,6 +198,7 @@ export async function experimentPage(root, env, lab, exp) {
     } catch (e) { console.error(e); controls.append(h('p', { class: 'fb bad' }, String(e))); }
     drawScene(); drawReadouts(); drawFb(); drawHints(); drawBar(); drawLog();
     clock.textContent = clockText(run.t);
+    tellActivity();
     if (run.status === 'failed') showFail(run.remarks.find((r) => r.key === (run.failure || {}).key) || {});
   }
 
@@ -221,7 +222,22 @@ export async function experimentPage(root, env, lab, exp) {
     runner.restart();
   }
 
+  /** Отметка для вкладки «Сейчас» в панели преподавателя: какой опыт, какой шаг, сколько замечаний. */
+  function tellActivity() {
+    if (!env.activity) return;
+    const step = run.status === 'done' ? null : runner.step;
+    env.activity.set({
+      view: 'exp', lab: lab.id, exp: exp.id, expTitle: exp.title || null,
+      step: step ? runner.stepIndex + 1 : null, steps: exp.steps.length,
+      stepTitle: step ? step.title || null : null, stage: step ? step.stage || null : null,
+      status: run.status, remarks: run.remarks.length,
+      penalty: Math.round(run.remarks.reduce((a, r) => a + (Number(r.points) || 0), 0) * 10) / 10,
+      hints: run.hints.length,
+    });
+  }
+
   function drawDone() {
+    tellActivity();
     destroyStep();
     meta.textContent = expName(lab, exp.id);
     title.textContent = t('expComplete') + ' ✓';

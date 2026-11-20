@@ -120,12 +120,12 @@ export function reportText(d, author) {
     d.assignment.forEach((task, i) => { const a = d.answers[task.id] || {}; L2.push(`${i + 1}. ${tr(task.task)}`, `   → ${answerText(task, a.answer)}${a.ok === true ? ' ✓' : a.ok === false ? ' ✗' : ''}`); });
   }
   L2.push('', t('remarks') + ':');
-  if (!d.remarks.length && !d.grade.extra.length) L2.push(' ' + t('noRemarks'));
+  if (!d.remarks.length && !d.grade.extra.length) L2.push(' ' + t(d.complete ? 'noRemarks' : 'noRemarksYet'));
   for (const r of d.remarks) L2.push(` – [${tr(r.step)}] ${tr(r.text)} (−${pts(r.points)})`);
   for (const r of d.grade.extra) L2.push(` – ${tr(r.text)} (−${pts(r.points)}, ${t('resultPenalty')})`);
   const h2 = d.hints.filter((h) => h.level === 2).length, h3 = d.hints.filter((h) => h.level === 3).length;
   L2.push(`${t('hintsUsed')}: ${t('hintsN', { n: d.hints.length, a: h2, b: h3 })}`);
-  L2.push(`${t('grade')}: ${d.grade.grade} (${gradeWord(d.grade.grade)}), ${t('penalty')}: ${pts(d.grade.points)}`);
+  L2.push(d.complete ? `${t('grade')}: ${d.grade.grade} (${gradeWord(d.grade.grade)}), ${t('penalty')}: ${pts(d.grade.points)}` : `${t('grade')}: ${t('gradeNotYet')}, ${t('penalty')}: ${pts(d.grade.points)}`);
   L2.push('', t('journalFull') + ':');
   for (const j of d.journal) L2.push(`${clockText(j.t, true)}  ${j.kind === 'obs' ? t('obs') + ' ' : ''}${strip(tr(j.text))}`);
   L2.push('', `© ${new Date().getFullYear()} ${author}. ${t('rights')}.`);
@@ -187,7 +187,7 @@ export function reportBodyHTML(d) {
 export function remarksHTML(d) {
   const crit = d.remarks.filter((r) => r.severity === 'critical');
   let h = `<section><h3>${esc(t('remarks'))}</h3>`;
-  if (!d.remarks.length && !d.grade.extra.length) h += `<p>${esc(t('noRemarks'))}</p>`;
+  if (!d.remarks.length && !d.grade.extra.length) h += `<p>${esc(t(d.complete ? 'noRemarks' : 'noRemarksYet'))}</p>`;
   else {
     h += '<ul>' + d.remarks.map((r) => `<li><span class="sev ${r.severity}">${esc(t(SEV[r.severity]))}</span>${esc(tr(r.text))} <span class="muted">· ${esc(tr(r.step))}, ${esc(clockText(r.t, true))}</span> <span class="mono">(−${pts(r.points)})</span></li>`).join('');
     h += d.grade.extra.map((r) => `<li><span class="sev major">${esc(t('resultPenalty'))}</span>${esc(tr(r.text))} <span class="mono">(−${pts(r.points)})</span></li>`).join('') + '</ul>';
@@ -195,7 +195,10 @@ export function remarksHTML(d) {
   if (crit.length) h += `<p><b>${esc(t('emergencies'))}:</b> ${crit.map((r) => esc(tr(r.text))).join('; ')}.</p>`;
   const h2 = d.hints.filter((x) => x.level === 2).length, h3 = d.hints.filter((x) => x.level === 3).length;
   h += `<p><b>${esc(t('hintsUsed'))}:</b> ${esc(t('hintsN', { n: d.hints.length, a: h2, b: h3 }))}</p></section>`;
-  h += `<div class="grade"><b>${d.grade.grade}</b><div><div class="eyebrow">${esc(t('gradeFor'))}</div><div>${esc(gradeWord(d.grade.grade))} · ${esc(t('penalty'))}: ${pts(d.grade.points)}</div></div></div>`;
+  // Оценка — только когда выполнены все обязательные опыты; до этого — сколько штрафных баллов набрано.
+  h += d.complete
+    ? `<div class="grade"><b>${d.grade.grade}</b><div><div class="eyebrow">${esc(t('gradeFor'))}</div><div>${esc(gradeWord(d.grade.grade))} · ${esc(t('penalty'))}: ${pts(d.grade.points)}</div></div></div>`
+    : `<div class="grade pending"><b>—</b><div><div class="eyebrow">${esc(t('gradeFor'))}</div><div>${esc(t('gradeNotYet'))} · ${esc(t('penalty'))}: ${pts(d.grade.points)}</div></div></div>`;
   return h;
 }
 

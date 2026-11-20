@@ -6,6 +6,8 @@ import { createDemoClient } from './demo.js';
 import { requestsCsv, reportsCsv, studentsCsv } from './csv.js';
 
 const REFRESH_MS = 30000;
+const LIVE_MS = 15000;      // вкладка «Сейчас» обновляется чаще
+const LIVE_ACTIVE_MS = 4 * 60000; // отметка свежее 4 минут — студент сейчас на сайте
 const KEY = { lang: 'vlab_teacher_lang', theme: 'vlab_teacher_theme', token: 'vlab_teacher_token' };
 
 /* ---------- хранение ---------- */
@@ -25,9 +27,10 @@ const st = {
   theme: ['auto', 'light', 'dark'].includes(ls.get(KEY.theme)) ? ls.get(KEY.theme) : 'auto',
   mode: 'login', token: '', tab: 'requests', loading: false, lastUpdate: 0,
   requests: [], reports: [], students: [], studentsAccess: 'all', settings: null, draft: null, dirty: false,
-  f: { kind: '', status: 'pending', group: '', lab: '', grade: '', q: '', sgroup: '' },
+  f: { kind: '', status: 'pending', group: '', lab: '', grade: '', q: '', sgroup: '', lgroup: '' },
   openAns: new Set(), changing: new Set(), drafts: {},
   report: null, reportData: null, gradeDraft: null,
+  activity: null, actSkew: 0, actErr: '', actAt: 0,
   loginErr: '', loginBusy: false, deferRender: false,
 };
 let client = null;
@@ -174,6 +177,7 @@ function tabsBar() {
     ['requests', t('tabRequests'), pend],
     ['reports', t('tabReports'), 0],
     ['students', t('tabStudents'), 0],
+    ['live', t('tabLive'), 0],
     ['settings', t('tabSettings'), 0],
   ];
   return `<nav class="tabs" role="tablist" aria-label="${esc(t('panel'))}">${tabs.map(([id, name, n]) => `<button class="tab" type="button" role="tab" aria-selected="${st.tab === id}" data-act="tab" data-v="${id}">${esc(name)}${n ? `<span class="cnt" aria-label="${n} ${esc(t('pendingCount'))}">${n}</span>` : ''}</button>`).join('')}</nav>`;
@@ -355,6 +359,82 @@ function cellFor(lab, c) {
   return c.admission ? `<span class="${cls}" title="${esc(statusName(r))}${c.score != null ? ' · ' + esc(c.score) + '/' + esc(c.total) : ''}" aria-label="${esc(statusName(r))}">${ICON[c.admission]}</span>` : '·';
 }
 
+/* --- «Сейчас»: кто где --- */
+const fill = (str, o) => str.replace(/\{(\w+)\}/g, (_, k) => (o[k] != null ? o[k] : ''));
+function fmtDur(ms) {
+  const m = Math.max(0, Math.round(ms / 60000));
+  return m < 60 ? fill(t('durMin'), { n: m }) : fill(t('durH'), { h: Math.floor(m / 60), m: m % 60 });
+}
+function fmtAgo(ms) {
+  const m = Math.round(ms / 60000);
+  return m < 1 ? t('agoNow') : m < 60 ? fill(t('agoMin'), { n: m }) : fill(t('agoLong'), { d: fmtDur(ms) });
+}
+function whereText(a) {
+  if (!a) return '';
+  if (a.view === 'home') return t('vHome');
+  if (a.view === 'lab') return t('vLab');
+  if (a.view === 'admission') return a.lab === 'lab-00' ? t('vBriefing') : t('vAdmission');
+  if (a.view === 'report') return t('vReport');
+  return '';
+}
+function liveRow(e, now) {
+  const a = e.act || {};
+  const ago = now - e.at;
+  const on = ago < LIVE_ACTIVE_MS;
+  const lab = a.lab ? `<b>${esc(labShort(a.lab))}</b>` : '';
+  let what = '';
+  if (a.view === 'exp') {
+    const word = a.lab === 'lab-00' ? t('stageWord') : t('expWord');
+    const exp = `${esc(word)} ${esc(a.exp)}${a.expTitle ? ': ' + E(a.expTitle) : ''}`;
+    const step = a.status === 'done' ? `<span class="ic-ok">✓ ${esc(t('vExpDone'))}</span>`
+      : a.status === 'failed' ? `<span class="ic-no">⚠ ${esc(t('vExpFailed'))}</span>`
+        : a.step ? `${esc(fill(t('stepOf'), { k: a.step, n: a.steps || '?' }))}${a.stepTitle ? ' — «' + E(a.stepTitle) + '»' : ''}${a.stage ? ` <span class="muted">(${E(a.stage)})</span>` : ''}` : '';
+    const stuck = a.status === 'active' && e.since && now - e.since >= 60000 ? ` · <span class="${now - e.since > 15 * 60000 ? 'ic-wait' : 'muted'}">${esc(fill(t('onStepFor'), { m: fmtDur(now - e.since) }))}</span>` : '';
+    const nums = [a.remarks ? `${esc(fill(t('remarksN'), { n: a.remarks }))}${a.penalty ? ' (−' + esc(fmtPts(a.penalty)) + ')' : ''}` : '', a.hints ? esc(fill(t('hintsN2'), { n: a.hints })) : ''].filter(Boolean).join(' · ');
+    what = `<div>${lab} · ${exp}</div><div>${step}${stuck}</div>${nums ? `<div class="small muted">${nums}</div>` : ''}`;
+  } else {
+    what = `<div>${lab ? lab + ' · ' : ''}${esc(whereText(a))}</div>`;
+  }
+  return `<li class="live${on ? ' on' : ''}">
+    <div class="lh"><span class="dot" aria-hidden="true"></span><b>${E(e.name) || '—'}</b> <span class="small muted">${esc(e.group || '—')}</span><span class="ago small ${on ? '' : 'muted'}">${esc(fmtAgo(ago))}</span></div>
+    <div class="lw">${what}</div></li>`;
+}
+function viewLive() {
+  const now = Date.now() - st.actSkew;
+  const all = st.activity || [];
+  const list = all.filter((e) => (!st.f.lgroup || e.group === st.f.lgroup) && matchQ(e))
+    .sort((x, y) => {
+      const ox = now - x.at < LIVE_ACTIVE_MS ? 0 : 1, oy = now - y.at < LIVE_ACTIVE_MS ? 0 : 1;
+      return ox - oy || (ox === 0 ? String(x.group).localeCompare(y.group) || tr(x.name).localeCompare(tr(y.name)) : y.at - x.at);
+    });
+  const active = all.filter((e) => now - e.at < LIVE_ACTIVE_MS).length;
+  const head = `<div class="bar"><span class="upd" aria-live="polite">${st.actAt ? esc(t('updated')) + ' ' + esc(fmtTime(st.actAt)) : esc(t('loading'))}</span>
+    <span class="row"><button class="b sm" type="button" data-act="refresh">⟳ ${esc(t('refresh'))}</button></span></div>`;
+  if (st.actErr === 'old') return `${head}<p class="card note">${esc(t('liveOld'))}</p>`;
+  if (st.activity == null) return `${head}<p class="muted">${esc(t('loading'))}</p>`;
+  return `${head}
+  <p class="muted small">${esc(t('liveHint'))}</p>
+  <p><b>${esc(fill(t('liveCount'), { a: active, b: all.length }))}</b></p>
+  <div class="filters">${selectGroup(all, 'lgroup')}${searchBox()}</div>
+  ${list.length ? `<ul class="lives">${list.map((e) => liveRow(e, now)).join('')}</ul>` : `<p class="card muted">${esc(t('liveEmpty'))}</p>`}`;
+}
+
+async function loadActivity(silent = false) {
+  if (!client) return;
+  try {
+    const res = await client.call('listActivity');
+    st.activity = res.activity || [];
+    st.actSkew = res.now ? Date.now() - res.now : 0;
+    st.actErr = '';
+    st.actAt = Date.now();
+  } catch (e) {
+    if (handleAuth(e)) return;
+    if (e && e.code === 'bad_action') { st.actErr = 'old'; st.activity = []; }
+    else if (!silent) toast(errText(e), true);
+  }
+  if (st.tab === 'live') softRender();
+}
+
 function viewStudents() {
   const list = st.students.filter((s) => (!st.f.sgroup || s.group === st.f.sgroup) && matchQ(s));
   const showAccess = st.studentsAccess === 'approved';
@@ -416,7 +496,7 @@ function render() {
     main.innerHTML = viewLogin();
     return;
   }
-  const body = st.tab === 'requests' ? viewRequests() : st.tab === 'reports' ? viewReports() : st.tab === 'students' ? viewStudents() : viewSettings();
+  const body = st.tab === 'requests' ? viewRequests() : st.tab === 'reports' ? viewReports() : st.tab === 'students' ? viewStudents() : st.tab === 'live' ? viewLive() : viewSettings();
   main.innerHTML = tabsBar() + `<section role="tabpanel">${body}</section>`;
 }
 
@@ -611,9 +691,9 @@ document.addEventListener('click', (ev) => {
     case 'demo':
       startDemo(); break;
     case 'tab':
-      st.tab = v; st.report = null; render(); break;
+      st.tab = v; st.report = null; render(); if (v === 'live') loadActivity(); break;
     case 'refresh':
-      loadAll(); break;
+      if (st.tab === 'live') loadActivity(); else loadAll(); break;
     case 'f':
       st.f[el.dataset.k] = v; render(); break;
     case 'ans':
@@ -689,6 +769,9 @@ function markDirty() {
 setInterval(() => {
   if (st.mode !== 'login' && !document.hidden && !st.loading) loadAll(true);
 }, REFRESH_MS);
+setInterval(() => {
+  if (st.mode !== 'login' && st.tab === 'live' && !document.hidden) loadActivity(true);
+}, LIVE_MS);
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden && st.mode !== 'login' && Date.now() - st.lastUpdate > REFRESH_MS) loadAll(true);
 });

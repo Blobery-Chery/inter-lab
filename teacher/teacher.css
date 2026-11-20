@@ -166,3 +166,13 @@ table.mx td .gnum{font-size:18px}
   .tw{overflow:visible}
   a{color:#000}
 }
+
+/* вкладка «Сейчас» */
+.lives{list-style:none;margin:8px 0;padding:0;display:grid;gap:8px}
+.live{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;gap:4px;font-size:14px}
+.live .lh{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline}
+.live .ago{margin-left:auto}
+.live .dot{width:9px;height:9px;border-radius:50%;background:var(--line);display:inline-block;align-self:center}
+.live.on .dot{background:var(--good);box-shadow:0 0 0 3px var(--good-soft)}
+.live:not(.on) .lw{color:var(--muted)}
+.live .lw{padding-left:17px;display:grid;gap:2px;overflow-wrap:anywhere}
