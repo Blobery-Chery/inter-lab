@@ -12,7 +12,7 @@
  */
 import { h } from '../dom.js';
 import { tr, L, n, num } from '../i18n.js';
-import { btn, row, group, seg } from '../ui/controls.js';
+import { btn, withSign, row, group, seg } from '../ui/controls.js';
 import { scene } from '../scene/svg.js';
 import { createMp, tickMp, mpSVG, sampleT } from '../instruments/mp.js';
 import { polarimeterSVG, vernier } from '../instruments/polarimeter.js';
@@ -40,7 +40,7 @@ function valueRender(step, ctx) {
     ctx.solve(); ctx.rerender();
   }, 'pri');
   if (local.ok || local.shown) go.disabled = true;
-  return h('div', { class: 'wfull' }, h('label', { class: 'field' }, h('span', null, tr(step.label || L('Отсчёт', 'Есеп', 'Reading'))), row(inp, h('span', { class: 'unit' }, tr(step.unit || '')), go)));
+  return h('div', { class: 'wfull' }, h('label', { class: 'field' }, h('span', null, tr(step.label || L('Отсчёт', 'Есеп', 'Reading'))), row(withSign(inp), h('span', { class: 'unit' }, tr(step.unit || '')), go)));
 }
 
 function mpRender(step, ctx) {

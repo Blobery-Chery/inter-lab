@@ -3,7 +3,7 @@ import { h, esc } from '../dom.js';
 import { tr, t, getLang, num } from '../i18n.js';
 import * as store from '../store.js';
 import { buildReport, reportBodyHTML, remarksHTML, journalHTML, reportText, reportPayload, checkAssignment, gradeWord } from '../report.js';
-import { btn, option } from './controls.js';
+import { btn, option, withSign } from './controls.js';
 import { CONFIG } from '../../config.js';
 import { parseNum } from '../steps/calc.js';
 
@@ -43,7 +43,7 @@ export async function reportPage(root, env, entry, lab) {
     if (task.kind === 'calc') {
       const inp = h('input', { type: 'text', inputmode: 'decimal', class: 'num', value: a.answer != null ? tr(String(a.answer)) : '', 'aria-label': tr(task.task) });
       if (done || sent) inp.disabled = true;
-      box.append(h('div', { class: 'row' }, inp, h('span', { class: 'unit' }, tr(task.unit || '')), done || sent ? null : btn(t('checkAnswer'), () => { const v = parseNum(inp.value); if (isFinite(v)) setA(String(v)); })));
+      box.append(h('div', { class: 'row' }, withSign(inp), h('span', { class: 'unit' }, tr(task.unit || '')), done || sent ? null : btn(t('checkAnswer'), () => { const v = parseNum(inp.value); if (isFinite(v)) setA(String(v)); })));
       if (done) box.append(h('div', { class: 'fb ' + (a.ok ? 'good' : 'bad') }, a.ok ? t('correct') : `${t('wrong')}. ${t('rightAnswer')}: ${num(task.answer(R), task.decimals ?? 2)} ${tr(task.unit || '')}`));
     } else if (task.kind === 'choice') {
       task.options.forEach((o, j) => {

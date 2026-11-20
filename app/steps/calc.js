@@ -6,10 +6,11 @@
  */
 import { h } from '../dom.js';
 import { tr, L, n, num } from '../i18n.js';
-import { btn, row } from '../ui/controls.js';
+import { btn, row, withSign } from '../ui/controls.js';
 
 export const parseNum = (s) => {
-  const v = parseFloat(String(s).replace(/\s/g, '').replace(',', '.').replace('−', '-'));
+  // минус: «-», «−», «–», «—»; «ө» — клавиша минуса в казахской раскладке
+  const v = parseFloat(String(s).replace(/\s/g, '').replace(',', '.').replace(/^[−–—өӨ]/, '-'));
   return isFinite(v) ? v : NaN;
 };
 
@@ -62,7 +63,7 @@ export default {
       }, 'pri');
       if (st) go.disabled = true;
       inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') go.click(); });
-      wrap.append(h('label', { class: 'field' }, h('span', { html: tr(f.label) }), row(inp, h('span', { class: 'unit' }, tr(f.unit || '')), go)), res);
+      wrap.append(h('label', { class: 'field' }, h('span', { html: tr(f.label) }), row(withSign(inp), h('span', { class: 'unit' }, tr(f.unit || '')), go)), res);
     }
     setTimeout(finish);
     return wrap;

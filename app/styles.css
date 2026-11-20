@@ -43,6 +43,9 @@ h3{font:600 15.5px/1.3 var(--f-display);margin:18px 0 6px}
 input[type=text],input[type=search],textarea,select{font:15px var(--f-body);padding:10px 11px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--ink);min-height:44px;width:100%}
 input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 input.num{width:9em;flex:0 1 9em;font-family:var(--f-mono)}
+.numsign{display:inline-flex;align-items:stretch;gap:4px;flex:0 1 auto;min-width:0}
+.numsign input.num{width:7.5em;flex:1 1 7.5em;min-width:0}
+.b.sign{min-width:44px;padding:0 10px;font:600 18px/1 var(--f-mono)}
 textarea{min-height:120px;resize:vertical}
 .unit{color:var(--muted);font-size:14px}
 .section{margin:18px 0}

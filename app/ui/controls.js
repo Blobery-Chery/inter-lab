@@ -9,6 +9,25 @@ export function row(...kids) { return h('div', { class: 'row' }, ...kids); }
 export function group(label, ...kids) { return h('div', { class: 'grp' }, label ? h('div', { class: 'lab' }, tr(label)) : null, ...kids); }
 export function grid(...kids) { return h('div', { class: 'check' }, ...kids); }
 
+/**
+ * Числовое поле с кнопкой «±». На телефоне цифровая клавиатура (inputmode=decimal) часто без минуса —
+ * кнопка меняет знак числа. Возвращает обёртку с кнопкой и полем.
+ */
+export function withSign(inp) {
+  const b = h('button', { class: 'b sign', type: 'button', 'aria-label': tr({ ru: 'Сменить знак (минус)', kk: 'Таңбаны ауыстыру (минус)', en: 'Change sign (minus)' }), title: tr({ ru: 'Сменить знак', kk: 'Таңбаны ауыстыру', en: 'Change sign' }) }, '±');
+  b.onclick = () => {
+    if (inp.disabled) return;
+    const v = inp.value.trim();
+    inp.value = /^[-−–]/.test(v) ? v.replace(/^[-−–]\s*/, '') : '-' + v;
+    inp.dispatchEvent(new Event('input', { bubbles: true }));
+    inp.focus();
+  };
+  const sync = () => { b.disabled = inp.disabled; };
+  sync();
+  new MutationObserver(sync).observe(inp, { attributes: true, attributeFilter: ['disabled'] });
+  return h('span', { class: 'numsign' }, inp, b); // кнопка после поля: в <label> первым должно быть поле
+}
+
 /** Сегментный переключатель: options [[value, label]], get() → value, set(v). */
 export function seg(options, get, set, aria) {
   const w = h('div', { class: 'seg', role: 'group', 'aria-label': tr(aria || '') });

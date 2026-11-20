@@ -202,6 +202,22 @@ async function doRender() {
   root.append(h('h1', null, t('notFound')));
 }
 
+/**
+ * Числовые поля: клавиши цифр и минуса дают цифру и минус в любой раскладке.
+ * В казахской раскладке Windows верхний ряд печатает буквы (2 → ә, «-» → ө), и минус в ответ не вводился.
+ */
+document.addEventListener('keydown', (e) => {
+  const el = e.target;
+  if (!el || el.tagName !== 'INPUT' || !el.classList.contains('num') || e.ctrlKey || e.metaKey || e.altKey || e.shiftKey) return;
+  const m = /^Digit(\d)$/.exec(e.code || '');
+  const ch = m ? m[1] : (e.code === 'Minus' || e.code === 'NumpadSubtract') ? '-' : null;
+  if (!ch || e.key === ch) return;
+  e.preventDefault();
+  const a = el.selectionStart ?? el.value.length, b = el.selectionEnd ?? a;
+  el.setRangeText(ch, a, b, 'end');
+  el.dispatchEvent(new Event('input', { bubbles: true }));
+}, true);
+
 window.addEventListener('hashchange', () => { app.style.removeProperty('--accent'); render().then(() => window.scrollTo(0, 0)); });
 onLang(() => render());
 window.addEventListener('online', () => { api.flushOutbox().catch(() => {}); render(); });
