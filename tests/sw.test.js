@@ -19,3 +19,8 @@ test('sw.js: в CORE все js/css приложения, работ и пане�
 test('sw.js: версия кэша = APP_VERSION', () => {
   assert.ok(src.includes(`'vlab-v${CONFIG.APP_VERSION}'`), 'обновите CACHE в sw.js и APP_VERSION в config.js вместе');
 });
+
+test('app/version.js: версия кода = APP_VERSION', async () => {
+  const { VERSION } = await import('../app/version.js');
+  assert.equal(VERSION, CONFIG.APP_VERSION, 'обновите VERSION в app/version.js вместе с APP_VERSION в config.js');
+});

@@ -4,6 +4,8 @@
  * Параметры: ?mode=exam — без подсказок; ?preview=… — демонстрация статусов (app/preview.js).
  */
 import { createActivity } from './activity.js';
+import { VERSION } from './version.js';
+import { btn } from './ui/controls.js';
 import { createSync } from './sync.js';
 import { CONFIG } from '../config.js';
 import apiBase from './api.js';
@@ -74,7 +76,7 @@ const env = {
   api, mode, labs, activity, sync,
   get settings() { return settings; },
   get dark() { return isDark(); },
-  rerender: () => render(),
+  rerender: () => rerender(),
   hintsOff: (lab) => mode === 'exam' || (((settings.labs || {})[lab.id] || {}).hints === false),
 };
 
@@ -107,7 +109,7 @@ function banners() {
 }
 
 function footer() {
-  return h('footer', { class: 'foot' }, h('span', null, `© ${new Date().getFullYear()} ${tr(CONFIG.AUTHOR)}. ${t('rights')}.`), h('span', { class: 'noprint' }, `${t('appName')} · v${CONFIG.APP_VERSION}`));
+  return h('footer', { class: 'foot' }, h('span', null, `© ${new Date().getFullYear()} ${tr(CONFIG.AUTHOR)}. ${t('rights')}.`), h('span', { class: 'noprint' }, `${t('appName')} · v${VERSION}`));
 }
 
 /* ---------- маршрутизация ---------- */
@@ -148,6 +150,16 @@ function movedNotice() {
 function render() {
   rendering = rendering.then(doRender).catch((e) => console.error(e));
   return rendering;
+}
+
+/**
+ * Перерисовка той же страницы (выбран вариант ответа, сохранено ФИО, сменён язык): прокрутка остаётся на месте.
+ * На время перерисовки страница держит прежнюю высоту — иначе браузер прокручивает её к началу.
+ */
+function rerender() {
+  const y = window.scrollY;
+  app.style.minHeight = app.offsetHeight + 'px';
+  return render().then(() => { app.style.minHeight = ''; window.scrollTo(0, y); });
 }
 
 async function doRender() {
@@ -218,7 +230,25 @@ document.addEventListener('keydown', (e) => {
   el.dispatchEvent(new Event('input', { bubbles: true }));
 }, true);
 
-window.addEventListener('hashchange', () => { app.style.removeProperty('--accent'); render().then(() => window.scrollTo(0, 0)); });
+window.addEventListener('hashchange', () => {
+  if (updateReady) { location.reload(); return; } // новая версия ждёт — применяем при переходе на другую страницу
+  app.style.removeProperty('--accent'); render().then(() => window.scrollTo(0, 0));
+});
+
+/**
+ * Обновление сайта. Сервис-воркер проверяет новую версию каждые 5 минут и при возврате на вкладку
+ * (сайт — одна страница, сам браузер проверяет только при полной загрузке). Когда новая версия установлена:
+ * на главной и странице работы — перезагрузка сразу; в опыте, тесте и протоколе — плашка «Обновить»
+ * и перезагрузка при следующем переходе (прогресс сохраняется при каждом действии).
+ */
+let updateReady = false;
+function onUpdateReady() {
+  if (updateReady) return;
+  updateReady = true;
+  if (['home', 'lab'].includes(parse().name)) { location.reload(); return; }
+  const bar = h('div', { class: 'updbar noprint', role: 'status' }, h('span', null, t('updReady')), btn(t('updNow'), () => location.reload(), 'pri sm'));
+  document.body.append(bar);
+}
 onLang(() => render());
 window.addEventListener('online', () => { api.flushOutbox().catch(() => {}); render(); });
 window.addEventListener('offline', () => render());
@@ -244,5 +274,13 @@ globalThis.addEventListener('vlab-profile', async () => {
   try { await api.flushOutbox(); } catch (e) { /* очередь подождёт */ }
   await render();
   restoreProgress();
-  if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('./sw.js').catch(() => {});
+  if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+    const hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadController) onUpdateReady(); });
+    navigator.serviceWorker.register('./sw.js').then((reg) => {
+      const check = () => { reg.update().catch(() => {}); };
+      setInterval(check, 5 * 60000);
+      document.addEventListener('visibilitychange', () => { if (!document.hidden) check(); });
+    }).catch(() => {});
+  }
 })();

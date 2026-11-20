@@ -1,5 +1,6 @@
 // Панель преподавателя: вход, заявки, протоколы, студенты, настройки, экспорт CSV, демо-режим.
 import { CONFIG } from '../config.js';
+import { VERSION } from '../app/version.js';
 import { S, LANGS, LANG_LABEL, LABS_FALLBACK } from './i18n.js';
 import { createServerClient } from './client.js';
 import { createDemoClient } from './demo.js';
@@ -146,7 +147,7 @@ function renderChrome() {
   banner.hidden = st.mode !== 'demo';
   banner.innerHTML = `<span><b>${esc(t('demoTag'))}</b> · ${esc(t('demoBanner'))}</span><button class="b sm" type="button" data-act="logout">${esc(t('exitDemo'))}</button>`;
   const year = new Date().getFullYear();
-  $('foot').innerHTML = `<span>© ${year}, ${esc(tr(CONFIG.AUTHOR))}. ${esc(t('rights'))}</span><span class="mono">${esc(t('appName'))} · v${esc(CONFIG.APP_VERSION || '')}</span>`;
+  $('foot').innerHTML = `<span>© ${year}, ${esc(tr(CONFIG.AUTHOR))}. ${esc(t('rights'))}</span><span class="mono">${esc(t('appName'))} · v${esc(VERSION)}</span>`;
   applyTheme();
 }
 
