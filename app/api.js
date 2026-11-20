@@ -94,6 +94,20 @@ function getStudent() {
   return { name: s.name || '', group: s.group || '', deviceId: s.deviceId };
 }
 
+/** ФИО, под которыми с этого устройства отправлялись заявки: сервер ищет допуск и по ним, если ФИО потом исправили. */
+function rememberName(name) {
+  const n = String(name || '').trim();
+  if (!n) return;
+  const s = read(K.student, null) || {};
+  const names = Array.isArray(s.names) ? s.names.filter((x) => x !== n) : [];
+  names.unshift(n);
+  write(K.student, { ...s, names: names.slice(0, 5) });
+}
+function usedNames() {
+  const s = read(K.student, null) || {};
+  return Array.isArray(s.names) ? s.names.slice(0, 5) : [];
+}
+
 function setStudent({ name, group }) {
   const s = getStudent();
   const next = { ...s, name: String(name || '').trim(), group: String(group || '').trim() };
@@ -354,6 +368,7 @@ async function netFlushOutbox() {
 async function netSubmitAdmission(payload) {
   const id = uid();
   const data = { clientId: id, payload: { ...payload, student: getStudent() } };
+  rememberName(data.payload.student.name);
   try {
     const res = await call('submitAdmission', data);
     afterSent('submitAdmission', data, res);
@@ -378,7 +393,7 @@ async function netGetStatus(labId) {
     return statusShape(cached) || { status: 'pending', score: null, comment: '', decidedAt: null };
   }
   try {
-    const res = await call('getStatus', { lab: labId, student: getStudent() });
+    const res = await call('getStatus', { lab: labId, student: getStudent(), alsoNames: usedNames() });
     const st = res.status;
     if (!st) {
       const all = read(K.admissions, {});

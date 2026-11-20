@@ -15,6 +15,11 @@ const hazardTx = {
   toxic: L('токсично', 'улы', 'toxic'), irritant: L('раздражающее', 'тітіркендіргіш', 'irritant'),
 };
 
+/** ФИО и группа сохранены — app/main.js заберёт копию прогресса с сервера (app/sync.js). */
+function profileChanged() {
+  try { globalThis.dispatchEvent(new Event('vlab-profile')); } catch (e) { /* без восстановления */ }
+}
+
 export function profileForm(api, onSave) {
   const s = api.getStudent();
   const fio = h('input', { type: 'text', id: 'fio', autocomplete: 'name', placeholder: t('fioPh'), value: s.name });
@@ -23,6 +28,7 @@ export function profileForm(api, onSave) {
   const save = btn(t('save'), () => {
     api.setStudent({ name: fio.value, group: grp.value });
     msg.textContent = t('saved') + ' ✓';
+    profileChanged();
     onSave && onSave();
   }, 'pri');
   return h('div', { class: 'form' },
@@ -42,6 +48,7 @@ export async function homePage(root, env) {
   const s = api.getStudent();
   const prof = h('section', { class: 'card section', id: 'profile' }, h('h2', null, t('profile')),
     !s.name || !s.group ? h('p', { class: 'banner warn' }, t('profileNeeded')) : null,
+    env.sync && env.sync.enabled ? h('p', { class: 'muted', style: 'font-size:13.5px' }, t('profileSync')) : null,
     profileForm(api, () => env.rerender()));
   root.append(prof);
   const grid = h('div', { class: 'cards' });
@@ -175,6 +182,7 @@ export async function accessPage(root, env, access, recheck) {
       h('div', { class: 'row' }, btn(access.status === 'denied' ? t('accessAgain') : t('accessSend'), async () => {
         if (!fio.value.trim() || !grp.value.trim()) { msg.textContent = t('profileNeeded'); return; }
         api.setStudent({ name: fio.value, group: grp.value });
+        profileChanged();
         try { await api.requestAccess(); recheck(); } catch (e) { msg.textContent = t('sendError', { e: e.message || e }); }
       }, 'pri'))), msg);
   }

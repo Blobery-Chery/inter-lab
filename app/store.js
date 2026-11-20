@@ -75,6 +75,17 @@ export function loadLab(labId) {
   return get('lab_' + labId, null) || { runs: {}, attempts: {}, results: {}, clock: 0, assignment: {}, report: null, admission: null };
 }
 
+const labListeners = [];
+/** Подписка на сохранение прогресса работы (app/sync.js отправляет копию на сервер). */
+export function onLabSave(fn) { labListeners.push(fn); }
+
 export function saveLab(labId, progress) {
+  const ok = set('lab_' + labId, progress);
+  for (const fn of labListeners) { try { fn(labId); } catch (e) { /* подписчик не должен мешать сохранению */ } }
+  return ok;
+}
+
+/** Записать прогресс, восстановленный с сервера (без повторной отправки на сервер). */
+export function restoreLab(labId, progress) {
   return set('lab_' + labId, progress);
 }

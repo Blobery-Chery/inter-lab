@@ -28,8 +28,8 @@
  * Старый адрес открывает страницу-мост, она собирает данные студента с ключами vlab_* из хранилища браузера
  * (кто он, допуски, прогресс, язык) и переходит сюда: import.html#g.<gzip+base64url> или #j.<base64url>.
  * Данные идут только в части адреса после «#» — она не уходит ни на один сервер; адрес сразу очищается.
- * Записываем, только если на новом адресе этот браузер ещё не работал (нет имени и заявок),
- * чтобы чужая ссылка не могла подменить данные студента. Ключи преподавателя не переносятся.
+ * Ничего не затираем: профиль студента берём, только если здесь ещё нет ФИО; допуски дописываем по недостающим
+ * работам; прогресс работы — если здесь его нет или здесь сделано меньше. Ключи преподавателя не переносятся.
  */
 (async function () {
   var raw = location.hash.slice(1);
@@ -40,24 +40,35 @@
     var data = await decode(raw);
     if (data && data.v === 1 && data.ls && typeof data.ls === 'object') {
       if (typeof data.to === 'string' && /^#\/[\w\-\/]*$/.test(data.to)) to = data.to;
-      if (isFresh()) {
-        Object.keys(data.ls).forEach(function (k) {
-          var v = data.ls[k];
-          if (/^vlab_/.test(k) && !/^vlab_teacher/.test(k) && typeof v === 'string' && v.length < 5e6) localStorage.setItem(k, v);
-        });
-        flag = 'ok';
-      } else flag = 'skip';
+      var n = 0;
+      Object.keys(data.ls).forEach(function (k) {
+        var v = data.ls[k];
+        if (!/^vlab_/.test(k) || /^vlab_teacher/.test(k) || typeof v !== 'string' || v.length >= 5e6) return;
+        var cur = localStorage.getItem(k);
+        if (k === 'vlab_api_student') {
+          if (!named(cur) && named(v)) { localStorage.setItem(k, v); n++; }
+        } else if (k === 'vlab_api_admissions') {
+          var a = parse(cur) || {}, b = parse(v) || {}, add = 0;
+          Object.keys(b).forEach(function (lab) { if (!a[lab]) { a[lab] = b[lab]; add++; } });
+          if (add) { localStorage.setItem(k, JSON.stringify(a)); n++; }
+        } else if (/^vlab_lab_/.test(k)) {
+          if (cur == null || score(parse(v)) > score(parse(cur))) { localStorage.setItem(k, v); n++; }
+        } else if (cur == null) { localStorage.setItem(k, v); n++; }
+      });
+      flag = n ? 'ok' : 'skip';
     }
   } catch (e) { flag = flag || ''; }
   try { if (flag) sessionStorage.setItem('vlab_moved', flag); } catch (e) { /* без уведомления */ }
   location.replace('./' + to);
 
-  function isFresh() {
-    try {
-      var st = JSON.parse(localStorage.getItem('vlab_api_student') || 'null');
-      var adm = JSON.parse(localStorage.getItem('vlab_api_admissions') || '{}') || {};
-      return !(st && st.name) && !Object.keys(adm).length;
-    } catch (e) { return true; }
+  function parse(s) { try { return JSON.parse(s); } catch (e) { return null; } }
+  function named(s) { var o = parse(s); return !!(o && o.name); }
+  // как в app/sync.js: завершённый опыт = 1000, иначе номер шага; сданный протокол — сверху
+  function score(p) {
+    if (!p || !p.runs) return 0;
+    var t = 0;
+    Object.keys(p.runs).forEach(function (k) { var r = p.runs[k]; t += r && r.status === 'done' ? 1000 : ((r && r.step) || 0) + 1; });
+    return t + (p.report && p.report.sentAt ? 100000 : 0);
   }
   async function decode(s) {
     if (!s || s.length < 3) return null;

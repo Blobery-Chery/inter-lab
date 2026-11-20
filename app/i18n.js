@@ -151,6 +151,8 @@ export const UI = {
   groupPh: L('Например, Х-31', 'Мысалы, Х-31', 'e.g. Ch-31'),
   save: L('Сохранить', 'Сақтау', 'Save'),
   saved: L('Сохранено', 'Сақталды', 'Saved'),
+  profileSync: L('Допуски и прогресс сохраняются на сервере по ФИО и группе. Введите их так же, как раньше, — и всё восстановится на любом устройстве и в любом браузере.', 'Рұқсаттар мен үлгерім серверде аты-жөні мен топ бойынша сақталады. Оларды бұрынғыдай енгізіңіз — бәрі кез келген құрылғыда және браузерде қалпына келеді.', 'Admissions and progress are saved on the server by name and group. Enter them exactly as before and everything is restored on any device and browser.'),
+  restoredN: L('Прогресс восстановлен с сервера: работ — {n}.', 'Үлгерім серверден қалпына келтірілді: жұмыстар — {n}.', 'Progress restored from the server: labs — {n}.'),
   profileNeeded: L('Укажите ФИО и группу — иначе преподаватель не поймёт, чей это результат.', 'Аты-жөніңіз бен тобыңызды көрсетіңіз — әйтпесе оқытушы нәтиженің кімдікі екенін білмейді.', 'Enter your full name and group — otherwise the instructor will not know whose result it is.'),
   labsTitle: L('Лабораторные работы', 'Зертханалық жұмыстар', 'Laboratory works'),
   labNo: L('Работа № {n}', '№ {n} жұмыс', 'Lab {n}'),

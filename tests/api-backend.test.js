@@ -217,8 +217,9 @@ test('заявка → решение преподавателя → стату�
   const st = s.post({ action: 'getStatus', lab: 'lab-06-07', student }).status;
   assert.equal(st.status, 'denied');
   assert.equal(st.comment, 'Повторите механизм нитрования');
-  // чужой студент своих данных не видит
-  assert.equal(s.post({ action: 'getStatus', lab: 'lab-06-07', student: { ...student, deviceId: 'other' } }).status, null);
+  // другой студент (другие ФИО) чужого допуска не видит; тот же студент с другого устройства — видит (ФИО + группа)
+  assert.equal(s.post({ action: 'getStatus', lab: 'lab-06-07', student: { ...student, name: 'Другой Студент', deviceId: 'other' } }).status, null);
+  assert.equal(s.post({ action: 'getStatus', lab: 'lab-06-07', student: { ...student, deviceId: 'other' } }).status.status, 'denied');
   // ниже порога — сразу отказ
   assert.equal(s.post(adm({ score: 2 })).status, 'denied');
   // автодопуск
@@ -332,4 +333,48 @@ test('«Сейчас»: старые отметки убираются, спис
   assert.ok(JSON.stringify(all).length <= 95000);
   all = G.mergeActivity(all, { name: 'Новый', group: 'Г', deviceId: 'n' }, G.cleanAct({ view: 'lab', lab: 'lab-08' }), now + 4 * 3600 * 1000);
   assert.equal(Object.keys(all).length, 1, 'отметки старше 3 часов удалены');
+});
+
+test('студент по ФИО и группе: регистр, ё, пробелы, латиница в группе', () => {
+  assert.equal(G.personKey({ name: 'Ковалёва  Мария', group: 'Х-31' }), G.personKey({ name: 'ковалева мария', group: 'X 31' }));
+  assert.notEqual(G.personKey({ name: 'Ковалёва Мария', group: 'Х-31' }), G.personKey({ name: 'Ковалёва Мария', group: 'Х-32' }));
+  assert.equal(G.personKey({ name: 'Без группы', group: '' }), '');
+});
+
+test('данные прогресса: делятся на куски с «z» и собираются обратно', () => {
+  const s = 'g.' + '-'.repeat(5) + 'A'.repeat(100);
+  const parts = G.splitData(s, 40, 4);
+  assert.equal(parts.length, 4);
+  assert.ok(parts.filter(Boolean).every((p) => p[0] === 'z'));
+  assert.equal(G.joinData(parts), s);
+  assert.equal(G.splitData('x'.repeat(161), 40, 4), null);
+});
+
+test('допуск находится по ФИО и группе с другого устройства и по прежнему ФИО на том же', () => {
+  const s = createServer();
+  s.post(adm());
+  const other = { name: 'тестовый  студент', group: 'X-31', deviceId: 'dev-new' };
+  assert.equal(s.post({ action: 'getStatus', lab: 'lab-06-07', student: other }).status.status, 'pending');
+  assert.equal(s.post({ action: 'getStatus', lab: 'lab-06-07', student: { ...other, group: 'Х-32' } }).status, null);
+  const renamed = { ...student, name: 'Тестовый Студент Иванович', group: 'Х-32' };
+  assert.equal(s.post({ action: 'getStatus', lab: 'lab-06-07', student: renamed }).status, null);
+  assert.equal(s.post({ action: 'getStatus', lab: 'lab-06-07', student: renamed, alsoNames: [student.name] }).status.status, 'pending');
+});
+
+test('прогресс: сохраняется по ФИО и группе, обновляется, читается с другого устройства', () => {
+  const s = createServer();
+  const data = 'g.' + 'Ab-_'.repeat(30000);
+  assert.equal(s.post({ action: 'saveProgress', student: { ...student, name: '' }, lab: 'lab-08', data }).error, 'no_profile');
+  assert.equal(s.post({ action: 'saveProgress', student, lab: 'lab-99', data }).error, 'bad_request');
+  assert.equal(s.post({ action: 'saveProgress', student, lab: 'lab-08', data: 'g.<script>' }).error, 'bad_request');
+  assert.equal(s.post({ action: 'saveProgress', student, lab: 'lab-08', data, at: 1000 }).ok, true);
+  assert.equal(s.post({ action: 'saveProgress', student, lab: 'lab-08', data: 'j.xyz', at: 2000 }).ok, true);
+  assert.equal(s.post({ action: 'saveProgress', student, lab: 'lab-12', data, at: 3000 }).ok, true);
+  const items = s.post({ action: 'loadProgress', student: { name: 'ТЕСТОВЫЙ студент', group: 'x-31', deviceId: 'other' } }).items;
+  assert.equal(items.length, 2);
+  const by = Object.fromEntries(items.map((x) => [x.lab, x]));
+  assert.equal(by['lab-08'].data, 'j.xyz');
+  assert.equal(by['lab-12'].data, data);
+  assert.equal(s.post({ action: 'saveProgress', student, lab: 'lab-08', data: 'g.' + 'A'.repeat(200000) }).error, 'too_big');
+  assert.deepEqual(plain(s.post({ action: 'loadProgress', student: { name: 'Чужой', group: 'Х-31', deviceId: 'z' } }).items), []);
 });

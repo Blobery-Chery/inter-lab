@@ -4,6 +4,7 @@
  * Параметры: ?mode=exam — без подсказок; ?preview=… — демонстрация статусов (app/preview.js).
  */
 import { createActivity } from './activity.js';
+import { createSync } from './sync.js';
 import { CONFIG } from '../config.js';
 import apiBase from './api.js';
 import { withPreview } from './preview.js';
@@ -16,7 +17,7 @@ import { homePage, labPage, accessPage } from './ui/pages.js';
 import { admissionPage } from './ui/admission.js';
 import { experimentPage } from './ui/experiment.js';
 import { reportPage } from './ui/reportPage.js';
-import { close as closeModal } from './ui/modal.js';
+import { close as closeModal, toast } from './ui/modal.js';
 
 const params = new URLSearchParams(location.search);
 const mode = params.get('mode') === 'exam' ? 'exam' : 'train';
@@ -68,8 +69,9 @@ let settings = { labs: {} };
 async function loadSettings() { try { settings = (await api.getSettings()) || { labs: {} }; } catch (e) { /* локально */ } }
 
 const activity = createActivity(apiBase, { enabled: !previewMode });
+const sync = createSync(apiBase, { enabled: !previewMode });
 const env = {
-  api, mode, labs, activity,
+  api, mode, labs, activity, sync,
   get settings() { return settings; },
   get dark() { return isDark(); },
   rerender: () => render(),
@@ -132,9 +134,12 @@ async function guard(entry, lab, needAdmission, what) {
 }
 
 /** Сообщение после переезда со старого адреса (import.html ставит флаг vlab_moved), показывается один раз. */
+let movedFlag = null;
+try { movedFlag = sessionStorage.getItem('vlab_moved'); sessionStorage.removeItem('vlab_moved'); } catch (e) { /* без уведомления */ }
+// Показывается на главной, пока студент не уйдёт с неё (перерисовки главной его не убирают).
+window.addEventListener('hashchange', () => { if (parse().name !== 'home') movedFlag = null; });
 function movedNotice() {
-  let f = null;
-  try { f = sessionStorage.getItem('vlab_moved'); sessionStorage.removeItem('vlab_moved'); } catch (e) { /* без уведомления */ }
+  const f = movedFlag;
   if (f === 'ok') return h('p', { class: 'fb good', role: 'status' }, t('movedOk'));
   if (f === 'skip') return h('p', { class: 'fb info', role: 'status' }, t('movedSkip'));
   return '';
@@ -203,9 +208,25 @@ window.addEventListener('online', () => { api.flushOutbox().catch(() => {}); ren
 window.addEventListener('offline', () => render());
 if (window.matchMedia) window.matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', () => render());
 
+/** Забрать копию прогресса с сервера; если что-то восстановлено — перерисовать (кроме открытого опыта). */
+async function restoreProgress() {
+  const r = parse();
+  const entry = r.name === 'exp' ? byNumber(r.num) : null;
+  const n = await sync.restore({ skipLab: entry ? entry.id : '' });
+  sync.scan();
+  if (n && parse().name !== 'exp') { await render(); toast(esc(t('restoredN', { n })), 'info'); }
+}
+globalThis.addEventListener('vlab-profile', async () => {
+  if (api.resetCache) api.resetCache(); // статусы допуска — заново, уже с новыми ФИО и группой
+  const before = parse().name;
+  await restoreProgress();
+  if (before !== 'exp' && parse().name !== 'exp') render();
+});
+
 (async function boot() {
   await Promise.all([loadLabs(), loadSettings()]);
   try { await api.flushOutbox(); } catch (e) { /* очередь подождёт */ }
   await render();
+  restoreProgress();
   if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('./sw.js').catch(() => {});
 })();

@@ -26,7 +26,7 @@
 /* ======================================================================= */
 
 var VLAB = {
-  VERSION: '1.1.0',
+  VERSION: '1.2.0',
   TOKEN_TTL_MS: 12 * 60 * 60 * 1000,   // токен преподавателя живёт 12 часов
   MAX_FAILS: 5,                         // неудачных входов подряд…
   LOCK_SECONDS: 15 * 60,                // …и вход закрыт на 15 минут
@@ -68,6 +68,13 @@ var SHEETS = {
   settings: {
     name: 'Настройки',
     cols: [['key', 'Параметр'], ['value', 'Значение'], ['note', 'Пояснение']],
+  },
+  progress: {
+    name: 'Прогресс',
+    cols: [
+      ['key', 'Студент (ФИО|группа)'], ['lab', 'Работа'], ['name', 'ФИО'], ['group', 'Группа'], ['deviceId', 'Устройство'],
+      ['at', 'Сохранено'], ['size', 'Размер'], ['d1', 'Данные 1'], ['d2', 'Данные 2'], ['d3', 'Данные 3'], ['d4', 'Данные 4'],
+    ],
   },
   students: {
     name: 'Студенты',
@@ -159,6 +166,20 @@ function normalizeName(name) {
 function studentKey(student) {
   student = student || {};
   return String(student.deviceId || '') + '|' + normalizeName(student.name);
+}
+
+/** Латинские буквы, похожие на кириллицу (группа «Х-31» латиницей и кириллицей — одна и та же). */
+var LOOKALIKE = { a: 'а', b: 'в', c: 'с', e: 'е', h: 'н', i: 'і', k: 'к', m: 'м', o: 'о', p: 'р', t: 'т', x: 'х', y: 'у' };
+function looseText(s) {
+  return normalizeName(s).replace(/[abcehikmoptxy]/g, function (ch) { return LOOKALIKE[ch]; });
+}
+
+/** Студент по ФИО и группе — чтобы допуск и прогресс находились на любом устройстве и в любом браузере. */
+function personKey(student) {
+  student = student || {};
+  var n = looseText(student.name);
+  var g = looseText(student.group).replace(/[\s\-–—_.\/]/g, '');
+  return n && g ? n + '|' + g : '';
 }
 
 /** Строка от студента → безопасная для ячейки (без формул, с пределом длины). */
@@ -583,6 +604,42 @@ function touchStudent_(student, now) {
   append_(SHEETS.students, { key: key, name: student.name, group: student.group, deviceId: student.deviceId, firstSeen: new Date(now), lastSeen: new Date(now), summary: '' });
 }
 
+/* ---------- прогресс студентов (лист «Прогресс», служебный) ---------- */
+
+/**
+ * Длинная строка → не больше n кусков по size знаков (или null, если не помещается).
+ * Каждый непустой кусок начинается с «z»: иначе Таблица может принять кусок за число, дату или формулу («-…»).
+ */
+function splitData(s, size, n) {
+  if (s.length > size * n) return null;
+  var out = [];
+  for (var i = 0; i < n; i++) { var part = s.slice(i * size, (i + 1) * size); out.push(part ? 'z' + part : ''); }
+  return out;
+}
+function joinData(parts) {
+  return parts.map(function (p) { p = String(p == null ? '' : p); return p.charAt(0) === 'z' ? p.slice(1) : p; }).join('');
+}
+
+/** Номер строки листа «Прогресс» для студента и работы (читаем только две колонки — данные большие). */
+function progressRow_(pk, lab) {
+  var sh = sheet_(SHEETS.progress);
+  var idx = colIndex_(sh, SHEETS.progress);
+  var last = sh.getLastRow();
+  if (last < 2) return 0;
+  var keys = sh.getRange(2, idx.key + 1, last - 1, 1).getValues();
+  var labs = sh.getRange(2, idx.lab + 1, last - 1, 1).getValues();
+  for (var i = 0; i < keys.length; i++) if (String(keys[i][0]) === pk && String(labs[i][0]) === lab) return i + 2;
+  return 0;
+}
+
+function writeRow_(def, rowNum, obj) {
+  var sh = sheet_(def);
+  var idx = colIndex_(sh, def);
+  var row = sh.getRange(rowNum, 1, 1, idx._width).getValues()[0];
+  for (var k in obj) if (idx[k] !== undefined) row[idx[k]] = obj[k];
+  sh.getRange(rowNum, 1, 1, idx._width).setValues([row]);
+}
+
 /* ---------- «Сейчас»: где студенты находятся (вкладка панели) ---------- */
 // Хранится не в таблице, а в кэше скрипта (быстро, без записи в лист): последнее место каждого студента
 // за последние 3 часа. Кэш живёт до 6 часов и может очиститься — это только «живая» картина, не журнал.
@@ -650,6 +707,43 @@ var STUDENT_ACTIONS = {
     return { ok: true };
   },
 
+  /** Прогресс работы (сжатый) — копия на сервере, чтобы он не пропадал при очистке браузера и был на другом устройстве. */
+  saveProgress: function (req) {
+    var student = cleanStudent(req.student);
+    var pk = personKey(student);
+    if (!pk) throw apiError_('no_profile', 'Укажите ФИО и группу.');
+    var lab = String(req.lab || '');
+    if (VLAB.LABS.indexOf(lab) < 0) throw apiError_('bad_request', 'Неизвестная работа.');
+    var data = String(req.data || '');
+    if (!/^[gj]\.[A-Za-z0-9_\-]+$/.test(data)) throw apiError_('bad_request', 'Неверные данные.');
+    var parts = splitData(data, VLAB.CELL_SAFE, 4);
+    if (!parts) throw apiError_('too_big', 'Прогресс слишком большой.');
+    var at = num(req.at, Date.now());
+    var row = { key: pk, lab: lab, name: student.name, group: student.group, deviceId: student.deviceId, at: new Date(at), size: data.length, d1: parts[0], d2: parts[1], d3: parts[2], d4: parts[3] };
+    var found = progressRow_(pk, lab);
+    if (found) writeRow_(SHEETS.progress, found, row);
+    else withLock_(function () { var again = progressRow_(pk, lab); if (again) writeRow_(SHEETS.progress, again, row); else append_(SHEETS.progress, row); });
+    return { ok: true };
+  },
+
+  loadProgress: function (req) {
+    var student = cleanStudent(req.student);
+    var pk = personKey(student);
+    if (!pk) return { ok: true, items: [] };
+    var sh = sheet_(SHEETS.progress);
+    var idx = colIndex_(sh, SHEETS.progress);
+    var last = sh.getLastRow();
+    if (last < 2) return { ok: true, items: [] };
+    var keys = sh.getRange(2, idx.key + 1, last - 1, 1).getValues();
+    var items = [];
+    for (var i = 0; i < keys.length; i++) {
+      if (String(keys[i][0]) !== pk) continue;
+      var v = sh.getRange(i + 2, 1, 1, idx._width).getValues()[0];
+      items.push({ lab: String(v[idx.lab]), at: toMs(v[idx.at]), data: joinData([v[idx.d1], v[idx.d2], v[idx.d3], v[idx.d4]]) });
+    }
+    return { ok: true, items: items };
+  },
+
   submitAdmission: function (req) {
     var p = req.payload || req;
     var student = cleanStudent(p.student || req.student);
@@ -687,8 +781,14 @@ var STUDENT_ACTIONS = {
   getStatus: function (req) {
     var student = cleanStudent(req.student);
     var lab = String(req.lab || '');
-    var key = studentKey(student);
-    var r = latest(requestsAll_(), function (x) { return x.kind !== 'access' && x.lab === lab && studentKey(x) === key; });
+    var all = requestsAll_();
+    var forLab = function (x) { return x.kind !== 'access' && x.lab === lab; };
+    // 1) это устройство и это ФИО; 2) это устройство и прежние ФИО (их исправили); 3) те же ФИО и группа с другого устройства или браузера.
+    var keys = [studentKey(student)];
+    (Array.isArray(req.alsoNames) ? req.alsoNames : []).slice(0, 5).forEach(function (n) { keys.push(studentKey({ deviceId: student.deviceId, name: cleanStudent({ name: n }).name })); });
+    var r = latest(all, function (x) { return forLab(x) && keys.indexOf(studentKey(x)) >= 0; });
+    var pk = personKey(student);
+    if (!r && pk) r = latest(all, function (x) { return forLab(x) && personKey(x) === pk; });
     if (!r) return { ok: true, status: null };
     return { ok: true, status: { status: r.status, score: r.score, comment: r.comment || '', decidedAt: r.decidedAt || null } };
   },
@@ -1026,7 +1126,7 @@ function menuSetup() {
 function setupSheets_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   props_().setProperty('SHEET_ID', ss.getId());
-  sheet_(SHEETS.requests); sheet_(SHEETS.reports); sheet_(SHEETS.students);
+  sheet_(SHEETS.requests); sheet_(SHEETS.reports); sheet_(SHEETS.students); sheet_(SHEETS.progress);
   var hadSettings = Boolean(ss.getSheetByName(SHEETS.settings.name));
   sheet_(SHEETS.settings);
   if (!hadSettings || sheet_(SHEETS.settings).getLastRow() < 2) {
@@ -1089,6 +1189,6 @@ if (typeof module !== 'undefined' && module.exports) {
     cellText: cellText, initialStatus: initialStatus, labSettingsOf: labSettingsOf, allLabSettings: allLabSettings,
     packReport: packReport, packAnswers: packAnswers, accessStatusOf: accessStatusOf, sortRequests: sortRequests,
     buildStudentMatrix: buildStudentMatrix, digestText: digestText, requestMailText: requestMailText, toMs: toMs,
-    cleanAct: cleanAct, mergeActivity: mergeActivity,
+    cleanAct: cleanAct, mergeActivity: mergeActivity, personKey: personKey, looseText: looseText, splitData: splitData, joinData: joinData,
   };
 }
