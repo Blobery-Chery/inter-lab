@@ -49,6 +49,7 @@
  * ---------------------------------------------------------------------------
  */
 import { CONFIG } from '../config.js';
+import { normalizeCode } from './code.js';
 
 const K = {
   student: 'vlab_api_student',
@@ -113,6 +114,28 @@ function setStudent({ name, group }) {
   const next = { ...s, name: String(name || '').trim(), group: String(group || '').trim() };
   write(K.student, next);
   return next;
+}
+
+/**
+ * Код студента (выдаёт преподаватель): проверка на сервере, группа берётся оттуда.
+ * После проверки профиль на устройстве = код + группа; прежние ФИО с устройства стираются.
+ * Ошибки: ApiError bad_code (нет такого кода или ошибка в цифрах), rate (слишком много попыток).
+ */
+async function verifyCode(raw) {
+  const code = normalizeCode(raw);
+  if (!code) throw new ApiError('bad_code');
+  let group = '';
+  if (isConnected()) {
+    let res;
+    try { res = await call('checkCode', { code, deviceId: getStudent().deviceId }); } catch (e) {
+      if (e && e.serverCode === 'bad_action') throw new ApiError('no_codes'); // сервер ещё старой версии
+      throw e;
+    }
+    group = String(res.group || '');
+  }
+  const s = getStudent();
+  write(K.student, { deviceId: s.deviceId, name: code, group, names: [] });
+  return { code, group };
 }
 
 /* ======================================================================= */
@@ -217,7 +240,10 @@ const ERR_TEXT = {
   busy: { ru: 'Сервер занят, повторим чуть позже.', kk: 'Сервер бос емес, сәлден соң қайталаймыз.', en: 'The server is busy; we will retry shortly.' },
   setup: { ru: 'Сервер преподавателя ещё не настроен.', kk: 'Оқытушы сервері әлі бапталмаған.', en: 'The teacher’s server is not set up yet.' },
   bad_request: { ru: 'Сервер не принял запрос.', kk: 'Сервер сұрауды қабылдамады.', en: 'The server rejected the request.' },
-  no_profile: { ru: 'Укажите ФИО и группу.', kk: 'Аты-жөніңізді және тобыңызды көрсетіңіз.', en: 'Enter your full name and group.' },
+  no_profile: { ru: 'Укажите код студента.', kk: 'Студент кодын көрсетіңіз.', en: 'Enter your student code.' },
+  bad_code: { ru: 'Нужен код студента, который выдал преподаватель. Проверьте цифры.', kk: 'Оқытушы берген студент коды қажет. Цифрларды тексеріңіз.', en: 'You need the student code given by the instructor. Check the digits.' },
+  no_codes: { ru: 'Вход по коду ещё не включён на сервере преподавателя. Работайте как раньше — коды раздаст преподаватель.', kk: 'Кодпен кіру оқытушы серверінде әлі қосылмаған. Бұрынғыдай жұмыс істей беріңіз — кодтарды оқытушы таратады.', en: 'Code sign-in is not enabled on the instructor’s server yet. Carry on as before — your instructor will hand out the codes.' },
+  rate: { ru: 'Слишком много попыток. Попробуйте через час.', kk: 'Әрекет тым көп. Бір сағаттан кейін қайталаңыз.', en: 'Too many attempts. Try again in an hour.' },
   server: { ru: 'Ошибка на сервере преподавателя.', kk: 'Оқытушы серверіндегі қате.', en: 'Error on the teacher’s server.' },
 };
 
@@ -395,6 +421,7 @@ async function netGetStatus(labId) {
   try {
     const res = await call('getStatus', { lab: labId, student: getStudent(), alsoNames: usedNames() });
     const st = res.status;
+    if (res.needCode) return statusShape(cached); // сервер ждёт код студента — свой допуск на устройстве не трогаем
     if (!st) {
       const all = read(K.admissions, {});
       if (all[labId]) { delete all[labId]; write(K.admissions, all); }
@@ -456,7 +483,7 @@ async function netGetAccess() {
 
 async function netRequestAccess() {
   const student = getStudent();
-  if (!student.name || !student.group) {
+  if (!student.name || (!normalizeCode(student.name) && !student.group)) {
     const e = new ApiError('no_profile');
     return { ok: false, status: 'none', error: e.code, message: e.message, text: e.text };
   }
@@ -538,6 +565,7 @@ export const api = {
   getAccess,
   requestAccess,
   flushOutbox,
+  verifyCode,
 };
 
 export default api;

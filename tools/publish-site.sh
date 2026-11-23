@@ -15,4 +15,5 @@ for d in app labs teacher; do
   git ls-files "$d" | grep -vE '\.md$' | while read -r f; do mkdir -p "$DST/$(dirname "$f")"; cp "$f" "$DST/$f"; done
 done
 cp tools/public/README.md tools/public/LICENSE "$DST/"
+cp tools/public/gitignore "$DST/.gitignore"
 echo "Готово: $(find "$DST" -type f ! -path '*/.git/*' | wc -l) файлов в $DST"

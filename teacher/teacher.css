@@ -28,7 +28,7 @@ main:focus{outline:none}
 
 /* поля */
 label.f{display:grid;gap:4px;font:600 11.5px var(--f-body);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
-input[type=text],input[type=password],input[type=email],input[type=search],select,textarea{font:15px var(--f-body);min-height:44px;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);width:100%;text-transform:none;letter-spacing:0}
+input[type=text],input[type=password],input[type=email],input[type=search],input[type=number],select,textarea{font:15px var(--f-body);min-height:44px;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);width:100%;text-transform:none;letter-spacing:0}
 textarea{min-height:64px;resize:vertical}
 select{appearance:auto}
 
@@ -156,6 +156,28 @@ table.mx td .gnum{font-size:18px}
 
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 
+/* вкладка «Коды» */
+.code{font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:600;font-size:.92em;letter-spacing:.02em;color:var(--muted);white-space:nowrap}
+.code.big{font-size:16px;color:var(--ink)}
+.legacy{border-color:var(--warn);background:var(--warn-soft);margin-bottom:12px}
+.legacy p{margin:0 0 12px}
+.codesform{display:grid;grid-template-columns:minmax(0,1fr) 96px;gap:10px;align-items:end}
+.codesform .b{grid-column:1/-1}
+@media (min-width:520px){.codesform{grid-template-columns:minmax(0,1fr) 96px auto}.codesform .b{grid-column:auto}}
+.filebtn{position:relative;overflow:hidden}
+.filebtn input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;font-size:0}
+.filebtn:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.codes{display:grid;gap:6px;margin-top:8px}
+.coderow{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 10px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.coderow.fresh{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent)}
+.coderow .cm{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;font-size:12.5px;color:var(--muted)}
+.coderow .cm .b{margin-left:auto}
+@media (min-width:760px){.coderow{grid-template-columns:110px minmax(0,1fr) minmax(0,340px)}.coderow .cm{grid-column:auto}}
+.slips{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.slip{border:1px dashed var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:4px;background:var(--panel);break-inside:avoid;page-break-inside:avoid}
+.slip .snm{font:600 16px/1.3 var(--f-display);min-height:1.3em;border-bottom:1px solid var(--line);padding-bottom:4px}
+.slip .scode{font:700 26px/1.1 var(--f-mono);letter-spacing:.06em;font-variant-numeric:tabular-nums;margin:2px 0 4px}
+
 @media print{
   :root{--paper:#fff;--panel:#fff;--ink:#000;--muted:#333;--line:#999;--accent:#000;--accent-soft:#fff;--good:#000;--bad:#000;--warn:#000;--good-soft:#fff;--bad-soft:#fff;--warn-soft:#fff;color-scheme:light}
   body{background:#fff;font-size:11.5pt}
@@ -165,6 +187,9 @@ table.mx td .gnum{font-size:18px}
   pre.full{border:0;padding:0}
   .tw{overflow:visible}
   a{color:#000}
+  body.printslips .top,body.printslips .foot,body.printslips .tabs{display:none!important}
+  .slips{grid-template-columns:1fr 1fr;gap:0}
+  .slip{border:1px dashed #000;border-radius:0;margin:-0.5px}
 }
 
 /* вкладка «Сейчас» */

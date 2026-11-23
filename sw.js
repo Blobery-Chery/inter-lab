@@ -1,6 +1,6 @@
 /* Офлайн-кэш виртуальной лаборатории. При каждом релизе меняйте CACHE и APP_VERSION в config.js.
    CORE — все файлы приложения, работ и панели (тест tests/sw.test.js проверяет, что список полный). */
-const CACHE = 'vlab-v1.0.16';
+const CACHE = 'vlab-v1.1.0';
 const CORE = [
   "./",
   "index.html",
@@ -17,6 +17,7 @@ const CORE = [
   "app/activity.js",
   "app/sync.js",
   "app/version.js",
+  "app/code.js",
   "app/grading.js",
   "app/i18n.js",
   "app/instruments/balance.js",
@@ -172,6 +173,7 @@ const CORE = [
   "teacher/csv.js",
   "teacher/demo.js",
   "teacher/i18n.js",
+  "teacher/names.js",
   "teacher/teacher.css"
 ];
 

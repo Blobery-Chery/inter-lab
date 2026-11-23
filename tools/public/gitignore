@@ -1,0 +1,6 @@
+# Список «код — ФИО» из панели преподавателя хранится только у преподавателя — никогда не в репозитории.
+vlab-names-*.csv
+vlab-students-*.csv
+vlab-requests-*.csv
+vlab-reports-*.csv
+*.names.csv

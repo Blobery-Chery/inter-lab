@@ -64,6 +64,7 @@ class Sheet {
   }
   getLastColumn() { return this.data.reduce((m, l) => Math.max(m, l.length), 0); }
   appendRow(values) { const r = this.getLastRow() + 1; values.forEach((v, c) => this.set(r, c + 1, v)); }
+  deleteRow(r) { this.data.splice(r - 1, 1); }
   setFrozenRows() {}
 }
 

@@ -3,6 +3,7 @@
  * расчёты, выводы, итоговая таблица, «куда делся продукт», индивидуальное задание, замечания, подсказки, оценка.
  * buildReport() — данные (без DOM), reportText() — простой текст, reportPayload() — для api.submitReport().
  */
+import { formatCode } from './code.js';
 import { tr, t, L, num, pts, labName, expName } from './i18n.js';
 import { summarize } from './grading.js';
 import { clockText, dayOf } from './engine.js';
@@ -97,7 +98,7 @@ export function reportText(d, author) {
   const L2 = [];
   L2.push(t('reportTitle').toUpperCase());
   L2.push(`${labName(d.lab)}. ${tr(d.lab.title)}`);
-  L2.push(`${t('student')}: ${d.student.name || '—'}   ${t('group')}: ${d.student.group || '—'}`);
+  L2.push(`${t('studentCode')}: ${formatCode(d.student.name) || '—'}   ${t('group')}: ${d.student.group || '—'}`);
   if (d.exam) L2.push(t('examMark'));
   L2.push(`${t('aim')}: ${tr(d.lab.aim)}`);
   for (const e of d.exps) {

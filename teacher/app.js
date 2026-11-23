@@ -1,10 +1,14 @@
-// Панель преподавателя: вход, заявки, протоколы, студенты, настройки, экспорт CSV, демо-режим.
+// Панель преподавателя: вход, заявки, протоколы, студенты, коды, настройки, экспорт CSV, демо-режим.
+// Студенты записаны на сервере кодами; ФИО панель берёт из списка на этом компьютере (names.js)
+// и на сервер их не отправляет.
 import { CONFIG } from '../config.js';
 import { VERSION } from '../app/version.js';
 import { S, LANGS, LANG_LABEL, LABS_FALLBACK } from './i18n.js';
 import { createServerClient } from './client.js';
-import { createDemoClient } from './demo.js';
+import { createDemoClient, DEMO_NAMES } from './demo.js';
 import { requestsCsv, reportsCsv, studentsCsv } from './csv.js';
+import { normalizeCode, formatCode } from '../app/code.js';
+import { createNames, namesCsv, namesFromTable } from './names.js';
 
 const REFRESH_MS = 30000;
 const LIVE_MS = 15000;      // вкладка «Сейчас» обновляется чаще
@@ -28,14 +32,17 @@ const st = {
   theme: ['auto', 'light', 'dark'].includes(ls.get(KEY.theme)) ? ls.get(KEY.theme) : 'auto',
   mode: 'login', token: '', tab: 'requests', loading: false, lastUpdate: 0,
   requests: [], reports: [], students: [], studentsAccess: 'all', settings: null, draft: null, dirty: false,
-  f: { kind: '', status: 'pending', group: '', lab: '', grade: '', q: '', sgroup: '', lgroup: '' },
+  f: { kind: '', status: 'pending', group: '', lab: '', grade: '', q: '', sgroup: '', lgroup: '', cgroup: '', cnew: '' },
   openAns: new Set(), changing: new Set(), drafts: {},
   report: null, reportData: null, gradeDraft: null,
   activity: null, actSkew: 0, actErr: '', actAt: 0,
+  codes: null, codesLegacy: 0, codesErr: '', codesBusy: false, migrate: '', delAsk: '', clearAsk: false, fresh: new Set(), slips: false,
+  newCode: { group: '', count: '25' },
   loginErr: '', loginBusy: false, deferRender: false,
 };
 let client = null;
 let labs = LABS_FALLBACK.slice();
+let names = createNames(); // «код → ФИО» — только в этом браузере
 
 /* ---------- язык и форматирование ---------- */
 const t = (k) => (S[k] ? S[k][st.lang] || S[k].ru : k);
@@ -89,6 +96,25 @@ function accessName(a) {
 }
 const effGrade = (r) => (r.teacherGrade != null ? r.teacherGrade : r.grade);
 
+/* ---------- кто: код и ФИО из списка на этом компьютере ---------- */
+const codeOf = (raw) => normalizeCode(tr(raw));
+/** Текст: «ФИО (1234-5678)», «1234-5678» или старая запись без кода — как есть. */
+function whoText(raw) {
+  const c = codeOf(raw);
+  if (!c) return tr(raw);
+  const n = tr(names.get(c));
+  return n ? `${n} (${formatCode(c)})` : formatCode(c);
+}
+/** HTML: ФИО и код рядом; без ФИО в списке — только код. */
+function whoHtml(raw) {
+  const c = codeOf(raw);
+  if (!c) return E(raw) || '—';
+  const n = tr(names.get(c));
+  return n ? `${esc(n)} <span class="code">${esc(formatCode(c))}</span>` : `<span class="code">${esc(formatCode(c))}</span>`;
+}
+/** Для сортировки: ФИО, если известно, иначе код. */
+const whoSort = (raw) => { const c = codeOf(raw); return c ? tr(names.get(c)) || '~' + c : tr(raw); };
+
 /* ---------- DOM ---------- */
 const $ = (id) => document.getElementById(id);
 const main = $('main');
@@ -112,6 +138,7 @@ function errText(e) {
   // Непредвиденная ошибка сервера: показываем текст — по нему видно, что не так в таблице или скрипте.
   if (code === 'server' && e && e.message) return String(e.message).startsWith('Ошибка сервера') ? e.message : t('e_server') + ': ' + e.message;
   if (S['e_' + code]) return t('e_' + code);
+  if (code === 'bad_request' && e && e.message && e.message !== code) return e.message;
   return t('e_server') + (e && e.message ? ': ' + e.message : '');
 }
 
@@ -179,6 +206,7 @@ function tabsBar() {
     ['reports', t('tabReports'), 0],
     ['students', t('tabStudents'), 0],
     ['live', t('tabLive'), 0],
+    ['codes', t('tabCodes'), 0],
     ['settings', t('tabSettings'), 0],
   ];
   return `<nav class="tabs" role="tablist" aria-label="${esc(t('panel'))}">${tabs.map(([id, name, n]) => `<button class="tab" type="button" role="tab" aria-selected="${st.tab === id}" data-act="tab" data-v="${id}">${esc(name)}${n ? `<span class="cnt" aria-label="${n} ${esc(t('pendingCount'))}">${n}</span>` : ''}</button>`).join('')}</nav>`;
@@ -196,7 +224,13 @@ function topBar(csvKind) {
 
 const groupsOf = (list) => [...new Set(list.map((x) => x.group).filter(Boolean))].sort();
 const labsOf = (list) => [...new Set(list.map((x) => x.lab).filter(Boolean))].sort();
-const matchQ = (x) => !st.f.q || tr(x.name).toLowerCase().includes(st.f.q.toLowerCase());
+const matchQ = (x) => {
+  if (!st.f.q) return true;
+  const q = st.f.q.toLowerCase().trim();
+  const c = codeOf(x.name);
+  const digits = q.replace(/[\s\-]/g, '');
+  return whoText(x.name).toLowerCase().includes(q) || (c && /^\d+$/.test(digits) && c.includes(digits));
+};
 
 function selectGroup(list, key) {
   return `<label class="f">${esc(t('group'))}<select data-f="${key}"><option value="">${esc(t('allGroups'))}</option>${groupsOf(list).map((g) => `<option${st.f[key] === g ? ' selected' : ''}>${esc(g)}</option>`).join('')}</select></label>`;
@@ -234,9 +268,9 @@ function reqCard(r) {
   const answers = Array.isArray(r.answers) ? r.answers : [];
   const open = st.openAns.has(r.id);
   const autoDenied = r.status === 'denied' && !isAccess && !ok && !tr(r.comment);
-  return `<article class="card req${r.status === 'pending' ? ' is-pending' : ''}" aria-label="${E(r.name)}">
+  return `<article class="card req${r.status === 'pending' ? ' is-pending' : ''}" aria-label="${esc(whoText(r.name))}">
     <div class="row">${badge(r)}<span class="badge kind">${esc(kindName(r.kind))}</span>${r.lab && !isAccess ? `<span class="small muted">${esc(labName(r.lab))}</span>` : ''}</div>
-    <div class="who">${E(r.name) || '—'} <span class="muted">· ${esc(r.group || '—')}</span></div>
+    <div class="who">${whoHtml(r.name)} <span class="muted">· ${esc(r.group || '—')}</span></div>
     <div class="meta">
       ${isAccess ? '' : `<span>${esc(t('score'))}: <span class="score ${ok ? 'ok' : 'low'}">${esc(r.score)} / ${esc(r.total)}</span> (${esc(t('passMark'))} ${esc(r.pass)}) <span aria-hidden="true">${ok ? '✓' : '✕'}</span> ${esc(ok ? t('atPass') : t('belowPass'))}</span>`}
       ${r.attempt ? `<span>${esc(t('attempt'))} ${esc(r.attempt)}</span>` : ''}
@@ -276,7 +310,7 @@ function viewReports() {
     ${searchBox()}</div>
   <p class="small muted">${list.length} ${esc(t('reportsCount'))}</p>
   <div class="reps">${list.length ? list.map((r) => `<article class="card rep">
-      <div><div class="who">${E(r.name) || '—'} <span class="muted">· ${esc(r.group || '—')}</span></div>
+      <div><div class="who">${whoHtml(r.name)} <span class="muted">· ${esc(r.group || '—')}</span></div>
         <div class="meta"><span>${esc(labName(r.lab))}</span><span>${esc(fmtDate(r.finishedAt || r.createdAt))}</span>${r.attempt ? `<span>${esc(t('attempt'))} ${esc(r.attempt)}</span>` : ''}${r.mode === 'exam' ? `<span class="badge exam">${esc(t('modeExam'))}</span>` : ''}${r.teacherGrade != null ? `<span>✎ ${esc(t('changedByTeacher'))}</span>` : ''}</div></div>
       <div class="gbox">${gnum(effGrade(r))}<button class="b sm" type="button" data-act="openRep" data-id="${esc(r.id)}">${esc(t('open'))}</button></div>
     </article>`).join('') : `<div class="card empty">${esc(t('nothing'))}</div>`}</div>`;
@@ -315,7 +349,7 @@ function viewReport() {
     <h2>${esc(labName(r.lab))}</h2>
     ${d.truncated ? `<div class="note warn">${esc(t('truncated'))}</div>` : ''}
     <div class="dochead">
-      <div><span>${esc(t('student'))}</span>${E(r.name) || '—'}</div>
+      <div><span>${esc(t('student'))}</span>${whoHtml(r.name)}</div>
       <div><span>${esc(t('group'))}</span>${esc(r.group || '—')}</div>
       <div><span>${esc(t('attempt'))}</span>${esc(r.attempt ?? '—')}</div>
       <div><span>${esc(t('langOfWork'))}</span>${esc(LANG_LABEL[r.lang] || r.lang || '—')} · ${esc(r.mode === 'exam' ? t('modeExam') : t('modeTrain'))}</div>
@@ -397,7 +431,7 @@ function liveRow(e, now) {
     what = `<div>${lab ? lab + ' · ' : ''}${esc(whereText(a))}</div>`;
   }
   return `<li class="live${on ? ' on' : ''}">
-    <div class="lh"><span class="dot" aria-hidden="true"></span><b>${E(e.name) || '—'}</b> <span class="small muted">${esc(e.group || '—')}</span><span class="ago small ${on ? '' : 'muted'}">${esc(fmtAgo(ago))}</span></div>
+    <div class="lh"><span class="dot" aria-hidden="true"></span><b>${whoHtml(e.name)}</b> <span class="small muted">${esc(e.group || '—')}</span><span class="ago small ${on ? '' : 'muted'}">${esc(fmtAgo(ago))}</span></div>
     <div class="lw">${what}</div></li>`;
 }
 function viewLive() {
@@ -406,7 +440,7 @@ function viewLive() {
   const list = all.filter((e) => (!st.f.lgroup || e.group === st.f.lgroup) && matchQ(e))
     .sort((x, y) => {
       const ox = now - x.at < LIVE_ACTIVE_MS ? 0 : 1, oy = now - y.at < LIVE_ACTIVE_MS ? 0 : 1;
-      return ox - oy || (ox === 0 ? String(x.group).localeCompare(y.group) || tr(x.name).localeCompare(tr(y.name)) : y.at - x.at);
+      return ox - oy || (ox === 0 ? String(x.group).localeCompare(y.group) || whoSort(x.name).localeCompare(whoSort(y.name)) : y.at - x.at);
     });
   const active = all.filter((e) => now - e.at < LIVE_ACTIVE_MS).length;
   const head = `<div class="bar"><span class="upd" aria-live="polite">${st.actAt ? esc(t('updated')) + ' ' + esc(fmtTime(st.actAt)) : esc(t('loading'))}</span>
@@ -436,15 +470,213 @@ async function loadActivity(silent = false) {
   if (st.tab === 'live') softRender();
 }
 
+function filteredStudents() {
+  return st.students.filter((s) => (!st.f.sgroup || s.group === st.f.sgroup) && matchQ(s))
+    .sort((a, b) => String(a.group).localeCompare(String(b.group)) || whoSort(a.name).localeCompare(whoSort(b.name)));
+}
+
 function viewStudents() {
-  const list = st.students.filter((s) => (!st.f.sgroup || s.group === st.f.sgroup) && matchQ(s));
+  const list = filteredStudents();
   const showAccess = st.studentsAccess === 'approved';
   return `${topBar('students')}
   <div class="filters">${selectGroup(st.students, 'sgroup')}${searchBox()}</div>
   ${list.length ? `<div class="card tw"><table class="mx"><thead><tr><th class="nm" scope="col">${esc(t('student'))}</th>${showAccess ? `<th scope="col">${esc(t('access'))}</th>` : ''}${labs.map((l) => `<th scope="col" title="${esc(tr(l.title))}">${esc(labShort(l.id))}</th>`).join('')}</tr></thead>
-    <tbody>${list.map((s) => `<tr><td class="nm"><b>${E(s.name) || '—'}</b><br><span class="small muted">${esc(s.group || '—')}</span></td>${showAccess ? `<td><span class="${s.access === 'approved' ? 'ic-ok' : s.access === 'pending' ? 'ic-wait' : 'ic-no'}" title="${esc(accessName(s.access))}">${s.access === 'approved' ? '✓' : s.access === 'pending' ? '◷' : s.access === 'denied' ? '✕' : '·'}</span></td>` : ''}${labs.map((l) => `<td>${cellFor(l.id, s.labs && s.labs[l.id])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+    <tbody>${list.map((s) => `<tr><td class="nm"><b>${whoHtml(s.name)}</b><br><span class="small muted">${esc(s.group || '—')}</span></td>${showAccess ? `<td><span class="${s.access === 'approved' ? 'ic-ok' : s.access === 'pending' ? 'ic-wait' : 'ic-no'}" title="${esc(accessName(s.access))}">${s.access === 'approved' ? '✓' : s.access === 'pending' ? '◷' : s.access === 'denied' ? '✕' : '·'}</span></td>` : ''}${labs.map((l) => `<td>${cellFor(l.id, s.labs && s.labs[l.id])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
     <div class="legend"><b>${esc(t('legend'))}:</b><span><span class="gnum" style="font-size:14px">5</span> ${esc(t('grade'))}</span><span class="ic-ok">✓</span> ${esc(t('stApproved'))}<span class="ic-wait">◷</span> ${esc(t('stPending'))}<span class="ic-no">✕</span> ${esc(t('stDenied'))}<span>· —</span></div>`
     : `<div class="card empty">${esc(t('noStudents'))}</div>`}`;
+}
+
+/* --- коды студентов и список ФИО на этом компьютере --- */
+/** Все известные коды: с сервера и из списка ФИО (если код есть только в списке). */
+function codeRows() {
+  const all = names.all();
+  const rows = (st.codes || []).map((c) => ({ ...c, name: all[c.code] || '' }));
+  const known = new Set(rows.map((r) => r.code));
+  for (const [code, name] of Object.entries(all)) if (!known.has(code)) rows.push({ code, name, group: '', createdAt: null, usedAt: null });
+  return rows;
+}
+function filteredCodes() {
+  return codeRows().filter((c) => (!st.f.cgroup || c.group === st.f.cgroup) && (!st.f.cnew || st.fresh.has(c.code)) && matchQ({ name: c.code }))
+    .sort((a, b) => String(a.group).localeCompare(String(b.group)) || (a.createdAt || 0) - (b.createdAt || 0) || a.code.localeCompare(b.code));
+}
+
+function viewCodes() {
+  if (st.slips) return viewSlips();
+  const head = topBar('');
+  if (st.codesErr === 'old') return `${head}<div class="note warn">${esc(t('codesOld'))}</div>`;
+  if (st.codes == null) return `${head}<div class="card empty">${esc(t('loading'))}</div>`;
+  const rows = codeRows();
+  const list = filteredCodes();
+  const groups = [...new Set([...rows.map((c) => c.group), ...st.students.map((x) => x.group)].filter(Boolean))].sort();
+  const withName = rows.filter((c) => tr(c.name)).length;
+  const legacy = st.codesLegacy > 0 ? `<section class="card pad legacy">
+      <h2>${esc(fill(t('legacyTitle'), { n: st.codesLegacy }))}</h2>
+      <p>${esc(t('legacyText'))}</p>
+      ${st.migrate === 'ask' ? `<p class="note warn" role="alert">${esc(t('migrateAsk'))}</p>
+        <div class="row"><button class="b bad" type="button" data-act="migrateYes">${esc(t('migrateYes'))}</button><button class="b" type="button" data-act="migrateNo">${esc(t('cancel'))}</button></div>`
+      : `<button class="b pri" type="button" data-act="migrate"${st.migrate === 'busy' ? ' disabled' : ''}>${esc(t(st.migrate === 'busy' ? 'migrating' : 'migrate'))}</button>`}
+    </section>` : '';
+  return `${head}
+  <p class="small muted">${esc(t('codesLead'))}</p>
+  ${legacy}
+  <div class="sets">
+    <section class="card pad">
+      <h2>${esc(t('newCodes'))}</h2>
+      <form id="codesForm" class="codesform" novalidate>
+        <label class="f">${esc(t('group'))}<input type="text" name="group" list="codeGroups" value="${esc(st.newCode.group)}" maxlength="60" autocomplete="off" required></label>
+        <label class="f">${esc(t('codesCount'))}<input type="number" name="count" min="1" max="200" step="1" inputmode="numeric" value="${esc(st.newCode.count)}" required></label>
+        <button class="b pri" type="submit"${st.codesBusy ? ' disabled' : ''}>${esc(t('createCodes'))}</button>
+        <datalist id="codeGroups">${groups.map((g) => `<option value="${esc(g)}">`).join('')}</datalist>
+      </form>
+      <p class="small muted">${esc(t('codesRandom'))}</p>
+    </section>
+    <section class="card pad">
+      <h2>${esc(t('localList'))}</h2>
+      <p class="small muted" style="margin-top:0">${esc(t('localListNote'))}</p>
+      <p class="small"><b>${esc(fill(t('localCount'), { n: withName, m: rows.length }))}</b></p>
+      <div class="row">
+        <button class="b sm" type="button" data-act="csv" data-v="names"${rows.length ? '' : ' disabled'}>⇩ ${esc(t('dlNames'))}</button>
+        <label class="b sm filebtn">⇧ ${esc(t('ulNames'))}<input type="file" id="namesFile" accept=".csv,.tsv,.txt,text/csv,text/plain"></label>
+        <button class="b sm" type="button" data-act="slips"${list.length ? '' : ' disabled'}>⎙ ${esc(t('printSlips'))} (${list.length})</button>
+      </div>
+      ${st.clearAsk ? `<p class="note warn" role="alert">${esc(t('clearAsk'))}</p><div class="row"><button class="b bad sm" type="button" data-act="clearYes">${esc(t('clearNames'))}</button><button class="b sm" type="button" data-act="clearNo">${esc(t('cancel'))}</button></div>`
+      : withName ? `<button class="b sm link" type="button" data-act="clearAsk">${esc(t('clearNames'))}</button>` : ''}
+    </section>
+  </div>
+  <div class="filters">
+    <label class="f">${esc(t('group'))}<select data-f="cgroup"><option value="">${esc(t('allGroups'))}</option>${groups.map((g) => `<option${st.f.cgroup === g ? ' selected' : ''}>${esc(g)}</option>`).join('')}</select></label>
+    ${searchBox()}
+  </div>
+  ${st.fresh.size ? `<div class="chips" role="group">${chip('cnew', '', t('all'))}${chip('cnew', '1', t('onlyNew') + ' · ' + st.fresh.size)}</div>` : ''}
+  ${list.length ? `<div class="codes">${list.map(codeRow).join('')}</div>` : `<div class="card empty">${esc(rows.length ? t('nothing') : t('noCodes'))}</div>`}`;
+}
+
+function codeRow(c) {
+  const used = c.usedAt ? `${esc(t('codeUsed'))}: ${esc(fmtDate(c.usedAt))}` : `<span class="ic-wait">${esc(t('unused'))}</span>`;
+  const onServer = (st.codes || []).some((x) => x.code === c.code);
+  const del = !onServer || c.usedAt ? ''
+    : st.delAsk === c.code
+      ? `<button class="b sm bad" type="button" data-act="delYes" data-id="${esc(c.code)}">${esc(t('delAsk'))}</button>`
+      : `<button class="b sm" type="button" data-act="delCode" data-id="${esc(c.code)}">${esc(t('delCode'))}</button>`;
+  return `<div class="coderow${st.fresh.has(c.code) ? ' fresh' : ''}">
+    <span class="code big">${esc(formatCode(c.code))}</span>
+    <input type="text" data-nm="${esc(c.code)}" value="${esc(tr(c.name))}" placeholder="${esc(t('namePh'))}" aria-label="${esc(t('fullName'))} · ${esc(formatCode(c.code))}" autocomplete="off" spellcheck="false" maxlength="120">
+    <span class="cm"><span>${esc(c.group || '—')}</span><span>${used}</span>${del}</span>
+  </div>`;
+}
+
+/** Адрес сайта студента (панель лежит в teacher/). */
+function siteAddress() {
+  try { const u = new URL('../', location.href); return (u.host + u.pathname).replace(/\/$/, ''); } catch (e) { return ''; }
+}
+
+function viewSlips() {
+  const list = filteredCodes();
+  const site = siteAddress();
+  return `<div class="bar no-print"><button class="b sm" type="button" data-act="slipsBack">${esc(t('back'))}</button>
+    <span class="small muted">${esc(fill(t('slipsCount'), { n: list.length }))}</span>
+    <button class="b sm pri" type="button" data-act="print">⎙ ${esc(t('print'))}</button></div>
+  <div class="slips">${list.map((c) => `<div class="slip">
+      <div class="eyebrow">${esc(t('appName'))}</div>
+      <div class="snm">${tr(c.name) ? esc(tr(c.name)) : '&nbsp;'}</div>
+      <div class="small">${esc(t('group'))}: ${esc(c.group || '—')}</div>
+      <div class="small muted">${esc(t('studentCode'))}</div>
+      <div class="scode">${esc(formatCode(c.code))}</div>
+      <div class="small">${esc(t('slipLead'))}</div>
+      ${site ? `<div class="small mono">${esc(t('slipSite'))}: ${esc(site)}</div>` : ''}
+    </div>`).join('')}</div>`;
+}
+
+async function loadCodes(silent = false) {
+  if (!client) return;
+  try {
+    const res = await client.call('listCodes');
+    st.codes = (res.codes || []).map((c) => ({ ...c, code: normalizeCode(c.code) || String(c.code) }));
+    st.codesLegacy = Number(res.legacy) || 0;
+    st.codesErr = '';
+  } catch (e) {
+    if (handleAuth(e)) return;
+    if (e && e.code === 'bad_action') { st.codesErr = 'old'; st.codes = []; st.codesLegacy = 0; }
+    else if (!silent) toast(errText(e), true);
+  }
+  if (st.tab === 'codes' || st.codesLegacy) softRender();
+}
+
+async function createCodes(form) {
+  const group = form.group.value.replace(/\s+/g, ' ').trim();
+  const count = Math.floor(Number(form.count.value));
+  st.newCode = { group, count: form.count.value };
+  if (!group) { toast(t('needGroup'), true); form.group.focus(); return; }
+  if (!(count >= 1 && count <= 200)) { toast(t('needCount'), true); form.count.focus(); return; }
+  st.codesBusy = true; render();
+  try {
+    const res = await client.call('createCodes', { group, count });
+    const made = (res.codes || []).map((c) => ({ ...c, code: normalizeCode(c.code) || String(c.code) }));
+    st.codes = [...(st.codes || []), ...made];
+    st.fresh = new Set([...st.fresh, ...made.map((c) => c.code)]);
+    Object.assign(st.f, { cgroup: group, cnew: '1', q: '' });
+    toast('✓ ' + fill(t('codesMade'), { n: made.length }));
+  } catch (e) {
+    if (handleAuth(e)) return;
+    toast(errText(e), true);
+  } finally {
+    st.codesBusy = false;
+  }
+  render();
+  loadCodes(true);
+}
+
+async function deleteCode(code) {
+  st.delAsk = '';
+  try {
+    await client.call('deleteCode', { code });
+    st.codes = (st.codes || []).filter((c) => c.code !== code);
+    st.fresh.delete(code);
+    names.remove(code);
+    toast('✓ ' + t('saved'));
+  } catch (e) {
+    if (handleAuth(e)) return;
+    toast(errText(e), true);
+  }
+  render();
+  loadCodes(true);
+}
+
+/** Замена ФИО кодами на сервере. Список «код — ФИО» приходит только в ответе — сохраняем его здесь и файлом. */
+async function migrate() {
+  st.migrate = 'busy'; render();
+  try {
+    const res = await client.call('migrateToCodes');
+    const map = (res.mapping || []).map((m) => ({ code: normalizeCode(m.code), name: m.name, group: m.group || '' })).filter((m) => m.code);
+    names.merge(map.map((m) => [m.code, m.name]));
+    if (map.length) {
+      const day = new Date().toISOString().slice(0, 10);
+      download(`vlab-names-${day}.csv`, namesCsv(map.map((m) => ({ ...m, createdAt: Date.now(), usedAt: Date.now() })), t, tr));
+    }
+    st.migrate = '';
+    toast('✓ ' + fill(t('migrDone'), { n: map.length }));
+    await loadCodes(true);
+    loadAll(true);
+  } catch (e) {
+    st.migrate = '';
+    if (handleAuth(e)) return;
+    toast(errText(e), true);
+  }
+  render();
+}
+
+async function importNames(file) {
+  if (!file) return;
+  try {
+    const text = await file.text(); // файл читается здесь, в браузере; никуда не отправляется
+    const pairs = namesFromTable(text);
+    if (!pairs.length) { toast(t('namesNone'), true); return; }
+    names.merge(pairs);
+    toast('✓ ' + fill(t('namesLoaded'), { n: pairs.length }));
+  } catch (e) {
+    toast(t('namesNone'), true);
+  }
+  render();
 }
 
 /* --- настройки --- */
@@ -493,12 +725,16 @@ function shortUrl(u) {
 /* ---------- отрисовка ---------- */
 function render() {
   renderChrome();
+  document.body.classList.toggle('printslips', st.tab === 'codes' && st.slips);
   if (st.mode === 'login') {
     main.innerHTML = viewLogin();
     return;
   }
-  const body = st.tab === 'requests' ? viewRequests() : st.tab === 'reports' ? viewReports() : st.tab === 'students' ? viewStudents() : st.tab === 'live' ? viewLive() : viewSettings();
-  main.innerHTML = tabsBar() + `<section role="tabpanel">${body}</section>`;
+  const body = st.tab === 'requests' ? viewRequests() : st.tab === 'reports' ? viewReports() : st.tab === 'students' ? viewStudents()
+    : st.tab === 'live' ? viewLive() : st.tab === 'codes' ? viewCodes() : viewSettings();
+  const legacy = st.codesLegacy > 0 && st.tab !== 'codes'
+    ? `<div class="note warn row no-print"><span class="grow">${esc(fill(t('legacyBanner'), { n: st.codesLegacy }))}</span><button class="b sm" type="button" data-act="tab" data-v="codes">${esc(t('tabCodes'))}</button></div>` : '';
+  main.innerHTML = tabsBar() + legacy + `<section role="tabpanel">${body}</section>`;
 }
 
 /** Перерисовать, не мешая вводу: если курсор в поле — дождаться, пока его покинут. */
@@ -536,6 +772,7 @@ async function loadAll(silent = false) {
     st.loading = false;
   }
   softRender();
+  loadCodes(true);
 }
 
 function handleAuth(e) {
@@ -560,6 +797,7 @@ async function doLogin(form) {
     st.token = res.token;
     ss.set(KEY.token, { token: res.token, exp: res.expiresAt || Date.now() + 12 * 3600 * 1000 });
     client = c;
+    names = createNames();
     st.mode = 'live';
     st.loginBusy = false;
     st.tab = 'requests';
@@ -577,9 +815,10 @@ async function doLogin(form) {
 
 function startDemo() {
   client = createDemoClient();
+  names = createNames({ persist: false, seed: DEMO_NAMES }); // демо не трогает настоящий список
   st.mode = 'demo';
   st.tab = 'requests';
-  st.f = { kind: '', status: 'pending', group: '', lab: '', grade: '', q: '', sgroup: '' };
+  st.f = { kind: '', status: 'pending', group: '', lab: '', grade: '', q: '', sgroup: '', lgroup: '', cgroup: '', cnew: '' };
   st.dirty = false; st.draft = null; st.report = null;
   render();
   main.focus();
@@ -589,8 +828,10 @@ function startDemo() {
 function logout() {
   ss.del(KEY.token);
   client = null;
-  Object.assign(st, { mode: 'login', token: '', requests: [], reports: [], students: [], settings: null, draft: null, dirty: false, report: null, reportData: null, loginErr: '', drafts: {} });
-  st.openAns.clear(); st.changing.clear();
+  Object.assign(st, { mode: 'login', token: '', requests: [], reports: [], students: [], settings: null, draft: null, dirty: false, report: null, reportData: null, loginErr: '', drafts: {},
+    codes: null, codesLegacy: 0, codesErr: '', migrate: '', delAsk: '', clearAsk: false, slips: false, activity: null });
+  st.openAns.clear(); st.changing.clear(); st.fresh.clear();
+  names = createNames();
   try { const u = new URL(location.href); if (u.searchParams.has('demo')) { u.searchParams.delete('demo'); history.replaceState(null, '', u); } } catch (e) { /* нет URL */ }
 }
 
@@ -603,7 +844,7 @@ async function decide(id, status) {
     Object.assign(r, { status, comment, decidedAt: res.decidedAt || Date.now() });
     st.changing.delete(id);
     delete st.drafts[id];
-    toast('✓ ' + t('saved') + ': ' + tr(r.name) + ' — ' + statusName(r));
+    toast('✓ ' + t('saved') + ': ' + whoText(r.name) + ' — ' + statusName(r));
     render();
     loadAll(true);
   } catch (e) {
@@ -669,12 +910,15 @@ function download(name, text) {
   setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
 }
 
+/** CSV собирается здесь, в браузере: ФИО из списка на этом компьютере попадают только в скачанный файл. */
 function exportCsv(kind) {
   const f = { t, tr, lang: st.lang, labName, labShort, kindName, statusName, accessName };
   const day = new Date().toISOString().slice(0, 10);
-  if (kind === 'requests') download(`vlab-requests-${day}.csv`, requestsCsv(filteredRequests(), f));
-  else if (kind === 'reports') download(`vlab-reports-${day}.csv`, reportsCsv(filteredReports(), f));
-  else if (kind === 'students') download(`vlab-students-${day}.csv`, studentsCsv(st.students.filter((s) => (!st.f.sgroup || s.group === st.f.sgroup) && matchQ(s)), labs, f));
+  const named = (list) => list.map((x) => ({ ...x, name: whoText(x.name) }));
+  if (kind === 'requests') download(`vlab-requests-${day}.csv`, requestsCsv(named(filteredRequests()), f));
+  else if (kind === 'reports') download(`vlab-reports-${day}.csv`, reportsCsv(named(filteredReports()), f));
+  else if (kind === 'students') download(`vlab-students-${day}.csv`, studentsCsv(named(filteredStudents()), labs, f));
+  else if (kind === 'names') download(`vlab-names-${day}.csv`, namesCsv(codeRows(), t, tr));
 }
 
 /* ---------- события ---------- */
@@ -692,9 +936,9 @@ document.addEventListener('click', (ev) => {
     case 'demo':
       startDemo(); break;
     case 'tab':
-      st.tab = v; st.report = null; render(); if (v === 'live') loadActivity(); break;
+      st.tab = v; st.report = null; st.slips = false; render(); if (v === 'live') loadActivity(); if (v === 'codes') loadCodes(); break;
     case 'refresh':
-      if (st.tab === 'live') loadActivity(); else loadAll(); break;
+      if (st.tab === 'live') loadActivity(); else if (st.tab === 'codes') { loadCodes(); loadAll(true); } else loadAll(); break;
     case 'f':
       st.f[el.dataset.k] = v; render(); break;
     case 'ans':
@@ -716,6 +960,26 @@ document.addEventListener('click', (ev) => {
       st.draft.access = v; st.dirty = true; render(); break;
     case 'saveSettings':
       saveSettings(); break;
+    case 'migrate':
+      st.migrate = 'ask'; render(); break;
+    case 'migrateNo':
+      st.migrate = ''; render(); break;
+    case 'migrateYes':
+      migrate(); break;
+    case 'delCode':
+      st.delAsk = id; render(); break;
+    case 'delYes':
+      deleteCode(id); break;
+    case 'clearAsk':
+      st.clearAsk = true; render(); break;
+    case 'clearNo':
+      st.clearAsk = false; render(); break;
+    case 'clearYes':
+      names.clear(); st.clearAsk = false; toast(t('namesCleared')); render(); break;
+    case 'slips':
+      st.slips = true; render(); window.scrollTo(0, 0); break;
+    case 'slipsBack':
+      st.slips = false; render(); break;
     default:
   }
 });
@@ -730,11 +994,14 @@ main.addEventListener('submit', (ev) => {
   ev.preventDefault();
   if (ev.target.id === 'loginForm') doLogin(ev.target);
   else if (ev.target.id === 'gradeForm') saveGrade();
+  else if (ev.target.id === 'codesForm') createCodes(ev.target);
 });
 
 main.addEventListener('input', (ev) => {
   const el = ev.target;
-  if (el.dataset.draft) st.drafts[el.dataset.draft] = el.value;
+  if (el.dataset.nm) names.set(el.dataset.nm, el.value); // только в этом браузере
+  else if (el.form && el.form.id === 'codesForm') st.newCode[el.name] = el.value;
+  else if (el.dataset.draft) st.drafts[el.dataset.draft] = el.value;
   else if (el.dataset.g && st.gradeDraft) st.gradeDraft[el.dataset.g] = el.value;
   else if (el.dataset.f === 'q') {
     st.f.q = el.value;
@@ -747,7 +1014,9 @@ main.addEventListener('input', (ev) => {
 
 main.addEventListener('change', (ev) => {
   const el = ev.target;
-  if (el.dataset.f && el.dataset.f !== 'q') { st.f[el.dataset.f] = el.value; render(); }
+  if (el.id === 'namesFile') { importNames(el.files && el.files[0]); el.value = ''; }
+  else if (el.dataset.nm) { names.set(el.dataset.nm, el.value); }
+  else if (el.dataset.f && el.dataset.f !== 'q') { st.f[el.dataset.f] = el.value; render(); }
   else if (el.dataset.g && st.gradeDraft) st.gradeDraft[el.dataset.g] = el.value;
   else if (el.dataset.lab) {
     const lab = el.dataset.lab;

@@ -96,12 +96,13 @@ export async function admissionPage(root, env, entry, lab) {
       try {
         const res = await api.submitAdmission(payload);
         // Сервер отверг запрос (не «нет связи») — заявки нет, говорим об этом и даём отправить снова.
-        if (!res || res.ok === false) throw new Error((res && (tr(res.text) || res.message || res.error)) || '');
+        if (!res || res.ok === false) { const err = new Error((res && (tr(res.text) || res.message || res.error)) || ''); err.code = res && res.error; throw err; }
         A.submitted = true; A.retake = false; A.result = res; save();
         main.innerHTML = '';
         showDecision({ status: res.status, score: A.score, comment: '' }, true);
       } catch (e) {
-        lastErr = t('sendError', { e: (e && e.message) || String(e) });
+        // Нет кода студента (или старый профиль с ФИО) — ответ не принят: просим ввести код на главной.
+        lastErr = e && (e.code === 'bad_code' || e.code === 'no_profile') ? t('profileNeeded') : t('sendError', { e: (e && e.message) || String(e) });
         main.innerHTML = ''; showTest();
       }
     }

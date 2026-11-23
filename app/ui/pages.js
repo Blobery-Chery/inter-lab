@@ -9,6 +9,7 @@ import { labStatus, allDone } from './status.js';
 import { btn } from './controls.js';
 import { confirmDialog, toast } from './modal.js';
 import { gradeOf, isComplete } from '../report.js';
+import { isCode, formatCode } from '../code.js';
 
 const hazardTx = {
   corrosive: L('едкое', 'күйдіргіш', 'corrosive'), oxidiser: L('окислитель', 'тотықтырғыш', 'oxidiser'), flammable: L('ЛВЖ', 'тез тұтанғыш', 'flammable'),
@@ -20,21 +21,30 @@ function profileChanged() {
   try { globalThis.dispatchEvent(new Event('vlab-profile')); } catch (e) { /* без восстановления */ }
 }
 
-export function profileForm(api, onSave) {
+/** Вход по коду студента (8 цифр, выдаёт преподаватель): проверка на сервере, группа — оттуда. ФИО не спрашиваем. */
+export function profileForm(api, onSave, { label } = {}) {
   const s = api.getStudent();
-  const fio = h('input', { type: 'text', id: 'fio', autocomplete: 'name', placeholder: t('fioPh'), value: s.name });
-  const grp = h('input', { type: 'text', id: 'grp', placeholder: t('groupPh'), value: s.group });
-  const msg = h('span', { class: 'muted', role: 'status', 'aria-live': 'polite' });
-  const save = btn(t('save'), () => {
-    api.setStudent({ name: fio.value, group: grp.value });
-    msg.textContent = t('saved') + ' ✓';
-    profileChanged();
-    onSave && onSave();
+  const has = isCode(s.name);
+  const inp = h('input', { type: 'text', id: 'scode', class: 'num', inputmode: 'numeric', autocomplete: 'off', placeholder: '0000-0000', maxlength: '12', value: has ? formatCode(s.name) : '' });
+  const msg = h('p', { class: 'muted', role: 'status', 'aria-live': 'polite' });
+  const save = btn(label || t('codeEnter'), async () => {
+    save.disabled = true;
+    msg.className = 'muted'; msg.textContent = t('codeChecking');
+    try {
+      const r = await api.verifyCode(inp.value);
+      msg.className = 'fb good'; msg.textContent = t('codeOk', { code: formatCode(r.code), g: r.group || '—' });
+      profileChanged();
+      onSave && onSave(r);
+    } catch (e) {
+      msg.className = 'fb bad'; msg.textContent = e && e.text ? tr(e.text) : t('sendError', { e: (e && e.message) || e });
+    } finally { save.disabled = false; }
   }, 'pri');
+  inp.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); save.click(); } };
   return h('div', { class: 'form' },
-    h('label', { class: 'field', for: 'fio' }, h('span', null, t('fio')), fio),
-    h('label', { class: 'field', for: 'grp' }, h('span', null, t('group')), grp),
-    h('div', { class: 'row' }, save, msg));
+    has ? h('p', null, h('b', null, t('codeNow', { code: formatCode(s.name), g: s.group || '—' }))) : null,
+    h('label', { class: 'field', for: 'scode' }, h('span', null, t('studentCode')), inp),
+    h('p', { class: 'muted', style: 'font-size:13.5px;margin:0' }, t('codeHint')),
+    h('div', { class: 'row' }, save), msg);
 }
 
 export async function homePage(root, env) {
@@ -47,7 +57,7 @@ export async function homePage(root, env) {
     ...[1, 2, 3, 4].map((i) => h('li', null, h('b', null, t('how' + i)), h('span', null, t('how' + i + 'd')))))));
   const s = api.getStudent();
   const prof = h('section', { class: 'card section', id: 'profile' }, h('h2', null, t('profile')),
-    !s.name || !s.group ? h('p', { class: 'banner warn' }, t('profileNeeded')) : null,
+    !isCode(s.name) ? h('p', { class: 'banner warn' }, t('profileNeeded')) : null,
     env.sync && env.sync.enabled ? h('p', { class: 'muted', style: 'font-size:13.5px' }, t('profileSync')) : null,
     profileForm(api, () => env.rerender()));
   root.append(prof);
@@ -174,17 +184,11 @@ export async function accessPage(root, env, access, recheck) {
   if (access.status === 'pending') box.append(h('p', { class: 'fb info' }, t('accessPending')), h('div', { class: 'row' }, btn(t('checkNow'), recheck)));
   else {
     if (access.status === 'denied') box.append(h('p', { class: 'fb bad' }, t('accessDenied') + (access.comment ? ': ' + access.comment : '')));
-    const s = api.getStudent();
-    const fio = h('input', { type: 'text', id: 'afio', autocomplete: 'name', placeholder: t('fioPh'), value: s.name });
-    const grp = h('input', { type: 'text', id: 'agrp', placeholder: t('groupPh'), value: s.group });
     const msg = h('p', { class: 'muted', role: 'status', 'aria-live': 'polite' });
-    box.append(h('div', { class: 'form' }, h('label', { class: 'field', for: 'afio' }, h('span', null, t('fio')), fio), h('label', { class: 'field', for: 'agrp' }, h('span', null, t('group')), grp),
-      h('div', { class: 'row' }, btn(access.status === 'denied' ? t('accessAgain') : t('accessSend'), async () => {
-        if (!fio.value.trim() || !grp.value.trim()) { msg.textContent = t('profileNeeded'); return; }
-        api.setStudent({ name: fio.value, group: grp.value });
-        profileChanged();
-        try { await api.requestAccess(); recheck(); } catch (e) { msg.textContent = t('sendError', { e: e.message || e }); }
-      }, 'pri'))), msg);
+    // Код проверяется, затем уходит заявка на доступ.
+    box.append(profileForm(api, async () => {
+      try { await api.requestAccess(); recheck(); } catch (e) { msg.textContent = t('sendError', { e: (e && e.message) || e }); }
+    }, { label: access.status === 'denied' ? t('accessAgain') : t('accessSend') }), msg);
   }
   root.append(box);
 }

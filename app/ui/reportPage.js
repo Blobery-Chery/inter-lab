@@ -4,6 +4,7 @@ import { tr, t, getLang, num } from '../i18n.js';
 import * as store from '../store.js';
 import { buildReport, reportBodyHTML, remarksHTML, journalHTML, reportText, reportPayload, checkAssignment, gradeWord } from '../report.js';
 import { btn, option, withSign } from './controls.js';
+import { isCode, formatCode } from '../code.js';
 import { CONFIG } from '../../config.js';
 import { parseNum } from '../steps/calc.js';
 
@@ -18,17 +19,15 @@ export async function reportPage(root, env, entry, lab) {
   const R = progress.results || {};
 
   root.append(h('a', { class: 'b sm ghost noprint', href: `#/lab/${entry.number}` }, '← ' + t('toLab')));
-  const fio = h('input', { type: 'text', id: 'rfio', value: student.name, autocomplete: 'name' });
-  const grp = h('input', { type: 'text', id: 'rgrp', value: student.group });
-  const upd = () => api.setStudent({ name: fio.value, group: grp.value });
-  fio.oninput = upd; grp.oninput = upd;
+  // В протоколе — код студента и группа (ФИО на сайте не хранится); код меняется на главной.
+  const code = isCode(student.name) ? formatCode(student.name) : '—';
   const doc = h('article', { class: 'card doc' });
   doc.append(h('div', { class: 'eyebrow' }, t('reportTitle') + ' · ' + t('discipline')),
     h('div', { class: 'dochead', style: 'margin:10px 0' },
-      h('label', { class: 'field', for: 'rfio' }, h('span', null, t('student')), fio),
-      h('label', { class: 'field', for: 'rgrp' }, h('span', null, t('group')), grp),
+      h('div', { class: 'field' }, h('span', null, t('studentCode')), h('div', { class: 'mono' }, code, ' ', h('a', { class: 'noprint', href: '#/', style: 'font-family:var(--f-body);font-size:13px' }, t('codeChange')))),
+      h('div', { class: 'field' }, h('span', null, t('group')), h('div', null, student.group || '—')),
       h('div', { class: 'field' }, h('span', null, t('date')), h('div', { class: 'mono' }, `${t('day')} ${d.days[0] === d.days[1] ? d.days[0] : d.days[0] + '–' + d.days[1]} (${t('labTime')}) · ${new Date().toLocaleDateString(getLang() === 'en' ? 'en-GB' : getLang() === 'kk' ? 'kk-KZ' : 'ru-RU')}`))),
-    h('div', { class: 'printonly' }, `${t('student')}: ${student.name || '—'} · ${t('group')}: ${student.group || '—'}`));
+    h('div', { class: 'printonly' }, `${t('studentCode')}: ${code} · ${t('group')}: ${student.group || '—'}`));
   if (!d.complete) doc.append(h('p', { class: 'banner warn' }, t('reportLocked')));
   doc.append(h('div', { html: reportBodyHTML(d) }));
 
@@ -98,6 +97,12 @@ export async function reportPage(root, env, entry, lab) {
     const mode = env.mode;
     try {
       const res = await api.submitReport(reportPayload(dd, progress, mode, getLang(), text));
+      // Сервер не принял протокол (например, нет кода студента) — протокол не считается сданным.
+      if (res && res.ok === false) {
+        status.className = 'status warn';
+        status.textContent = res.error === 'bad_code' || res.error === 'no_profile' ? t('profileNeeded') : t('sendError', { e: (res.text && tr(res.text)) || res.message || res.error });
+        return;
+      }
       progress.report = { sentAt: Date.now(), id: res.id, queued: !!res.queued, local: !!res.local, grade: dd.grade.grade, points: dd.grade.points };
       save(); env.rerender();
     } catch (e) { status.className = 'status warn'; status.textContent = t('sendError', { e: e.message || String(e) }); }

@@ -1,23 +1,32 @@
 // Демо-режим панели: вымышленные студенты, заявки, протоколы и оценки — для показа без сервера.
-// Все имена вымышлены и помечены «(пример)». Содержание вопросов и протоколов — по методичке
-// работы № 6–7 (docs/source/labs/lab-06-07.md) и правилам ТБ (docs/source/safety-rules-ru.md).
+// Студенты, как и на настоящем сервере, записаны кодами; «ФИО» в демо — условные метки
+// «Студент А (пример)» из списка на этом компьютере (DEMO_NAMES), настоящих имён здесь нет.
+// Содержание вопросов и протоколов — по методичке работы № 6–7 (docs/source/labs/lab-06-07.md)
+// и правилам ТБ (docs/source/safety-rules-ru.md).
 // Тексты — объекты {ru, kk, en}: в демо они переключаются вместе с языком панели.
+import { formatCode, luhnDigit } from '../app/code.js';
 
 const L = (ru, kk, en) => ({ ru, kk, en });
 const MARK = { ru: ' (пример)', kk: ' (мысал)', en: ' (example)' };
-const person = (ru, kk, en) => ({ ru: ru + MARK.ru, kk: kk + MARK.kk, en: en + MARK.en });
+const label = (ru, en) => ({ ru: 'Студент ' + ru + MARK.ru, kk: 'Студент ' + ru + MARK.kk, en: 'Student ' + en + MARK.en });
 
 const STUDENTS = [
-  { id: 'demo-1', group: 'Х-31', name: person('Әсем Нұрланқызы', 'Әсем Нұрланқызы', 'Asem Nurlankyzy'), lang: 'kk' },
-  { id: 'demo-2', group: 'Х-31', name: person('Данияр Сапаров', 'Данияр Сапаров', 'Daniyar Saparov'), lang: 'ru' },
-  { id: 'demo-3', group: 'Х-31', name: person('Мария Ковалёва', 'Мария Ковалёва', 'Maria Kovaleva'), lang: 'ru' },
-  { id: 'demo-4', group: 'Х-31', name: person('Ерлан Жақыпов', 'Ерлан Жақыпов', 'Yerlan Zhakypov'), lang: 'kk' },
-  { id: 'demo-5', group: 'Х-32', name: person('Айгерим Төлеген', 'Айгерім Төлеген', 'Aigerim Tolegen'), lang: 'kk' },
-  { id: 'demo-6', group: 'Х-32', name: person('Тимур Ахметов', 'Тимур Ахметов', 'Timur Akhmetov'), lang: 'en' },
-  { id: 'demo-7', group: 'Х-32', name: person('Жанна Ли', 'Жанна Ли', 'Zhanna Li'), lang: 'ru' },
-  { id: 'demo-8', group: 'Х-32', name: person('Нұрсұлтан Бекболатов', 'Нұрсұлтан Бекболатов', 'Nursultan Bekbolatov'), lang: 'kk' },
-  { id: 'demo-9', group: 'Х-31', name: person('Ольга Ким', 'Ольга Ким', 'Olga Kim'), lang: 'ru' },
-];
+  { id: 'demo-1', group: 'Х-31', code: '31842065', label: label('А', 'A'), lang: 'kk' },
+  { id: 'demo-2', group: 'Х-31', code: '59270314', label: label('Б', 'B'), lang: 'ru' },
+  { id: 'demo-3', group: 'Х-31', code: '74605189', label: label('В', 'C'), lang: 'ru' },
+  { id: 'demo-4', group: 'Х-31', code: '20593745', label: label('Г', 'D'), lang: 'kk' },
+  { id: 'demo-5', group: 'Х-32', code: '86139201', label: label('Д', 'E'), lang: 'kk' },
+  { id: 'demo-6', group: 'Х-32', code: '43781624', label: label('Е', 'F'), lang: 'en' },
+  { id: 'demo-7', group: 'Х-32', code: '69420875', label: label('Ж', 'G'), lang: 'ru' },
+  { id: 'demo-8', group: 'Х-32', code: '17954033', label: label('З', 'H'), lang: 'kk' },
+  { id: 'demo-9', group: 'Х-31', code: '92306711', label: label('И', 'I'), lang: 'ru' },
+].map((s) => ({ ...s, name: s.code }));
+
+/** Коды, выданные, но ещё не использованные (в демо — группа Х-32). */
+const SPARE = ['55082366', '71269500', '38714051'];
+
+/** Список «код → ФИО» для демо (в настоящей панели он хранится только на компьютере преподавателя). */
+export const DEMO_NAMES = Object.fromEntries(STUDENTS.map((s) => [s.code, s.label]));
 
 /* ---------- вопросы (правильный вариант — первый в right, неверный — wrong) ---------- */
 
@@ -146,7 +155,7 @@ function reportText(st, rep) {
     const head = { ru: 'Лабораторная работа № 6–7', kk: '№ 6–7 зертханалық жұмыс', en: 'Laboratory work No. 6–7' }[lang];
     const lines = [
       head + '. ' + T(LAB67_TITLE),
-      { ru: 'Студент', kk: 'Студент', en: 'Student' }[lang] + ': ' + T(st.name) + '   ' + { ru: 'Группа', kk: 'Топ', en: 'Group' }[lang] + ': ' + st.group,
+      { ru: 'Код студента', kk: 'Студент коды', en: 'Student code' }[lang] + ': ' + formatCode(st.code) + '   ' + { ru: 'Группа', kk: 'Топ', en: 'Group' }[lang] + ': ' + st.group,
       '',
       { ru: 'Опыт 1. Нитрование бензойной кислоты', kk: '1-тәжірибе. Бензой қышқылын нитрлеу', en: 'Experiment 1. Nitration of benzoic acid' }[lang],
       'C₆H₅COOH + HNO₃ → m-O₂N–C₆H₄–COOH + H₂O (H₂SO₄, 0–10 °C)',
@@ -275,7 +284,11 @@ export function buildDemoData(now = Date.now()) {
   }
   settings.labs['lab-12'].hints = false;
   settings.labs['lab-15'].open = false;
-  return { requests, reports, settings };
+  const codes = [
+    ...STUDENTS.map((s, i) => ({ code: s.code, group: s.group, createdAt: now - 12 * day + i * 60000, usedAt: now - 9 * day - 2 * h + i * 300000 })),
+    ...SPARE.map((c, i) => ({ code: c, group: 'Х-32', createdAt: now - 12 * day + (STUDENTS.length + i) * 60000, usedAt: null })),
+  ];
+  return { requests, reports, settings, codes };
 }
 
 /* ---------- «сервер» в памяти ---------- */
@@ -307,7 +320,7 @@ function matrix(requests, reports, access) {
 function demoActivity(now) {
   const m = 60000;
   const S = Object.fromEntries(STUDENTS.map((s) => [s.id, s]));
-  const row = (sid, act, ago, onStep) => ({ name: S[sid].name, group: S[sid].group, act, at: now - ago, since: now - (onStep ?? ago) });
+  const row = (sid, act, ago, onStep) => ({ name: S[sid].code, group: S[sid].group, act, at: now - ago, since: now - (onStep ?? ago) });
   return [
     row('demo-1', { view: 'exp', lab: 'lab-08', exp: '1', expTitle: { ru: 'Синтез н-бутилацетата', kk: 'н-Бутилацетат синтезі', en: 'Synthesis of n-butyl acetate' }, step: 5, steps: 16, stepTitle: { ru: 'Катализатор и кипелки', kk: 'Катализатор және қайнату тастары', en: 'Catalyst and boiling chips' }, status: 'active', remarks: 1, penalty: 0.5, hints: 0 }, 0.4 * m, 3 * m),
     row('demo-2', { view: 'exp', lab: 'lab-12', exp: '2', expTitle: { ru: 'Расщепление рацемического 1-фенилэтиламина через диастереомерные соли', kk: 'Рацемиялық 1-фенилэтиламинді диастереомерлі тұздар арқылы ажырату', en: 'Resolution of racemic 1-phenylethylamine via diastereomeric salts' }, step: 4, steps: 20, stepTitle: { ru: 'Метанол для кристаллизации', kk: 'Кристалдауға арналған метанол', en: 'Methanol for the crystallisation' }, status: 'active', remarks: 0, penalty: 0, hints: 2 }, 1.2 * m, 18 * m),
@@ -358,6 +371,30 @@ export function createDemoClient(now = Date.now()) {
     },
     listStudents: () => ({ access: db.settings.access, students: matrix(db.requests, db.reports, db.settings.access) }),
     listActivity: () => ({ now: Date.now(), activity: demoActivity(Date.now()) }),
+    listCodes: () => ({ codes: [...db.codes].sort((a, b) => String(a.group).localeCompare(b.group) || a.createdAt - b.createdAt), legacy: 0 }),
+    createCodes: ({ group, count }) => {
+      group = String(group || '').trim();
+      count = Math.floor(Number(count));
+      if (!group || !(count >= 1 && count <= 200)) throw Object.assign(new Error('bad_request'), { code: 'bad_request' });
+      const taken = Object.fromEntries(db.codes.map((c) => [c.code, 1]));
+      const made = [];
+      for (let i = 0; i < count; i++) {
+        let c;
+        do { const d = String(1 + Math.floor(Math.random() * 9)) + String(Math.floor(Math.random() * 1e6)).padStart(6, '0'); c = d + luhnDigit(d); } while (taken[c]);
+        taken[c] = 1;
+        made.push({ code: c, group, createdAt: Date.now(), usedAt: null });
+      }
+      db.codes.push(...made);
+      return { codes: made };
+    },
+    deleteCode: ({ code }) => {
+      const i = db.codes.findIndex((c) => c.code === code);
+      if (i < 0) throw Object.assign(new Error('not_found'), { code: 'not_found' });
+      if (db.codes[i].usedAt) throw Object.assign(new Error('bad_request'), { code: 'bad_request' });
+      db.codes.splice(i, 1);
+      return {};
+    },
+    migrateToCodes: () => ({ mapping: [] }), // в демо ФИО уже заменены кодами
   };
   async function call(action, data = {}) {
     await new Promise((r) => setTimeout(r, 120)); // как будто сеть

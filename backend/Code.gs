@@ -26,7 +26,7 @@
 /* ======================================================================= */
 
 var VLAB = {
-  VERSION: '1.2.0',
+  VERSION: '1.3.0',
   TOKEN_TTL_MS: 12 * 60 * 60 * 1000,   // токен преподавателя живёт 12 часов
   MAX_FAILS: 5,                         // неудачных входов подряд…
   LOCK_SECONDS: 15 * 60,                // …и вход закрыт на 15 минут
@@ -49,7 +49,7 @@ var SHEETS = {
     name: 'Заявки',
     cols: [
       ['id', 'ID'], ['createdAt', 'Получено'], ['kind', 'Тип'], ['lab', 'Работа'], ['status', 'Статус'],
-      ['name', 'ФИО'], ['group', 'Группа'], ['deviceId', 'Устройство'], ['attempt', 'Попытка'],
+      ['name', 'Код студента'], ['group', 'Группа'], ['deviceId', 'Устройство'], ['attempt', 'Попытка'],
       ['score', 'Балл'], ['total', 'Из'], ['pass', 'Порог'], ['lang', 'Язык'],
       ['comment', 'Комментарий'], ['decidedAt', 'Решено'], ['startedAt', 'Начато'], ['finishedAt', 'Закончено'],
       ['answers', 'Ответы (JSON)'],
@@ -58,7 +58,7 @@ var SHEETS = {
   reports: {
     name: 'Протоколы',
     cols: [
-      ['id', 'ID'], ['createdAt', 'Получено'], ['lab', 'Работа'], ['name', 'ФИО'], ['group', 'Группа'],
+      ['id', 'ID'], ['createdAt', 'Получено'], ['lab', 'Работа'], ['name', 'Код студента'], ['group', 'Группа'],
       ['deviceId', 'Устройство'], ['attempt', 'Попытка'], ['mode', 'Режим'], ['lang', 'Язык'],
       ['grade', 'Оценка (авто)'], ['points', 'Штрафные баллы'], ['teacherGrade', 'Оценка преподавателя'],
       ['teacherComment', 'Комментарий преподавателя'], ['gradedAt', 'Оценено'], ['finishedAt', 'Закончено'],
@@ -72,14 +72,18 @@ var SHEETS = {
   progress: {
     name: 'Прогресс',
     cols: [
-      ['key', 'Студент (ФИО|группа)'], ['lab', 'Работа'], ['name', 'ФИО'], ['group', 'Группа'], ['deviceId', 'Устройство'],
+      ['key', 'Студент (код|группа)'], ['lab', 'Работа'], ['name', 'Код студента'], ['group', 'Группа'], ['deviceId', 'Устройство'],
       ['at', 'Сохранено'], ['size', 'Размер'], ['d1', 'Данные 1'], ['d2', 'Данные 2'], ['d3', 'Данные 3'], ['d4', 'Данные 4'],
     ],
+  },
+  codes: {
+    name: 'Коды',
+    cols: [['code', 'Код студента'], ['group', 'Группа'], ['createdAt', 'Создан'], ['usedAt', 'Первый вход']],
   },
   students: {
     name: 'Студенты',
     cols: [
-      ['key', 'Ключ'], ['name', 'ФИО'], ['group', 'Группа'], ['deviceId', 'Устройство'],
+      ['key', 'Ключ'], ['name', 'Код студента'], ['group', 'Группа'], ['deviceId', 'Устройство'],
       ['firstSeen', 'Впервые'], ['lastSeen', 'Последний раз'], ['summary', 'Сводка'],
     ],
   },
@@ -181,6 +185,64 @@ function personKey(student) {
   var g = looseText(student.group).replace(/[\s\-–—_.\/]/g, '');
   return n && g ? n + '|' + g : '';
 }
+
+/* ---------- коды студентов (вместо ФИО) ---------- */
+// Код — 8 цифр: 7 случайных + контрольная по алгоритму Луна (опечатку в одной цифре сайт замечает сразу).
+// В таблице хранятся только коды и группы; кому какой код выдан, знает преподаватель (список у него на компьютере).
+
+function luhnDigit(d7) {
+  var sum = 0;
+  for (var i = 0; i < d7.length; i++) {
+    var n = +d7.charAt(d7.length - 1 - i);
+    if (i % 2 === 0) { n *= 2; if (n > 9) n -= 9; }
+    sum += n;
+  }
+  return String((10 - (sum % 10)) % 10);
+}
+
+/** «4827-1935», « 4827 1935 » → «48271935»; иначе '' (не код или ошибка в цифре). */
+function normalizeCode(s) {
+  var d = String(s == null ? '' : s).replace(/[\s\-–—'.]/g, '');
+  if (!/^[1-9]\d{7}$/.test(d)) return '';
+  return luhnDigit(d.slice(0, 7)) === d.charAt(7) ? d : '';
+}
+
+function formatCode(c) { return c && c.length === 8 ? c.slice(0, 4) + '-' + c.slice(4) : String(c || ''); }
+
+/** Новый код, которого нет в taken (объект code → …). rand — функция [0, 1). */
+function makeCode(taken, rand) {
+  for (var tries = 0; tries < 1000; tries++) {
+    var d = String(1 + Math.floor(rand() * 9));
+    for (var i = 0; i < 6; i++) d += String(Math.floor(rand() * 10));
+    var c = d + luhnDigit(d);
+    if (!taken.hasOwnProperty(c)) return c;
+  }
+  throw new Error('Не удалось подобрать новый код');
+}
+
+/** Случайное число [0, 1) из криптостойкого генератора (Utilities.getUuid — UUID v4, 48 последних бит случайны). */
+function secureRand_() {
+  var hex = Utilities.getUuid().replace(/-/g, '').slice(-12);
+  return parseInt(hex, 16) / 281474976710656; // 2^48
+}
+
+/** Протокол (JSON) без ФИО: student.name → код; в тексте протокола ФИО (от 3 букв) заменяется кодом. */
+function scrubName(json, name, code) {
+  var swap = function (t) { return name.length >= 3 ? String(t).split(name).join(code) : t; };
+  try {
+    var o = JSON.parse(json);
+    if (o && o.student) o.student.name = code;
+    if (o && typeof o.reportText === 'string') o.reportText = swap(o.reportText);
+    return JSON.stringify(o);
+  } catch (e) {
+    return swap(json);
+  }
+}
+
+/** Код в ячейку: с апострофом, чтобы Таблица не превратила его в число. */
+function codeCell(c) { return "'" + c; }
+/** Имя студента в ячейку: код — как текст, остальное — как раньше. */
+function nameCell_(name) { return normalizeCode(name) ? codeCell(normalizeCode(name)) : name; }
 
 /** Строка от студента → безопасная для ячейки (без формул, с пределом длины). */
 function cellText(v, max) {
@@ -499,6 +561,20 @@ function append_(def, obj) {
   sh.appendRow(row);
 }
 
+/** Несколько строк одним вызовом (быстрее, чем appendRow по одной). */
+function appendRows_(def, objs) {
+  if (!objs.length) return;
+  var sh = sheet_(def);
+  var idx = colIndex_(sh, def);
+  var rows = objs.map(function (obj) {
+    var row = [];
+    for (var i = 0; i < idx._width; i++) row.push('');
+    for (var k in obj) if (idx[k] !== undefined) row[idx[k]] = obj[k];
+    return row;
+  });
+  sh.getRange(sh.getLastRow() + 1, 1, rows.length, idx._width).setValues(rows);
+}
+
 function update_(def, rowNum, patch) {
   var sh = sheet_(def);
   var idx = colIndex_(sh, def);
@@ -597,11 +673,48 @@ function touchStudent_(student, now) {
   var rows = readAll_(SHEETS.students);
   for (var i = 0; i < rows.length; i++) {
     if (String(rows[i].key) === key) {
-      update_(SHEETS.students, rows[i]._row, { name: student.name, group: student.group, lastSeen: new Date(now) });
+      update_(SHEETS.students, rows[i]._row, { name: nameCell_(student.name), group: student.group, lastSeen: new Date(now) });
       return;
     }
   }
-  append_(SHEETS.students, { key: key, name: student.name, group: student.group, deviceId: student.deviceId, firstSeen: new Date(now), lastSeen: new Date(now), summary: '' });
+  append_(SHEETS.students, { key: key, name: nameCell_(student.name), group: student.group, deviceId: student.deviceId, firstSeen: new Date(now), lastSeen: new Date(now), summary: '' });
+}
+
+/* ---------- коды: лист «Коды» ---------- */
+
+/** code → группа (кэш на минуту). */
+function codesMap_(fresh) {
+  var cache = CacheService.getScriptCache();
+  if (!fresh) { var raw = cache.get('vlab_codes'); if (raw) { try { return JSON.parse(raw); } catch (e) { /* перечитаем */ } } }
+  var map = {};
+  readAll_(SHEETS.codes).forEach(function (r) { var c = normalizeCode(r.code); if (c) map[c] = String(r.group || ''); });
+  cache.put('vlab_codes', JSON.stringify(map), 60);
+  return map;
+}
+function codesChanged_() { CacheService.getScriptCache().remove('vlab_codes'); }
+
+/**
+ * Кто это. Пока в листе «Коды» нет ни одного кода — как раньше (ФИО и группа).
+ * Как только коды введены — принимается только выданный код, группа берётся из листа «Коды».
+ * required: для записи (заявки, протоколы, прогресс) — ошибка bad_code; для чтения — null.
+ */
+function identify_(raw, required) {
+  var s = cleanStudent(raw);
+  var map = codesMap_();
+  if (!Object.keys(map).length) return s;
+  var code = normalizeCode(s.name);
+  if (code && map.hasOwnProperty(code)) return { name: code, group: map[code], deviceId: s.deviceId };
+  if (required) throw apiError_('bad_code', 'Нужен код студента, который выдал преподаватель.');
+  return null;
+}
+
+/** Не больше 20 неверных кодов в час с одного устройства — чтобы коды не подбирали. */
+function codeAttempt_(deviceId, ok) {
+  var cache = CacheService.getScriptCache();
+  var key = 'vlab_codefail_' + String(deviceId || 'none').slice(0, 60);
+  var n = +(cache.get(key) || 0);
+  if (n >= 20) throw apiError_('rate', 'Слишком много попыток. Попробуйте через час.');
+  if (!ok) cache.put(key, String(n + 1), 3600);
 }
 
 /* ---------- прогресс студентов (лист «Прогресс», служебный) ---------- */
@@ -693,9 +806,26 @@ var STUDENT_ACTIONS = {
     return { ok: true, service: 'vlab', version: VLAB.VERSION };
   },
 
+  /** Код студента: есть ли такой; группа берётся из листа «Коды». Первый вход отмечается. */
+  checkCode: function (req) {
+    var deviceId = cleanStudent({ deviceId: req.deviceId }).deviceId;
+    codeAttempt_(deviceId, true);
+    var code = normalizeCode(req.code);
+    var map = code ? codesMap_() : {};
+    if (!code || !map.hasOwnProperty(code)) {
+      codeAttempt_(deviceId, false);
+      throw apiError_('bad_code', code ? 'Такого кода нет. Проверьте код у преподавателя.' : 'В коде ошибка: проверьте цифры.');
+    }
+    var rows = readAll_(SHEETS.codes);
+    for (var i = 0; i < rows.length; i++) {
+      if (normalizeCode(rows[i].code) === code && !rows[i].usedAt) { update_(SHEETS.codes, rows[i]._row, { usedAt: new Date() }); break; }
+    }
+    return { ok: true, code: code, group: map[code] };
+  },
+
   /** Где студент сейчас (для вкладки «Сейчас»). Нет блокировки за 3 с — отметку пропускаем, это не страшно. */
   activity: function (req) {
-    var student = cleanStudent(req.student);
+    var student = identify_(req.student, true);
     if (!student.deviceId) throw apiError_('bad_request', 'Нет кода устройства.');
     var act = cleanAct(req.act);
     var lock = LockService.getScriptLock();
@@ -709,9 +839,9 @@ var STUDENT_ACTIONS = {
 
   /** Прогресс работы (сжатый) — копия на сервере, чтобы он не пропадал при очистке браузера и был на другом устройстве. */
   saveProgress: function (req) {
-    var student = cleanStudent(req.student);
+    var student = identify_(req.student, true);
     var pk = personKey(student);
-    if (!pk) throw apiError_('no_profile', 'Укажите ФИО и группу.');
+    if (!pk) throw apiError_('no_profile', 'Укажите код студента.');
     var lab = String(req.lab || '');
     if (VLAB.LABS.indexOf(lab) < 0) throw apiError_('bad_request', 'Неизвестная работа.');
     var data = String(req.data || '');
@@ -719,7 +849,7 @@ var STUDENT_ACTIONS = {
     var parts = splitData(data, VLAB.CELL_SAFE, 4);
     if (!parts) throw apiError_('too_big', 'Прогресс слишком большой.');
     var at = num(req.at, Date.now());
-    var row = { key: pk, lab: lab, name: student.name, group: student.group, deviceId: student.deviceId, at: new Date(at), size: data.length, d1: parts[0], d2: parts[1], d3: parts[2], d4: parts[3] };
+    var row = { key: pk, lab: lab, name: nameCell_(student.name), group: student.group, deviceId: student.deviceId, at: new Date(at), size: data.length, d1: parts[0], d2: parts[1], d3: parts[2], d4: parts[3] };
     var found = progressRow_(pk, lab);
     if (found) writeRow_(SHEETS.progress, found, row);
     else withLock_(function () { var again = progressRow_(pk, lab); if (again) writeRow_(SHEETS.progress, again, row); else append_(SHEETS.progress, row); });
@@ -727,8 +857,8 @@ var STUDENT_ACTIONS = {
   },
 
   loadProgress: function (req) {
-    var student = cleanStudent(req.student);
-    var pk = personKey(student);
+    var student = identify_(req.student, false);
+    var pk = student ? personKey(student) : '';
     if (!pk) return { ok: true, items: [] };
     var sh = sheet_(SHEETS.progress);
     var idx = colIndex_(sh, SHEETS.progress);
@@ -746,7 +876,7 @@ var STUDENT_ACTIONS = {
 
   submitAdmission: function (req) {
     var p = req.payload || req;
-    var student = cleanStudent(p.student || req.student);
+    var student = identify_(p.student || req.student, true);
     if (!student.deviceId) throw apiError_('bad_request', 'Нет идентификатора устройства.');
     var kind = p.kind === 'briefing' ? 'briefing' : 'admission';
     var lab = cellText(p.lab || (kind === 'briefing' ? 'lab-00' : ''), 40);
@@ -763,7 +893,7 @@ var STUDENT_ACTIONS = {
       var status = initialStatus(kind, p.score, p.pass, labSettingsOf(settings.labs, lab).autoAdmit);
       var rec = {
         id: clientId || Utilities.getUuid(), createdAt: new Date(now), kind: kind, lab: lab, status: status,
-        name: student.name, group: student.group, deviceId: student.deviceId,
+        name: nameCell_(student.name), group: student.group, deviceId: student.deviceId,
         attempt: num(p.attempt, ''), score: num(p.score), total: num(p.total), pass: num(p.pass),
         lang: cellText(p.lang, 5), comment: '', decidedAt: status === 'pending' ? '' : new Date(now),
         startedAt: p.startedAt ? new Date(num(p.startedAt)) : '', finishedAt: p.finishedAt ? new Date(num(p.finishedAt)) : '',
@@ -779,13 +909,14 @@ var STUDENT_ACTIONS = {
   },
 
   getStatus: function (req) {
-    var student = cleanStudent(req.student);
+    var student = identify_(req.student, false);
+    if (!student) return { ok: true, status: null, needCode: true }; // не по коду — сайт оставляет то, что знает сам
     var lab = String(req.lab || '');
     var all = requestsAll_();
     var forLab = function (x) { return x.kind !== 'access' && x.lab === lab; };
     // 1) это устройство и это ФИО; 2) это устройство и прежние ФИО (их исправили); 3) те же ФИО и группа с другого устройства или браузера.
     var keys = [studentKey(student)];
-    (Array.isArray(req.alsoNames) ? req.alsoNames : []).slice(0, 5).forEach(function (n) { keys.push(studentKey({ deviceId: student.deviceId, name: cleanStudent({ name: n }).name })); });
+    (Array.isArray(req.alsoNames) ? req.alsoNames : []).slice(0, 5).forEach(function (n) { keys.push(studentKey({ deviceId: student.deviceId, name: normalizeCode(n) || cleanStudent({ name: n }).name })); });
     var r = latest(all, function (x) { return forLab(x) && keys.indexOf(studentKey(x)) >= 0; });
     var pk = personKey(student);
     if (!r && pk) r = latest(all, function (x) { return forLab(x) && personKey(x) === pk; });
@@ -795,7 +926,7 @@ var STUDENT_ACTIONS = {
 
   submitReport: function (req) {
     var p = req.payload || req;
-    var student = cleanStudent(p.student || req.student);
+    var student = identify_(p.student || req.student, true);
     if (!student.deviceId) throw apiError_('bad_request', 'Нет идентификатора устройства.');
     var clientId = String(req.clientId || p.clientId || '').slice(0, 80);
     var now = Date.now();
@@ -810,7 +941,7 @@ var STUDENT_ACTIONS = {
       var packed = packReport(copy);
       var rec = {
         id: clientId || Utilities.getUuid(), createdAt: new Date(now), lab: cellText(p.lab, 40),
-        name: student.name, group: student.group, deviceId: student.deviceId,
+        name: nameCell_(student.name), group: student.group, deviceId: student.deviceId,
         attempt: num(p.attempt, ''), mode: p.mode === 'exam' ? 'exam' : 'train', lang: cellText(p.lang, 5),
         grade: num(p.grade, ''), points: num(p.points, ''), teacherGrade: '', teacherComment: '', gradedAt: '',
         finishedAt: p.finishedAt ? new Date(num(p.finishedAt)) : '', data: packed.json,
@@ -832,14 +963,16 @@ var STUDENT_ACTIONS = {
   getAccess: function (req) {
     var s = readSettings_();
     if (s.general.access !== 'approved') return { ok: true, status: 'open', comment: '' };
-    var a = accessStatusOf('approved', requestsAll_(), cleanStudent(req.student));
+    var who = identify_(req.student, false);
+    if (!who) return { ok: true, status: 'none', comment: '' };
+    var a = accessStatusOf('approved', requestsAll_(), who);
     return { ok: true, status: a.status, comment: a.comment };
   },
 
   requestAccess: function (req) {
-    var student = cleanStudent(req.student);
+    var student = identify_(req.student, true);
     if (!student.deviceId) throw apiError_('bad_request', 'Нет идентификатора устройства.');
-    if (!student.name || !student.group) throw apiError_('bad_request', 'Укажите ФИО и группу.');
+    if (!student.name || !student.group) throw apiError_('bad_request', 'Укажите код студента.');
     var now = Date.now();
     var mail = null;
     var res = withLock_(function () {
@@ -849,7 +982,7 @@ var STUDENT_ACTIONS = {
       if (cur.status === 'approved' || cur.status === 'pending') return { ok: true, status: cur.status };
       var rec = {
         id: String(req.clientId || '').slice(0, 80) || Utilities.getUuid(), createdAt: new Date(now), kind: 'access', lab: '',
-        status: 'pending', name: student.name, group: student.group, deviceId: student.deviceId,
+        status: 'pending', name: nameCell_(student.name), group: student.group, deviceId: student.deviceId,
         attempt: '', score: '', total: '', pass: '', lang: cellText(req.lang, 5), comment: '', decidedAt: '',
         startedAt: '', finishedAt: '', answers: '[]',
       };
@@ -974,7 +1107,144 @@ var TEACHER_ACTIONS = {
     var s = readSettings_();
     return { ok: true, access: s.general.access, students: buildStudentMatrix(requestsAll_(), reportsAll_(), s.general.access) };
   },
+
+  /** Коды студентов и сколько записей ещё хранят ФИО (для кнопки «Заменить ФИО кодами»). */
+  listCodes: function () {
+    var codes = readAll_(SHEETS.codes).map(function (r) {
+      return { code: normalizeCode(r.code) || String(r.code), group: String(r.group || ''), createdAt: toMs(r.createdAt), usedAt: toMs(r.usedAt) };
+    }).filter(function (r) { return normalizeCode(r.code); });
+    return { ok: true, codes: codes, legacy: legacyNames_().length };
+  },
+
+  /** Новые коды для группы: count штук (1–200). */
+  createCodes: function (req) {
+    var group = cellText(String(req.group || '').replace(/\s+/g, ' ').trim(), 60);
+    if (!group) throw apiError_('bad_request', 'Укажите группу.');
+    var count = Math.floor(num(req.count, 0));
+    if (!(count >= 1 && count <= 200)) throw apiError_('bad_request', 'Количество кодов — от 1 до 200.');
+    return withLock_(function () {
+      var taken = codesMap_(true);
+      var made = [], rows = [], now = new Date();
+      for (var i = 0; i < count; i++) {
+        var c = makeCode(taken, secureRand_);
+        taken[c] = group;
+        rows.push({ code: codeCell(c), group: group, createdAt: now, usedAt: '' });
+        made.push({ code: c, group: group, createdAt: now.getTime(), usedAt: null });
+      }
+      appendRows_(SHEETS.codes, rows);
+      codesChanged_();
+      return { ok: true, codes: made };
+    });
+  },
+
+  /** Удалить код, которым ещё ни разу не входили. */
+  deleteCode: function (req) {
+    var code = normalizeCode(req.code);
+    if (!code) throw apiError_('bad_request', 'Неверный код.');
+    return withLock_(function () {
+      var rows = readAll_(SHEETS.codes);
+      for (var i = 0; i < rows.length; i++) {
+        if (normalizeCode(rows[i].code) !== code) continue;
+        if (rows[i].usedAt) throw apiError_('bad_request', 'Этим кодом уже входили — удалить нельзя.');
+        sheet_(SHEETS.codes).deleteRow(rows[i]._row);
+        codesChanged_();
+        return { ok: true };
+      }
+      throw apiError_('not_found', 'Код не найден.');
+    });
+  },
+
+  /**
+   * Один раз: заменить ФИО кодами во всех листах (заявки, протоколы — вместе с текстом протокола, студенты, прогресс).
+   * Один и тот же студент (ФИО + группа) получает один код. Список «код — ФИО — группа» возвращается
+   * только в ответе — преподаватель сохраняет его у себя; в таблице ФИО больше нет.
+   */
+  migrateToCodes: function () {
+    return withLock_(function () {
+      var taken = codesMap_(true);
+      var persons = {}, order = [];
+      var codeFor = function (name, group) {
+        name = String(name == null ? '' : name).replace(/\s+/g, ' ').trim();
+        if (!name || normalizeCode(name)) return '';
+        var k = personKey({ name: name, group: group }) || ('|' + looseText(name));
+        if (!persons[k]) {
+          var c = makeCode(taken, secureRand_);
+          taken[c] = String(group || '');
+          persons[k] = { code: c, name: name, group: String(group || '') };
+          order.push(k);
+        }
+        return persons[k].code;
+      };
+      var R = readCols_(SHEETS.requests, ['name', 'group']);
+      var keep = function (n) { return normalizeCode(n) ? codeCell(normalizeCode(n)) : n; }; // код остаётся текстом
+      var rn = R.name.map(function (n, i) { var c = codeFor(n, R.group[i]); return c ? codeCell(c) : keep(n); });
+      if (order.length) writeCol_(SHEETS.requests, 'name', rn);
+      var P = readCols_(SHEETS.reports, ['name', 'group', 'data']);
+      var pn = [], pd = [], pch = false;
+      P.name.forEach(function (n, i) {
+        var c = codeFor(n, P.group[i]);
+        if (!c) { pn.push(keep(n)); pd.push(P.data[i]); return; }
+        pch = true; pn.push(codeCell(c)); pd.push(scrubName(String(P.data[i] || ''), String(n).replace(/\s+/g, ' ').trim(), c));
+      });
+      if (pch) { writeCol_(SHEETS.reports, 'name', pn); writeCol_(SHEETS.reports, 'data', pd); }
+      var S = readCols_(SHEETS.students, ['key', 'name', 'group', 'deviceId']);
+      var sk = [], sn = [], sch = false;
+      S.name.forEach(function (n, i) {
+        var c = codeFor(n, S.group[i]);
+        if (!c) { sk.push(S.key[i]); sn.push(keep(n)); return; }
+        sch = true; sk.push(studentKey({ deviceId: S.deviceId[i], name: c })); sn.push(codeCell(c));
+      });
+      if (sch) { writeCol_(SHEETS.students, 'key', sk); writeCol_(SHEETS.students, 'name', sn); }
+      var G = readCols_(SHEETS.progress, ['key', 'name', 'group']);
+      var gk = [], gn = [], gch = false;
+      G.name.forEach(function (n, i) {
+        var c = codeFor(n, G.group[i]);
+        if (!c) { gk.push(G.key[i]); gn.push(keep(n)); return; }
+        gch = true; gk.push(personKey({ name: c, group: G.group[i] })); gn.push(codeCell(c));
+      });
+      if (gch) { writeCol_(SHEETS.progress, 'key', gk); writeCol_(SHEETS.progress, 'name', gn); }
+      var now = new Date(); // у перенесённых кодов уже есть данные — отмечены как использованные, удалить их нельзя
+      appendRows_(SHEETS.codes, order.map(function (k) { return { code: codeCell(persons[k].code), group: persons[k].group, createdAt: now, usedAt: now }; }));
+      codesChanged_();
+      CacheService.getScriptCache().remove(ACT.KEY); // в «Сейчас» были ФИО
+      return { ok: true, mapping: order.map(function (k) { return persons[k]; }) };
+    });
+  },
 };
+
+/** ФИО (не коды) в листах — сколько и какие. */
+function legacyNames_() {
+  var seen = {}, out = [];
+  [SHEETS.requests, SHEETS.reports, SHEETS.students, SHEETS.progress].forEach(function (def) {
+    var C = readCols_(def, ['name', 'group']);
+    C.name.forEach(function (n, i) {
+      n = String(n == null ? '' : n).trim();
+      if (!n || normalizeCode(n)) return;
+      var k = personKey({ name: n, group: C.group[i] }) || ('|' + looseText(n));
+      if (!seen[k]) { seen[k] = 1; out.push(k); }
+    });
+  });
+  return out;
+}
+
+/** Колонки листа целиком (строки со 2-й): { key: [значения…] }. */
+function readCols_(def, keys) {
+  var sh = sheet_(def);
+  var idx = colIndex_(sh, def);
+  var last = sh.getLastRow();
+  var out = {};
+  keys.forEach(function (k) {
+    out[k] = last < 2 ? [] : sh.getRange(2, idx[k] + 1, last - 1, 1).getValues().map(function (r) { return r[0]; });
+  });
+  return out;
+}
+
+function writeCol_(def, key, values) {
+  if (!values.length) return;
+  var sh = sheet_(def);
+  var idx = colIndex_(sh, def);
+  sh.getRange(2, idx[key] + 1, values.length, 1).setValues(values.map(function (v) { return [v]; }));
+}
 
 /* ---------- вход преподавателя ---------- */
 
@@ -1190,5 +1460,6 @@ if (typeof module !== 'undefined' && module.exports) {
     packReport: packReport, packAnswers: packAnswers, accessStatusOf: accessStatusOf, sortRequests: sortRequests,
     buildStudentMatrix: buildStudentMatrix, digestText: digestText, requestMailText: requestMailText, toMs: toMs,
     cleanAct: cleanAct, mergeActivity: mergeActivity, personKey: personKey, looseText: looseText, splitData: splitData, joinData: joinData,
+    normalizeCode: normalizeCode, luhnDigit: luhnDigit, makeCode: makeCode, formatCode: formatCode, scrubName: scrubName,
   };
 }

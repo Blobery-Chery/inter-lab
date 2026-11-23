@@ -8,6 +8,7 @@
  * Из двух копий (здесь и на сервере) остаётся та, где сделано больше: завершённые опыты, затем пройденные шаги.
  * Без ФИО и группы на сервер ничего не уходит. Нет связи или старый сервер — сайт работает как раньше.
  */
+import { isCode } from './code.js';
 import { CONFIG } from '../config.js';
 import * as store from './store.js';
 
@@ -61,7 +62,8 @@ export function createSync(api, { enabled = true } = {}) {
   const last = store.get('sync', {}) || {}; // { labId: { h: отпечаток отправленного, t: когда } }
   let timer = null;
 
-  const profileOk = () => { const s = api.getStudent(); return !!(s && s.name && s.name.trim() && s.group && s.group.trim()); };
+  // Код студента (группа — на сервере) или, пока коды не введены, ФИО с группой.
+  const profileOk = () => { const s = api.getStudent(); return !!(s && s.name && (isCode(s.name) || (s.name.trim() && s.group && s.group.trim()))); };
   const remember = () => store.set('sync', last);
 
   async function post(action, data, keepalive) {
@@ -97,7 +99,7 @@ export function createSync(api, { enabled = true } = {}) {
         const out = await post('saveProgress', { student, lab, data, at: Date.now() }, keepalive);
         if (dead) return;
         if (out && out.ok) { last[lab] = { h, t: Date.now() }; remember(); dirty.delete(lab); }
-        else if (out && out.error === 'no_profile') return;
+        else if (out && (out.error === 'no_profile' || out.error === 'bad_code')) return; // ждём код — изменения не теряем
         else { dirty.delete(lab); } // отказ сервера (слишком большой и т. п.) — не повторяем без нового изменения
       } catch (e) { arm(MIN_GAP_MS); return; }
     }
