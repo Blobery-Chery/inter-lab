@@ -642,25 +642,41 @@ async function deleteCode(code) {
   loadCodes(true);
 }
 
-/** Замена ФИО кодами на сервере. Список «код — ФИО» приходит только в ответе — сохраняем его здесь и файлом. */
+/**
+ * Замена ФИО кодами на сервере, в два шага. Сначала план: список «код — ФИО» приходит сюда, сохраняется
+ * в этом браузере и скачивается файлом — и только потом сервер меняет таблицу по этому плану.
+ * Так список не потеряется, даже если ответ на второй шаг не дойдёт.
+ */
 async function migrate() {
   st.migrate = 'busy'; render();
-  try {
-    const res = await client.call('migrateToCodes');
-    const map = (res.mapping || []).map((m) => ({ code: normalizeCode(m.code), name: m.name, group: m.group || '' })).filter((m) => m.code);
+  const day = new Date().toISOString().slice(0, 10);
+  const save = (list) => {
+    const map = (list || []).map((m) => ({ code: normalizeCode(m.code), name: m.name, group: m.group || '' })).filter((m) => m.code);
     names.merge(map.map((m) => [m.code, m.name]));
-    if (map.length) {
-      const day = new Date().toISOString().slice(0, 10);
-      download(`vlab-names-${day}.csv`, namesCsv(map.map((m) => ({ ...m, createdAt: Date.now(), usedAt: Date.now() })), t, tr));
-    }
+    return map;
+  };
+  const fileOf = (map) => namesCsv(map.map((m) => ({ ...m, createdAt: Date.now(), usedAt: Date.now() })), t, tr);
+  let planned = [];
+  try {
+    const dry = await client.call('migrateToCodes', { dry: true }, { timeout: 120000 });
+    planned = save(dry.mapping);
+    if (!planned.length) { st.migrate = ''; await loadCodes(true); render(); return; }
+    download(`vlab-names-${day}.csv`, fileOf(planned));
+    const res = await client.call('migrateToCodes', dry.plan ? { plan: dry.plan } : {}, { timeout: 330000 });
+    const done = save(res.mapping);
+    const known = new Set(planned.map((m) => m.code));
+    if (done.some((m) => !known.has(m.code))) download(`vlab-names-${day}-2.csv`, fileOf(done)); // кто-то добавился между шагами
     st.migrate = '';
-    toast('✓ ' + fill(t('migrDone'), { n: map.length }));
+    toast('✓ ' + fill(t('migrDone'), { n: done.length }));
     await loadCodes(true);
     loadAll(true);
   } catch (e) {
     st.migrate = '';
     if (handleAuth(e)) return;
-    toast(errText(e), true);
+    if (planned.length && (e.code === 'timeout' || e.code === 'network')) {
+      toast(t('migrSlow'), true); // список уже здесь и в файле; сервер, скорее всего, ещё заменяет
+      setTimeout(() => loadCodes(true), 60000);
+    } else toast(errText(e), true);
   }
   render();
 }

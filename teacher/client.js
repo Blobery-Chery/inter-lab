@@ -17,12 +17,12 @@ export class ServerError extends Error {
  * @returns {{call(action: string, data?: object): Promise<object>, demo: false}}
  */
 export function createServerClient(url, getToken) {
-  async function call(action, data = {}) {
+  async function call(action, data = {}, { timeout = TIMEOUT_MS } = {}) {
     if (!url) throw new ServerError('setup', 'BACKEND_URL пуст');
     const ctrl = typeof AbortController === 'function' ? new AbortController() : null;
     let timer;
     const expire = new Promise((_, rej) => {
-      timer = setTimeout(() => { if (ctrl) ctrl.abort(); rej(new ServerError('timeout')); }, TIMEOUT_MS);
+      timer = setTimeout(() => { if (ctrl) ctrl.abort(); rej(new ServerError('timeout')); }, timeout);
     });
     let res;
     try {

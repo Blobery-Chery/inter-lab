@@ -119,6 +119,7 @@ export const S = {
   cancel: { ru: 'Отмена', kk: 'Болдырмау', en: 'Cancel' },
   migrating: { ru: 'Заменяю…', kk: 'Ауыстырылуда…', en: 'Replacing…' },
   migrDone: { ru: 'Готово: выдано кодов — {n}. Файл со списком скачан — сохраните его.', kk: 'Дайын: берілген кодтар — {n}. Тізім файлы жүктелді — оны сақтап қойыңыз.', en: 'Done: {n} codes assigned. The list file has been downloaded — keep it safe.' },
+  migrSlow: { ru: 'Сервер ещё заменяет ФИО. Список «код — ФИО» уже сохранён здесь и скачан файлом. Обновите вкладку через минуту.', kk: 'Сервер аты-жөнін әлі ауыстырып жатыр. «Код — аты-жөні» тізімі осында сақталды және файл ретінде жүктелді. Бір минуттан кейін қойындыны жаңартыңыз.', en: 'The server is still replacing names. The “code — name” list is already saved here and downloaded as a file. Refresh the tab in a minute.' },
   legacyBanner: { ru: 'В таблице ещё записаны ФИО ({n}). Замените их кодами во вкладке «Коды».', kk: 'Кестеде әлі аты-жөні жазылған ({n}). Оларды «Кодтар» қойындысында кодтармен ауыстырыңыз.', en: 'Names are still stored in the sheet ({n}). Replace them with codes on the Codes tab.' },
   codesOld: { ru: 'Сервер старой версии: обновите скрипт Code.gs до 1.3.0, чтобы работать с кодами.', kk: 'Сервер ескі нұсқада: кодтармен жұмыс істеу үшін Code.gs скриптін 1.3.0 нұсқасына дейін жаңартыңыз.', en: 'The server is an old version: update the Code.gs script to 1.3.0 to work with codes.' },
   liveHint: {

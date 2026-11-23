@@ -65,6 +65,7 @@ class Sheet {
   getLastColumn() { return this.data.reduce((m, l) => Math.max(m, l.length), 0); }
   appendRow(values) { const r = this.getLastRow() + 1; values.forEach((v, c) => this.set(r, c + 1, v)); }
   deleteRow(r) { this.data.splice(r - 1, 1); }
+  deleteColumn(c) { this.data.forEach((l) => l.splice(c - 1, 1)); }
   setFrozenRows() {}
 }
 
@@ -79,8 +80,8 @@ class Spreadsheet {
  * Новый «сервер»: свежая таблица и свойства.
  * @returns {{ctx, ss, props, mail, ui, post(obj) → объект ответа, fetch: функция для подмены globalThis.fetch}}
  */
-export function createServer() {
-  const ss = new Spreadsheet();
+export function createServer({ code = CODE_GS, ss: sharedSs = null } = {}) {
+  const ss = sharedSs || new Spreadsheet();
   const props = {};
   const cache = {};
   const mail = [];
@@ -140,7 +141,7 @@ export function createServer() {
     },
   };
   vm.createContext(ctx);
-  vm.runInContext(CODE_GS, ctx, { filename: 'Code.gs' });
+  vm.runInContext(code, ctx, { filename: 'Code.gs' });
 
   const post = (obj) => JSON.parse(ctx.doPost({ postData: { contents: typeof obj === 'string' ? obj : JSON.stringify(obj) } }).getContent());
 

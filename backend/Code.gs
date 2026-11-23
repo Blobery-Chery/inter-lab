@@ -26,7 +26,7 @@
 /* ======================================================================= */
 
 var VLAB = {
-  VERSION: '1.3.0',
+  VERSION: '1.3.1',
   TOKEN_TTL_MS: 12 * 60 * 60 * 1000,   // токен преподавателя живёт 12 часов
   MAX_FAILS: 5,                         // неудачных входов подряд…
   LOCK_SECONDS: 15 * 60,                // …и вход закрыт на 15 минут
@@ -49,7 +49,7 @@ var SHEETS = {
     name: 'Заявки',
     cols: [
       ['id', 'ID'], ['createdAt', 'Получено'], ['kind', 'Тип'], ['lab', 'Работа'], ['status', 'Статус'],
-      ['name', 'Код студента'], ['group', 'Группа'], ['deviceId', 'Устройство'], ['attempt', 'Попытка'],
+      ['name', 'Код студента', ['ФИО']], ['group', 'Группа'], ['deviceId', 'Устройство'], ['attempt', 'Попытка'],
       ['score', 'Балл'], ['total', 'Из'], ['pass', 'Порог'], ['lang', 'Язык'],
       ['comment', 'Комментарий'], ['decidedAt', 'Решено'], ['startedAt', 'Начато'], ['finishedAt', 'Закончено'],
       ['answers', 'Ответы (JSON)'],
@@ -58,7 +58,7 @@ var SHEETS = {
   reports: {
     name: 'Протоколы',
     cols: [
-      ['id', 'ID'], ['createdAt', 'Получено'], ['lab', 'Работа'], ['name', 'Код студента'], ['group', 'Группа'],
+      ['id', 'ID'], ['createdAt', 'Получено'], ['lab', 'Работа'], ['name', 'Код студента', ['ФИО']], ['group', 'Группа'],
       ['deviceId', 'Устройство'], ['attempt', 'Попытка'], ['mode', 'Режим'], ['lang', 'Язык'],
       ['grade', 'Оценка (авто)'], ['points', 'Штрафные баллы'], ['teacherGrade', 'Оценка преподавателя'],
       ['teacherComment', 'Комментарий преподавателя'], ['gradedAt', 'Оценено'], ['finishedAt', 'Закончено'],
@@ -72,7 +72,7 @@ var SHEETS = {
   progress: {
     name: 'Прогресс',
     cols: [
-      ['key', 'Студент (код|группа)'], ['lab', 'Работа'], ['name', 'Код студента'], ['group', 'Группа'], ['deviceId', 'Устройство'],
+      ['key', 'Студент (код|группа)', ['Студент (ФИО|группа)']], ['lab', 'Работа'], ['name', 'Код студента', ['ФИО']], ['group', 'Группа'], ['deviceId', 'Устройство'],
       ['at', 'Сохранено'], ['size', 'Размер'], ['d1', 'Данные 1'], ['d2', 'Данные 2'], ['d3', 'Данные 3'], ['d4', 'Данные 4'],
     ],
   },
@@ -83,7 +83,7 @@ var SHEETS = {
   students: {
     name: 'Студенты',
     cols: [
-      ['key', 'Ключ'], ['name', 'Код студента'], ['group', 'Группа'], ['deviceId', 'Устройство'],
+      ['key', 'Ключ'], ['name', 'Код студента', ['ФИО']], ['group', 'Группа'], ['deviceId', 'Устройство'],
       ['firstSeen', 'Впервые'], ['lastSeen', 'Последний раз'], ['summary', 'Сводка'],
     ],
   },
@@ -243,21 +243,27 @@ function scrubName(json, name, code) {
 /**
  * ФИО → код в любом тексте (комментарии, ответы, протокол). pairs — [[ФИО, код]].
  * Целым словом, без учёта регистра, «е» и «ё» и лишних пробелов; длинные ФИО — первыми.
+ * Одно регулярное выражение на все ФИО — быстро и на сотнях строк.
  */
-function scrubNames(text, pairs) {
-  var t = String(text == null ? '' : text);
-  if (!t) return t;
-  var list = pairs.filter(function (p) { return String(p[0]).trim().length >= 3; })
+function makeScrubber_(pairs) {
+  var norm = function (x) { return String(x).toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim(); };
+  var map = {};
+  var list = pairs.filter(function (p) { return cleanName_(p[0]).length >= 3; })
     .sort(function (a, b) { return String(b[0]).length - String(a[0]).length; });
-  for (var i = 0; i < list.length; i++) {
-    var words = String(list[i][0]).trim().split(/\s+/).map(function (w) {
+  if (!list.length) return function (t) { return t; };
+  var alts = list.map(function (p) {
+    if (!map.hasOwnProperty(norm(p[0]))) map[norm(p[0])] = formatCode(p[1]);
+    return cleanName_(p[0]).split(' ').map(function (w) {
       return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/[её]/gi, '[её]');
-    });
-    var re = new RegExp('(?<![\\p{L}\\p{N}])' + words.join('\\s+') + '(?![\\p{L}\\p{N}])', 'giu');
-    t = t.replace(re, formatCode(list[i][1]));
-  }
-  return t;
+    }).join('\\s+');
+  });
+  var re = new RegExp('(?<![\\p{L}\\p{N}])(?:' + alts.join('|') + ')(?![\\p{L}\\p{N}])', 'giu');
+  return function (text) {
+    var t = String(text == null ? '' : text);
+    return t ? t.replace(re, function (m) { return map[norm(m)] || m; }) : t;
+  };
 }
+function scrubNames(text, pairs) { return makeScrubber_(pairs)(text); }
 
 function codeCell(c) { return "'" + c; }
 /** Имя студента в ячейку: код — как текст, остальное — как раньше. */
@@ -542,6 +548,10 @@ function colIndex_(sh, def) {
   var idx = {};
   for (var i = 0; i < def.cols.length; i++) {
     var pos = head.indexOf(def.cols[i][1]);
+    var old = oldColPos_(head, def.cols[i]);
+    // Столбец под прежним заголовком (например, «ФИО» до версии 1.3): в нём данные — берём его.
+    // Если остался и новый (версия 1.3.0 дописала его справа), их сливает repairColumns_.
+    if (old >= 0) pos = old;
     if (pos < 0) {
       pos = head.length;
       head.push(def.cols[i][1]);
@@ -551,6 +561,77 @@ function colIndex_(sh, def) {
   }
   idx._width = head.length;
   return idx;
+}
+
+function oldColPos_(head, col) {
+  var aliases = col[2] || [];
+  for (var a = 0; a < aliases.length; a++) { var p = head.indexOf(aliases[a]); if (p >= 0) return p; }
+  return -1;
+}
+
+/**
+ * Один раз после обновления с версии до 1.3: столбцы с прежними заголовками («ФИО», «Студент (ФИО|группа)»)
+ * получают новые заголовки. Если версия 1.3.0 успела дописать справа второй столбец с новым заголовком,
+ * его значения переносятся в прежний столбец (там, где они есть), а лишний столбец удаляется.
+ * Повторные строки прогресса (один студент и работа) — остаётся самая свежая.
+ */
+function repairColumns_() {
+  var p = props_();
+  if (p.getProperty('COLS_FIXED') === '1.3.1') return;
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(VLAB.LOCK_WAIT_MS)) throw apiError_('busy', 'Сервер занят, повторите через минуту.');
+  try {
+    if (p.getProperty('COLS_FIXED') === '1.3.1') return;
+    var ss = ss_();
+    [SHEETS.requests, SHEETS.reports, SHEETS.students, SHEETS.progress].forEach(function (def) {
+      var sh = ss.getSheetByName(def.name);
+      if (!sh) return;
+      var merged = false;
+      def.cols.forEach(function (col) {
+        if (!col[2]) return;
+        var head = sh.getRange(1, 1, 1, Math.max(sh.getLastColumn(), 1)).getValues()[0];
+        var old = oldColPos_(head, col);
+        if (old < 0) return;
+        var pos = head.indexOf(col[1]);
+        if (pos >= 0 && pos !== old) {
+          var last = sh.getLastRow();
+          if (last >= 2) {
+            var nv = sh.getRange(2, pos + 1, last - 1, 1).getValues();
+            var ov = sh.getRange(2, old + 1, last - 1, 1).getValues();
+            var out = ov.map(function (r, i) {
+              var v = nv[i][0] !== '' && nv[i][0] != null ? nv[i][0] : r[0];
+              if (normalizeCode(v)) return [codeCell(normalizeCode(v))];
+              return [typeof v === 'string' && /^[=+\-@]/.test(v) ? "'" + v : v];
+            });
+            sh.getRange(2, old + 1, last - 1, 1).setValues(out);
+          }
+          sh.deleteColumn(pos + 1);
+          merged = true;
+        }
+        sh.getRange(1, old + 1).setValue(col[1]);
+      });
+      if (merged && def === SHEETS.progress) dedupeProgress_(sh);
+    });
+    p.setProperty('COLS_FIXED', '1.3.1');
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/** Прогресс: по одной строке на «студент + работа» — самая свежая. */
+function dedupeProgress_(sh) {
+  var idx = colIndex_(sh, SHEETS.progress);
+  var last = sh.getLastRow();
+  if (last < 2) return;
+  var v = sh.getRange(2, 1, last - 1, idx._width).getValues();
+  var best = {}, drop = [];
+  v.forEach(function (r, i) {
+    var k = String(r[idx.key]) + '#' + String(r[idx.lab]);
+    if (!r[idx.key]) return;
+    if (best[k] == null) { best[k] = i; return; }
+    if (toMs(r[idx.at]) > toMs(v[best[k]][idx.at])) { drop.push(best[k]); best[k] = i; } else drop.push(i);
+  });
+  drop.sort(function (a, b) { return b - a; }).forEach(function (i) { sh.deleteRow(i + 2); });
 }
 
 /** Все строки листа → объекты (с полем _row — номер строки). */
@@ -1174,75 +1255,126 @@ var TEACHER_ACTIONS = {
   },
 
   /**
-   * Один раз: заменить ФИО кодами во всех листах (заявки, протоколы — вместе с текстом протокола, студенты, прогресс).
-   * Один и тот же студент (ФИО + группа) получает один код. Список «код — ФИО — группа» возвращается
-   * только в ответе — преподаватель сохраняет его у себя; в таблице ФИО больше нет.
+   * Замена ФИО кодами во всех листах (заявки, протоколы вместе с текстом, студенты, прогресс; ФИО — и в комментариях).
+   * Один студент (ФИО + группа) — один код. Если с его устройства уже входили по коду (и этим устройством
+   * больше никто из этой группы не пользовался), берётся этот код.
+   * Два шага, чтобы список не потерялся, если ответ не дойдёт:
+   *   {dry: true} — только план: список «код — ФИО — группа» (в таблице ничего не меняется) и номер плана;
+   *   {plan: номер} — замена по этому плану. Список возвращается только в ответе — в таблице ФИО не остаётся.
    */
-  migrateToCodes: function () {
+  migrateToCodes: function (req) {
+    req = req || {};
     return withLock_(function () {
-      var taken = codesMap_(true);
-      var persons = {}, order = [];
-      var codeFor = function (name, group) {
-        name = String(name == null ? '' : name).replace(/\s+/g, ' ').trim();
-        if (!name || normalizeCode(name)) return '';
-        var k = personKey({ name: name, group: group }) || ('|' + looseText(name));
-        if (!persons[k]) {
-          var c = makeCode(taken, secureRand_);
-          taken[c] = String(group || '');
-          persons[k] = { code: c, name: name, group: String(group || '') };
-          order.push(k);
-        }
-        return persons[k].code;
-      };
-      var R = readCols_(SHEETS.requests, ['name', 'group', 'comment', 'answers']);
-      var keep = function (n) { return normalizeCode(n) ? codeCell(normalizeCode(n)) : n; }; // код остаётся текстом
-      var rn = R.name.map(function (n, i) { var c = codeFor(n, R.group[i]); return c ? codeCell(c) : keep(n); });
-      var P = readCols_(SHEETS.reports, ['name', 'group', 'data', 'teacherComment']);
-      P.name.forEach(function (n, i) { codeFor(n, P.group[i]); });
-      var S = readCols_(SHEETS.students, ['key', 'name', 'group', 'deviceId', 'summary']);
-      S.name.forEach(function (n, i) { codeFor(n, S.group[i]); });
-      var G = readCols_(SHEETS.progress, ['key', 'name', 'group']);
-      G.name.forEach(function (n, i) { codeFor(n, G.group[i]); });
-      if (!order.length) return { ok: true, mapping: [] };
-      // ФИО любого студента — в любом тексте: комментарии, ответы, протоколы, сводка
-      var pairs = order.map(function (k) { return [persons[k].name, persons[k].code]; });
-      // при записи обратно текст снова защищён от превращения в формулу (как в cellText)
-      var asText = function (v) { return typeof v === 'string' && /^[=+\-@]/.test(v) ? "'" + v : v; };
-      var scrubCol = function (vals) { return vals.map(function (v) { return typeof v === 'string' ? asText(scrubNames(v, pairs)) : v; }); };
-      writeCol_(SHEETS.requests, 'name', rn);
-      writeCol_(SHEETS.requests, 'comment', scrubCol(R.comment));
-      writeCol_(SHEETS.requests, 'answers', scrubCol(R.answers));
-      var pn = [], pd = [], pch = false;
-      P.name.forEach(function (n, i) {
-        var c = codeFor(n, P.group[i]);
-        if (!c) { pn.push(keep(n)); pd.push(scrubNames(P.data[i], pairs)); return; }
-        pch = true; pn.push(codeCell(c)); pd.push(scrubNames(scrubName(String(P.data[i] || ''), String(n).replace(/\s+/g, ' ').trim(), c), pairs));
-      });
-      writeCol_(SHEETS.reports, 'name', pn); writeCol_(SHEETS.reports, 'data', pd);
-      writeCol_(SHEETS.reports, 'teacherComment', scrubCol(P.teacherComment));
-      var sk = [], sn = [], sch = false;
-      S.name.forEach(function (n, i) {
-        var c = codeFor(n, S.group[i]);
-        if (!c) { sk.push(S.key[i]); sn.push(keep(n)); return; }
-        sch = true; sk.push(studentKey({ deviceId: S.deviceId[i], name: c })); sn.push(codeCell(c));
-      });
-      if (sch) { writeCol_(SHEETS.students, 'key', sk); writeCol_(SHEETS.students, 'name', sn); }
-      writeCol_(SHEETS.students, 'summary', scrubCol(S.summary));
-      var gk = [], gn = [], gch = false;
-      G.name.forEach(function (n, i) {
-        var c = codeFor(n, G.group[i]);
-        if (!c) { gk.push(G.key[i]); gn.push(keep(n)); return; }
-        gch = true; gk.push(personKey({ name: c, group: G.group[i] })); gn.push(codeCell(c));
-      });
-      if (gch) { writeCol_(SHEETS.progress, 'key', gk); writeCol_(SHEETS.progress, 'name', gn); }
-      var now = new Date(); // у перенесённых кодов уже есть данные — отмечены как использованные, удалить их нельзя
-      appendRows_(SHEETS.codes, order.map(function (k) { return { code: codeCell(persons[k].code), group: persons[k].group, createdAt: now, usedAt: now }; }));
-      codesChanged_();
-      CacheService.getScriptCache().remove(ACT.KEY); // в «Сейчас» были ФИО
-      return { ok: true, mapping: order.map(function (k) { return persons[k]; }) };
+      var cache = CacheService.getScriptCache();
+      var planned = null;
+      if (req.plan) {
+        var raw = cache.get('vlab_plan_' + String(req.plan).replace(/[^\w-]/g, ''));
+        if (!raw) throw apiError_('bad_request', 'План замены устарел — нажмите «Заменить ФИО кодами» ещё раз.');
+        planned = JSON.parse(raw);
+      }
+      var D = migrationData_();
+      var plan = planCodes_(D, planned);
+      if (!plan.order.length) return { ok: true, mapping: [] };
+      var mapping = plan.order.map(function (k) { var x = plan.persons[k]; return { code: x.code, name: x.name, group: x.group }; });
+      if (req.dry) {
+        var id = Utilities.getUuid();
+        var assign = {};
+        plan.order.forEach(function (k) { assign[planKey_(k)] = plan.persons[k].code; });
+        cache.put('vlab_plan_' + id, JSON.stringify(assign), 3600);
+        return { ok: true, plan: id, mapping: mapping };
+      }
+      applyCodes_(D, plan);
+      if (req.plan) cache.remove('vlab_plan_' + String(req.plan).replace(/[^\w-]/g, ''));
+      return { ok: true, mapping: mapping };
     });
   },
 };
+
+/* ---------- замена ФИО кодами ---------- */
+
+/** Ключ плана без ФИО в открытом виде (план лежит в кэше до часа). */
+function planKey_(personK) { return hmacHex_(personK, 'vlab-plan').slice(0, 32); }
+
+function migrationData_() {
+  return {
+    R: readCols_(SHEETS.requests, ['name', 'group', 'deviceId', 'comment', 'answers']),
+    P: readCols_(SHEETS.reports, ['name', 'group', 'deviceId', 'data', 'teacherComment']),
+    S: readCols_(SHEETS.students, ['key', 'name', 'group', 'deviceId', 'summary']),
+    G: readCols_(SHEETS.progress, ['key', 'name', 'group', 'deviceId']),
+  };
+}
+
+function cleanName_(n) { return String(n == null ? '' : n).replace(/\s+/g, ' ').trim(); }
+function personOf_(name, group) { return personKey({ name: name, group: group }) || ('|' + looseText(name)); }
+
+/** Кому какой код. planned — {ключ плана: код} из шага {dry}. */
+function planCodes_(D, planned) {
+  var taken = codesMap_(true);
+  var sets = [D.R, D.P, D.S, D.G];
+  // устройство + группа → коды, которыми с него входили, и ФИО, которые с него отправляли
+  var devCodes = {}, devNames = {};
+  sets.forEach(function (C) {
+    C.name.forEach(function (n, i) {
+      var dev = String(C.deviceId[i] || ''), g = looseText(C.group[i]).replace(/[\s\-–—_.\/]/g, '');
+      if (!dev) return;
+      var dk = dev + '|' + g, c = normalizeCode(n);
+      if (c) { (devCodes[dk] = devCodes[dk] || {})[c] = 1; return; }
+      var nm = cleanName_(n);
+      if (nm) (devNames[dk] = devNames[dk] || {})[personOf_(nm, C.group[i])] = 1;
+    });
+  });
+  var persons = {}, order = [];
+  sets.forEach(function (C) {
+    C.name.forEach(function (n, i) {
+      var name = cleanName_(n);
+      if (!name || normalizeCode(name)) return;
+      var k = personOf_(name, C.group[i]);
+      if (persons[k]) return;
+      var code = planned && planned[planKey_(k)];
+      if (!code) {
+        var dk = String(C.deviceId[i] || '') + '|' + looseText(C.group[i]).replace(/[\s\-–—_.\/]/g, '');
+        var dc = Object.keys(devCodes[dk] || {}), dn = Object.keys(devNames[dk] || {});
+        if (C.deviceId[i] && dc.length === 1 && dn.length === 1) code = dc[0]; // это устройство — только этого студента
+      }
+      if (!code) code = makeCode(taken, secureRand_);
+      taken[code] = String(C.group[i] || '');
+      persons[k] = { code: code, name: name, group: String(C.group[i] || '') };
+      order.push(k);
+    });
+  });
+  return { persons: persons, order: order };
+}
+
+function applyCodes_(D, plan) {
+  var persons = plan.persons;
+  var codeOf = function (n, g) { var nm = cleanName_(n); return nm && !normalizeCode(nm) && persons[personOf_(nm, g)] ? persons[personOf_(nm, g)].code : ''; };
+  var keep = function (n) { return normalizeCode(n) ? codeCell(normalizeCode(n)) : n; }; // код остаётся текстом
+  var asText = function (v) { return typeof v === 'string' && /^[=+\-@]/.test(v) ? "'" + v : v; };
+  var scrub = makeScrubber_(plan.order.map(function (k) { return [persons[k].name, persons[k].code]; }));
+  var scrubCol = function (vals) { return vals.map(function (v) { return typeof v === 'string' ? asText(scrub(v)) : v; }); };
+  var R = D.R, P = D.P, S = D.S, G = D.G;
+  writeCol_(SHEETS.requests, 'name', R.name.map(function (n, i) { var c = codeOf(n, R.group[i]); return c ? codeCell(c) : keep(n); }));
+  writeCol_(SHEETS.requests, 'comment', scrubCol(R.comment));
+  writeCol_(SHEETS.requests, 'answers', scrubCol(R.answers));
+  writeCol_(SHEETS.reports, 'name', P.name.map(function (n, i) { var c = codeOf(n, P.group[i]); return c ? codeCell(c) : keep(n); }));
+  writeCol_(SHEETS.reports, 'data', P.data.map(function (d, i) {
+    var c = codeOf(P.name[i], P.group[i]);
+    var t = c ? scrubName(String(d || ''), cleanName_(P.name[i]), c) : d;
+    return typeof t === 'string' ? asText(scrub(t)) : t;
+  }));
+  writeCol_(SHEETS.reports, 'teacherComment', scrubCol(P.teacherComment));
+  writeCol_(SHEETS.students, 'key', S.key.map(function (k, i) { var c = codeOf(S.name[i], S.group[i]); return c ? studentKey({ deviceId: S.deviceId[i], name: c }) : k; }));
+  writeCol_(SHEETS.students, 'name', S.name.map(function (n, i) { var c = codeOf(n, S.group[i]); return c ? codeCell(c) : keep(n); }));
+  writeCol_(SHEETS.students, 'summary', scrubCol(S.summary));
+  writeCol_(SHEETS.progress, 'key', G.key.map(function (k, i) { var c = codeOf(G.name[i], G.group[i]); return c ? personKey({ name: c, group: G.group[i] }) : k; }));
+  writeCol_(SHEETS.progress, 'name', G.name.map(function (n, i) { var c = codeOf(n, G.group[i]); return c ? codeCell(c) : keep(n); }));
+  dedupeProgress_(sheet_(SHEETS.progress)); // один студент мог сохраняться и по ФИО, и по коду
+  var have = codesMap_(true), now = new Date(); // у перенесённых кодов уже есть данные — отмечены как использованные, удалить их нельзя
+  appendRows_(SHEETS.codes, plan.order.filter(function (k) { return !have.hasOwnProperty(persons[k].code); })
+    .map(function (k) { return { code: codeCell(persons[k].code), group: persons[k].group, createdAt: now, usedAt: now }; }));
+  codesChanged_();
+  CacheService.getScriptCache().remove(ACT.KEY); // в «Сейчас» были ФИО
+}
 
 /** ФИО (не коды) в листах — сколько и какие. */
 function legacyNames_() {
@@ -1347,6 +1479,7 @@ function doPost(e) {
     return json_({ ok: false, error: 'bad_json', message: 'Запрос не в формате JSON.' });
   }
   try {
+    repairColumns_();
     return json_(handle_(req));
   } catch (err) {
     var out = { ok: false, error: err.code || 'server', message: err.code ? err.message : 'Ошибка сервера: ' + err.message };
@@ -1428,6 +1561,7 @@ function menuSetup() {
 function setupSheets_() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   props_().setProperty('SHEET_ID', ss.getId());
+  repairColumns_();
   sheet_(SHEETS.requests); sheet_(SHEETS.reports); sheet_(SHEETS.students); sheet_(SHEETS.progress);
   var hadSettings = Boolean(ss.getSheetByName(SHEETS.settings.name));
   sheet_(SHEETS.settings);
