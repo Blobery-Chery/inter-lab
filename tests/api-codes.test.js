@@ -73,6 +73,13 @@ test('коды: создаёт только преподаватель; checkCod
   assert.equal(s.post({ action: 'listCodes', token }).codes.length, 2);
 });
 
+test('scrubNames: целым словом, без учёта регистра и ё/е; чужие слова не задеты', () => {
+  const pairs = [['Ли Анна', '31842065'], ['Ковалёва Анна', '59270314']];
+  assert.equal(G.scrubNames('ковалева  анна и Ли Анна', pairs), '5927-0314 и 3184-2065');
+  assert.equal(G.scrubNames('Полина Анна', [['Ли Анна', '31842065']]), 'Полина Анна', 'не часть слова');
+  assert.equal(G.scrubNames('{"t":"Студент: Ковалёва Анна"}', pairs), '{"t":"Студент: 5927-0314"}');
+});
+
 test('коды случайные: 200 разных, все проходят проверку; от ФИО не зависят', () => {
   const { s, token } = teacher();
   const made = s.post({ action: 'createCodes', token, group: 'Х-31', count: 200 }).codes.map((x) => x.code);
@@ -123,6 +130,11 @@ test('замена ФИО кодами: во всех листах и в тек�
   s.post(adm(bek));
   s.post({ action: 'submitReport', clientId: 'r1', payload: { lab: 'lab-06-07', grade: 5, points: 0, student: anna, reportText: 'Студент: Ковалёва Анна · Группа: Х-31', journal: [] } });
   s.post({ action: 'saveProgress', student: anna, lab: 'lab-08', data: 'j.progress' });
+  // ФИО в комментариях преподавателя (в т. ч. о другом студенте, в другом регистре и с «е» вместо «ё»)
+  const reqs = s.post({ action: 'listRequests', token }).requests;
+  s.post({ action: 'decide', token, id: reqs.find((r) => r.group === 'Х-32').id, status: 'denied', comment: 'Как у КОВАЛЕВА АННА — повторите теорию' });
+  const rid = s.post({ action: 'listReports', token }).reports[0].id;
+  s.post({ action: 'setGrade', token, id: rid, grade: 5, comment: 'Ковалёва Анна: отлично; Беков Ерлан помогал' });
   assert.equal(s.post({ action: 'listCodes', token }).legacy, 2);
 
   const res = s.post({ action: 'migrateToCodes', token });
@@ -133,7 +145,8 @@ test('замена ФИО кодами: во всех листах и в тек�
   assert.ok(ca && G.normalizeCode(ca));
 
   const text = sheetText(s);
-  for (const word of ['Ковалёва', 'Ковалева', 'ковалева', 'Беков']) assert.ok(!text.includes(word), 'в таблице не осталось: ' + word);
+  for (const word of ['Ковалёва', 'Ковалева', 'ковалева', 'КОВАЛЕВА', 'Беков']) assert.ok(!text.includes(word), 'в таблице не осталось: ' + word);
+  assert.match(text, /повторите теорию/, 'остальной текст комментария на месте');
   assert.equal(s.post({ action: 'listCodes', token }).legacy, 0);
   assert.equal(s.post({ action: 'listCodes', token }).codes.length, 2);
   assert.equal(s.post({ action: 'deleteCode', token, code: ca }).error, 'bad_request', 'код с данными удалить нельзя');

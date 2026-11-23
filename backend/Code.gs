@@ -240,6 +240,25 @@ function scrubName(json, name, code) {
 }
 
 /** Код в ячейку: с апострофом, чтобы Таблица не превратила его в число. */
+/**
+ * ФИО → код в любом тексте (комментарии, ответы, протокол). pairs — [[ФИО, код]].
+ * Целым словом, без учёта регистра, «е» и «ё» и лишних пробелов; длинные ФИО — первыми.
+ */
+function scrubNames(text, pairs) {
+  var t = String(text == null ? '' : text);
+  if (!t) return t;
+  var list = pairs.filter(function (p) { return String(p[0]).trim().length >= 3; })
+    .sort(function (a, b) { return String(b[0]).length - String(a[0]).length; });
+  for (var i = 0; i < list.length; i++) {
+    var words = String(list[i][0]).trim().split(/\s+/).map(function (w) {
+      return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/[её]/gi, '[её]');
+    });
+    var re = new RegExp('(?<![\\p{L}\\p{N}])' + words.join('\\s+') + '(?![\\p{L}\\p{N}])', 'giu');
+    t = t.replace(re, formatCode(list[i][1]));
+  }
+  return t;
+}
+
 function codeCell(c) { return "'" + c; }
 /** Имя студента в ячейку: код — как текст, остальное — как раньше. */
 function nameCell_(name) { return normalizeCode(name) ? codeCell(normalizeCode(name)) : name; }
@@ -1175,19 +1194,32 @@ var TEACHER_ACTIONS = {
         }
         return persons[k].code;
       };
-      var R = readCols_(SHEETS.requests, ['name', 'group']);
+      var R = readCols_(SHEETS.requests, ['name', 'group', 'comment', 'answers']);
       var keep = function (n) { return normalizeCode(n) ? codeCell(normalizeCode(n)) : n; }; // код остаётся текстом
       var rn = R.name.map(function (n, i) { var c = codeFor(n, R.group[i]); return c ? codeCell(c) : keep(n); });
-      if (order.length) writeCol_(SHEETS.requests, 'name', rn);
-      var P = readCols_(SHEETS.reports, ['name', 'group', 'data']);
+      var P = readCols_(SHEETS.reports, ['name', 'group', 'data', 'teacherComment']);
+      P.name.forEach(function (n, i) { codeFor(n, P.group[i]); });
+      var S = readCols_(SHEETS.students, ['key', 'name', 'group', 'deviceId', 'summary']);
+      S.name.forEach(function (n, i) { codeFor(n, S.group[i]); });
+      var G = readCols_(SHEETS.progress, ['key', 'name', 'group']);
+      G.name.forEach(function (n, i) { codeFor(n, G.group[i]); });
+      if (!order.length) return { ok: true, mapping: [] };
+      // ФИО любого студента — в любом тексте: комментарии, ответы, протоколы, сводка
+      var pairs = order.map(function (k) { return [persons[k].name, persons[k].code]; });
+      // при записи обратно текст снова защищён от превращения в формулу (как в cellText)
+      var asText = function (v) { return typeof v === 'string' && /^[=+\-@]/.test(v) ? "'" + v : v; };
+      var scrubCol = function (vals) { return vals.map(function (v) { return typeof v === 'string' ? asText(scrubNames(v, pairs)) : v; }); };
+      writeCol_(SHEETS.requests, 'name', rn);
+      writeCol_(SHEETS.requests, 'comment', scrubCol(R.comment));
+      writeCol_(SHEETS.requests, 'answers', scrubCol(R.answers));
       var pn = [], pd = [], pch = false;
       P.name.forEach(function (n, i) {
         var c = codeFor(n, P.group[i]);
-        if (!c) { pn.push(keep(n)); pd.push(P.data[i]); return; }
-        pch = true; pn.push(codeCell(c)); pd.push(scrubName(String(P.data[i] || ''), String(n).replace(/\s+/g, ' ').trim(), c));
+        if (!c) { pn.push(keep(n)); pd.push(scrubNames(P.data[i], pairs)); return; }
+        pch = true; pn.push(codeCell(c)); pd.push(scrubNames(scrubName(String(P.data[i] || ''), String(n).replace(/\s+/g, ' ').trim(), c), pairs));
       });
-      if (pch) { writeCol_(SHEETS.reports, 'name', pn); writeCol_(SHEETS.reports, 'data', pd); }
-      var S = readCols_(SHEETS.students, ['key', 'name', 'group', 'deviceId']);
+      writeCol_(SHEETS.reports, 'name', pn); writeCol_(SHEETS.reports, 'data', pd);
+      writeCol_(SHEETS.reports, 'teacherComment', scrubCol(P.teacherComment));
       var sk = [], sn = [], sch = false;
       S.name.forEach(function (n, i) {
         var c = codeFor(n, S.group[i]);
@@ -1195,7 +1227,7 @@ var TEACHER_ACTIONS = {
         sch = true; sk.push(studentKey({ deviceId: S.deviceId[i], name: c })); sn.push(codeCell(c));
       });
       if (sch) { writeCol_(SHEETS.students, 'key', sk); writeCol_(SHEETS.students, 'name', sn); }
-      var G = readCols_(SHEETS.progress, ['key', 'name', 'group']);
+      writeCol_(SHEETS.students, 'summary', scrubCol(S.summary));
       var gk = [], gn = [], gch = false;
       G.name.forEach(function (n, i) {
         var c = codeFor(n, G.group[i]);
@@ -1460,6 +1492,6 @@ if (typeof module !== 'undefined' && module.exports) {
     packReport: packReport, packAnswers: packAnswers, accessStatusOf: accessStatusOf, sortRequests: sortRequests,
     buildStudentMatrix: buildStudentMatrix, digestText: digestText, requestMailText: requestMailText, toMs: toMs,
     cleanAct: cleanAct, mergeActivity: mergeActivity, personKey: personKey, looseText: looseText, splitData: splitData, joinData: joinData,
-    normalizeCode: normalizeCode, luhnDigit: luhnDigit, makeCode: makeCode, formatCode: formatCode, scrubName: scrubName,
+    normalizeCode: normalizeCode, luhnDigit: luhnDigit, makeCode: makeCode, formatCode: formatCode, scrubName: scrubName, scrubNames: scrubNames,
   };
 }
