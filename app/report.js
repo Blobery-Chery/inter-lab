@@ -3,7 +3,7 @@
  * расчёты, выводы, итоговая таблица, «куда делся продукт», индивидуальное задание, замечания, подсказки, оценка.
  * buildReport() — данные (без DOM), reportText() — простой текст, reportPayload() — для api.submitReport().
  */
-import { formatCode } from './code.js';
+import { formatCode, isCode } from './code.js';
 import { tr, t, L, num, pts, labName, expName } from './i18n.js';
 import { summarize } from './grading.js';
 import { clockText, dayOf } from './engine.js';
@@ -86,7 +86,24 @@ export function checkAssignment(task, answer, R) {
   return null;
 }
 
-export function answerText(task, answer) {
+/**
+ * Запись-клятва (задание с sign): текст до слов «обязуюсь выполнять» включительно — то, что студент
+ * по привычке дописал после (ФИО, группа), отбрасывается. Нет этих слов — текст остаётся как есть.
+ */
+const PLEDGE = /^[\s\S]*?(?:выполнять|соблюдать|исполнять|міндеттенемін|орындаймын|сақтаймын|follow them|comply|follow)[»"”“'’.!…)]*/i;
+export function pledgeOf(text) {
+  const s = String(text ?? '').trim();
+  const m = s.match(PLEDGE);
+  return m ? m[0].trim() : s;
+}
+/** Подпись под записью: код студента и группа (ФИО сайт не хранит). */
+export function signature(student) {
+  const s = student || {};
+  return `${t('studentCode')}: ${isCode(s.name) ? formatCode(s.name) : '—'}, ${t('group')}: ${s.group || '—'}`;
+}
+
+export function answerText(task, answer, student) {
+  if (task.sign) return `${pledgeOf(answer) || '—'} — ${signature(student)}`;
   if (answer == null || answer === '') return '—';
   if (task.kind === 'choice') return tr(task.options[+answer]);
   if (task.kind === 'order') return answer.map((id, i) => `${i + 1}. ${tr(task.items.find((x) => x.id === id).label)}`).join('; ');
@@ -118,7 +135,7 @@ export function reportText(d, author) {
   if (d.losses) { L2.push('', t('lossTitle') + ':'); for (const p of d.losses) L2.push(` – ${tr(p.label)}: ${Math.round(p.frac * 100)} %`); }
   if (d.assignment.length) {
     L2.push('', t('assignment') + ':');
-    d.assignment.forEach((task, i) => { const a = d.answers[task.id] || {}; L2.push(`${i + 1}. ${tr(task.task)}`, `   → ${answerText(task, a.answer)}${a.ok === true ? ' ✓' : a.ok === false ? ' ✗' : ''}`); });
+    d.assignment.forEach((task, i) => { const a = d.answers[task.id] || {}; L2.push(`${i + 1}. ${tr(task.task)}`, `   → ${answerText(task, a.answer, d.student)}${a.ok === true ? ' ✓' : a.ok === false ? ' ✗' : ''}`); });
   }
   L2.push('', t('remarks') + ':');
   if (!d.remarks.length && !d.grade.extra.length) L2.push(' ' + t(d.complete ? 'noRemarks' : 'noRemarksYet'));
@@ -151,7 +168,7 @@ export function reportPayload(d, progress, mode, lang, text) {
       .concat(d.grade.extra.map((r) => ({ step: t('resultPenalty'), severity: 'major', points: r.points, text: tr(r.text) }))),
     hints: d.hints.map((h) => ({ step: tr(h.step), level: h.level })),
     results,
-    assignment: d.assignment.map((task) => { const a = d.answers[task.id] || {}; return { task: strip(tr(task.task)), answer: answerText(task, a.answer), ok: task.kind === 'text' ? null : (a.ok ?? false) }; }),
+    assignment: d.assignment.map((task) => { const a = d.answers[task.id] || {}; return { task: strip(tr(task.task)), answer: answerText(task, a.answer, d.student), ok: task.kind === 'text' ? null : (a.ok ?? false) }; }),
     journal: d.journal.map((j) => ({ t: clockText(j.t, false), kind: j.kind === 'obs' ? 'obs' : j.kind === 'warn' ? 'warn' : 'act', text: strip(tr(j.text)) })),
     reportText: text,
     finishedAt: Date.now(),

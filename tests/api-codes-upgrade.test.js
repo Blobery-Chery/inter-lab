@@ -130,3 +130,76 @@ test('1.2.0 → 1.3.0 → откат на 1.2.0 (студенты работаю
   const anna = { name: codeA, group: '', deviceId: 'dev-anna' };
   assert.deepEqual(s.post({ action: 'loadProgress', student: anna }).items.map((x) => x.data).sort(), ['j.a10', 'j.old']);
 });
+
+/* ---------- запись в журнале инструктажа: в старых записях — ФИО в свободной форме ---------- */
+import zlib from 'node:zlib';
+const OLD_TASK = 'Запись в журнале инструктажа. Напишите: «С правилами техники безопасности ознакомлен(а), обязуюсь выполнять», ваши ФИО и группу.';
+const pack = (o) => 'g.' + zlib.gzipSync(Buffer.from(JSON.stringify(o))).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const unpack = (s) => JSON.parse(zlib.gunzipSync(Buffer.from(s.slice(2).replace(/-/g, '+').replace(/_/g, '/'), 'base64')).toString());
+const ANS = 'С правилами техники безопасности ознакомлена, обязуюсь выполнять. Анна Ковалёва Сергеевна, группа Х-31';
+
+function sheetWithJournal() {
+  const s = createServer({ code: OLD('1.2.0') });
+  s.post({ action: 'submitReport', clientId: 'r0', payload: {
+    lab: 'lab-00', grade: 5, points: 0, student: ANNA, journal: [],
+    assignment: [{ task: OLD_TASK, answer: ANS, ok: null }],
+    reportText: 'ПРОТОКОЛ\nСтудент: Ковалёва Анна\n6. ' + OLD_TASK + '\n   → ' + ANS + '\n' } });
+  s.post({ action: 'saveProgress', student: ANNA, lab: 'lab-00', data: pack({ runs: {}, assignment: { journal: { answer: ANS, ok: null }, eye: { answer: '2', ok: true } } }), at: 1000 });
+  return s;
+}
+const noName = (s) => {
+  const t = text(s);
+  for (const w of ['Ковал', 'Анна', 'Сергеевна']) assert.ok(!t.includes(w), 'в таблице: ' + w);
+  const row = s.ss.sheets['Прогресс'].data.find((r) => r.includes('lab-00'));
+  const h = heads(s, 'Прогресс');
+  const blob = ['Данные 1', 'Данные 2', 'Данные 3', 'Данные 4'].map((k) => row[h.indexOf(k)] || '').join('');
+  const o = unpack(blob);
+  assert.equal(o.assignment.journal.answer, 'С правилами техники безопасности ознакомлена, обязуюсь выполнять.', 'в копии прогресса — только клятва');
+  assert.equal(o.assignment.eye.answer, '2', 'остальное на месте');
+  const rep = s.post({ action: 'listReports', token: login(s) }).reports.find((r) => r.lab === 'lab-00');
+  const data = s.post({ action: 'getReport', token: login(s), id: rep.id }).data;
+  return data;
+};
+
+test('журнал инструктажа: при замене ФИО кодами (1.3.2) — клятва + код, ФИО в любом порядке исчезает', () => {
+  const s = createServer({ ss: sheetWithJournal().ss });
+  const tok = login(s);
+  const dry = s.post({ action: 'migrateToCodes', token: tok, dry: true });
+  const code = dry.mapping[0].code;
+  s.post({ action: 'migrateToCodes', token: tok, plan: dry.plan });
+  const data = noName(s);
+  const want = `С правилами техники безопасности ознакомлена, обязуюсь выполнять. — код ${code.slice(0, 4)}-${code.slice(4)}, группа Х-31`;
+  assert.equal(data.assignment[0].answer, want);
+  assert.ok(data.reportText.includes('→ ' + want));
+});
+
+test('журнал инструктажа: если ФИО уже заменили версией 1.3.1 — 1.3.2 чистит при первом запросе', () => {
+  const base = sheetWithJournal();
+  const v131 = createServer({ code: OLD('1.3.1'), ss: base.ss });
+  const t1 = login(v131);
+  const dry = v131.post({ action: 'migrateToCodes', token: t1, dry: true });
+  v131.post({ action: 'migrateToCodes', token: t1, plan: dry.plan });
+  assert.ok(text(v131).includes('Анна Ковалёва Сергеевна'), 'версия 1.3.1 обратный порядок не находила');
+  const s = createServer({ ss: base.ss });
+  for (const k of Object.keys(v131.props)) if (!(k in s.props)) s.props[k] = v131.props[k];
+  delete s.props.JOURNAL_FIXED;
+  s.post({ action: 'getStatus', lab: 'lab-00', student: { name: dry.mapping[0].code, group: '', deviceId: 'x' } }); // любой запрос
+  noName(s);
+  assert.equal(s.props.JOURNAL_FIXED, '1');
+});
+
+test('новые копии прогресса работы 0 и протоколы старой версии сайта приходят уже без ФИО', () => {
+  const s = createServer();
+  const tok = login(s);
+  const code = s.post({ action: 'createCodes', token: tok, group: 'Х-31', count: 1 }).codes[0].code;
+  const st = { name: code, group: '', deviceId: 'd1' };
+  s.post({ action: 'saveProgress', student: st, lab: 'lab-00', data: pack({ assignment: { journal: { answer: 'Ознакомлен, обязуюсь выполнять! Петров П.', ok: null } } }), at: 1 });
+  const item = s.post({ action: 'loadProgress', student: st }).items[0];
+  assert.equal(unpack(item.data).assignment.journal.answer, 'Ознакомлен, обязуюсь выполнять!');
+  s.post({ action: 'saveProgress', student: st, lab: 'lab-00', data: pack({ assignment: { journal: { answer: 'Просто текст', ok: null } } }), at: 2 });
+  assert.equal(unpack(s.post({ action: 'loadProgress', student: st }).items[0].data).assignment.journal.answer, 'Просто текст', 'без клятвы — не трогаем');
+  // протокол от закэшированной старой версии сайта (старое задание)
+  s.post({ action: 'submitReport', clientId: 'x', payload: { lab: 'lab-00', grade: 5, points: 0, student: st, journal: [],
+    assignment: [{ task: OLD_TASK, answer: 'Ознакомлен, обязуюсь выполнять. Петров Пётр', ok: null }], reportText: '→ Ознакомлен, обязуюсь выполнять. Петров Пётр' } });
+  assert.ok(!text(s).includes('Петров'));
+});

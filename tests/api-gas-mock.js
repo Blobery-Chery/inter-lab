@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import vm from 'node:vm';
 import crypto from 'node:crypto';
+import zlib from 'node:zlib';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 export const CODE_GS = readFileSync(join(ROOT, 'backend', 'Code.gs'), 'utf8');
@@ -17,6 +18,9 @@ function signed(buf) {
 }
 function unsigned(bytes) {
   return Buffer.from(bytes.map((b) => (b + 256) % 256));
+}
+function blob(buf) {
+  return { _buf: buf, getBytes: () => signed(buf), getDataAsString: () => buf.toString('utf8') };
 }
 
 class Range {
@@ -126,7 +130,9 @@ export function createServer({ code = CODE_GS, ss: sharedSs = null } = {}) {
       computeHmacSha256Signature: (value, key) => signed(crypto.createHmac('sha256', Buffer.from(String(key), 'utf8')).update(String(value), 'utf8').digest()),
       base64EncodeWebSafe: (v) => (typeof v === 'string' ? Buffer.from(v, 'utf8') : unsigned(v)).toString('base64').replace(/\+/g, '-').replace(/\//g, '_'),
       base64DecodeWebSafe: (s) => signed(Buffer.from(String(s).replace(/-/g, '+').replace(/_/g, '/'), 'base64')),
-      newBlob: (bytes) => ({ getDataAsString: () => unsigned(bytes).toString('utf8') }),
+      newBlob: (data) => blob(typeof data === 'string' ? Buffer.from(data, 'utf8') : unsigned(data)),
+      gzip: (b) => blob(zlib.gzipSync(b._buf)),
+      ungzip: (b) => blob(zlib.gunzipSync(b._buf)),
       getUuid: () => crypto.randomUUID(),
     },
     MailApp: { sendEmail: (m) => mail.push(m), getRemainingDailyQuota: () => 100 },

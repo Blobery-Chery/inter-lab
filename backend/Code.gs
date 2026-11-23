@@ -26,7 +26,7 @@
 /* ======================================================================= */
 
 var VLAB = {
-  VERSION: '1.3.1',
+  VERSION: '1.3.2',
   TOKEN_TTL_MS: 12 * 60 * 60 * 1000,   // токен преподавателя живёт 12 часов
   MAX_FAILS: 5,                         // неудачных входов подряд…
   LOCK_SECONDS: 15 * 60,                // …и вход закрыт на 15 минут
@@ -239,7 +239,6 @@ function scrubName(json, name, code) {
   }
 }
 
-/** Код в ячейку: с апострофом, чтобы Таблица не превратила его в число. */
 /**
  * ФИО → код в любом тексте (комментарии, ответы, протокол). pairs — [[ФИО, код]].
  * Целым словом, без учёта регистра, «е» и «ё» и лишних пробелов; длинные ФИО — первыми.
@@ -265,7 +264,39 @@ function makeScrubber_(pairs) {
 }
 function scrubNames(text, pairs) { return makeScrubber_(pairs)(text); }
 
+/** Код в ячейку: с апострофом, чтобы Таблица не превратила его в число. */
 function codeCell(c) { return "'" + c; }
+
+/* ---------- запись в журнале инструктажа (работа 0) ---------- */
+// До версии сайта 1.1.2 задание просило написать «ваши ФИО и группу» — в старых протоколах и копиях
+// прогресса там ФИО в свободной форме. Остаётся клятва (до «обязуюсь выполнять» включительно), подпись — код.
+var PLEDGE_RE = /^[\s\S]*?(?:выполнять|соблюдать|исполнять|міндеттенемін|орындаймын|сақтаймын|follow them|comply|follow)[»"”“'’.!…)]*/i;
+var OLD_SIGN_TASK_RE = /ваши ФИО|аты-жөніңіз бен|full name and group/i;
+function pledgeOf(text) {
+  var m = String(text == null ? '' : text).trim().match(PLEDGE_RE);
+  return m ? m[0].trim() : '';
+}
+/** Ответ на старое задание журнала → клятва + код и группа; без клятвы — пометка вместо текста. */
+function journalAnswer(answer, code, group) {
+  var p = pledgeOf(answer);
+  return (p || '(запись скрыта — в ней было ФИО)') + ' — код ' + formatCode(code) + ', группа ' + (group || '—');
+}
+/** JSON протокола: ответы на старое задание журнала (и их копия в тексте протокола) — без ФИО. */
+function cleanReportJournal(json, code, group) {
+  var o;
+  try { o = JSON.parse(json); } catch (e) { return json; }
+  if (!o || !Array.isArray(o.assignment)) return json;
+  var changed = false;
+  o.assignment.forEach(function (a) {
+    if (!a || !OLD_SIGN_TASK_RE.test(String(a.task || '')) || a.answer == null || a.answer === '' || a.answer === '—') return;
+    var next = journalAnswer(a.answer, code, group);
+    if (next === a.answer) return;
+    if (typeof o.reportText === 'string') o.reportText = o.reportText.split(String(a.answer)).join(next);
+    a.answer = next;
+    changed = true;
+  });
+  return changed ? JSON.stringify(o) : json;
+}
 /** Имя студента в ячейку: код — как текст, остальное — как раньше. */
 function nameCell_(name) { return normalizeCode(name) ? codeCell(normalizeCode(name)) : name; }
 
@@ -946,6 +977,7 @@ var STUDENT_ACTIONS = {
     if (VLAB.LABS.indexOf(lab) < 0) throw apiError_('bad_request', 'Неизвестная работа.');
     var data = String(req.data || '');
     if (!/^[gj]\.[A-Za-z0-9_\-]+$/.test(data)) throw apiError_('bad_request', 'Неверные данные.');
+    if (lab === 'lab-00') data = cleanProgressJournal_(data);
     var parts = splitData(data, VLAB.CELL_SAFE, 4);
     if (!parts) throw apiError_('too_big', 'Прогресс слишком большой.');
     var at = num(req.at, Date.now());
@@ -1039,6 +1071,7 @@ var STUDENT_ACTIONS = {
       for (var k in p) if (k !== 'student') copy[k] = p[k];
       copy.student = student;
       var packed = packReport(copy);
+      if (normalizeCode(student.name)) packed.json = cleanReportJournal(packed.json, student.name, student.group); // старая версия сайта просила ФИО
       var rec = {
         id: clientId || Utilities.getUuid(), createdAt: new Date(now), lab: cellText(p.lab, 40),
         name: nameCell_(student.name), group: student.group, deviceId: student.deviceId,
@@ -1290,6 +1323,83 @@ var TEACHER_ACTIONS = {
   },
 };
 
+/** Копия прогресса (j./g. + base64url) → объект и обратно. */
+function unpackProgress_(data) {
+  var kind = String(data).slice(0, 2), b64 = String(data).slice(2);
+  while (b64.length % 4) b64 += '=';
+  var bytes = Utilities.base64DecodeWebSafe(b64);
+  var text = kind === 'g.' ? Utilities.ungzip(Utilities.newBlob(bytes, 'application/x-gzip')).getDataAsString('UTF-8')
+    : kind === 'j.' ? Utilities.newBlob(bytes).getDataAsString('UTF-8') : null;
+  return text == null ? null : JSON.parse(text);
+}
+function packProgress_(obj) {
+  var gz = Utilities.gzip(Utilities.newBlob(JSON.stringify(obj), 'application/json'));
+  return 'g.' + Utilities.base64EncodeWebSafe(gz.getBytes()).replace(/=+$/, '');
+}
+
+/** Копия прогресса работы 0: в записи журнала — только клятва (дописанное после неё, например ФИО, — нет). */
+function cleanProgressJournal_(data) {
+  try {
+    var o = unpackProgress_(data);
+    var a = o && o.assignment && o.assignment.journal;
+    if (!a || typeof a.answer !== 'string' || !a.answer) return data;
+    var p = pledgeOf(a.answer);
+    if (!p || p === a.answer.trim()) return data;
+    a.answer = p;
+    return packProgress_(o);
+  } catch (e) {
+    return data;
+  }
+}
+
+/**
+ * Старые записи в журнале инструктажа: в протоколах — клятва + код и группа, в копиях прогресса — только клятва.
+ * Только строки, где вместо ФИО уже код (остальные дойдут сюда при замене ФИО кодами). Ошибка в строке — строка пропускается.
+ */
+function cleanJournals_() {
+  var n = 0;
+  var P = readCols_(SHEETS.reports, ['lab', 'name', 'group', 'data']);
+  var pd = P.data.map(function (d, i) {
+    var c = normalizeCode(P.name[i]);
+    if (!c || typeof d !== 'string' || !OLD_SIGN_TASK_RE.test(d)) return d;
+    var next = cleanReportJournal(d, c, String(P.group[i] || ''));
+    if (next !== d) n++;
+    return next;
+  });
+  if (n) writeCol_(SHEETS.reports, 'data', pd);
+  var sh = sheet_(SHEETS.progress), idx = colIndex_(sh, SHEETS.progress), last = sh.getLastRow();
+  if (last >= 2) {
+    var v = sh.getRange(2, 1, last - 1, idx._width).getValues();
+    v.forEach(function (r, i) {
+      if (String(r[idx.lab]) !== 'lab-00' || !normalizeCode(r[idx.name])) return;
+      try {
+        var o = unpackProgress_(joinData([r[idx.d1], r[idx.d2], r[idx.d3], r[idx.d4]]));
+        var a = o && o.assignment && o.assignment.journal;
+        if (!a || typeof a.answer !== 'string' || !a.answer) return;
+        var p = pledgeOf(a.answer);
+        if (p === a.answer.trim()) return;
+        a.answer = p;
+        var parts = splitData(packProgress_(o), VLAB.CELL_SAFE, 4);
+        if (!parts) return;
+        sh.getRange(i + 2, idx.d1 + 1).setValue(parts[0]); sh.getRange(i + 2, idx.d2 + 1).setValue(parts[1]);
+        sh.getRange(i + 2, idx.d3 + 1).setValue(parts[2]); sh.getRange(i + 2, idx.d4 + 1).setValue(parts[3]);
+        n++;
+      } catch (e) { /* не разобрали копию — оставляем как есть */ }
+    });
+  }
+  return n;
+}
+
+/** Один раз после обновления, если ФИО уже заменены кодами (версией 1.3.0–1.3.1): почистить старые записи журнала. */
+function maintain_() {
+  var p = props_();
+  if (p.getProperty('JOURNAL_FIXED') === '1') return;
+  if (!Object.keys(codesMap_(false)).length) return; // замены ещё не было — почистит migrateToCodes
+  try {
+    withLock_(function () { if (p.getProperty('JOURNAL_FIXED') !== '1') { cleanJournals_(); p.setProperty('JOURNAL_FIXED', '1'); } });
+  } catch (e) { /* не вышло сейчас — попробуем при следующем запросе */ }
+}
+
 /* ---------- замена ФИО кодами ---------- */
 
 /** Ключ плана без ФИО в открытом виде (план лежит в кэше до часа). */
@@ -1369,6 +1479,8 @@ function applyCodes_(D, plan) {
   writeCol_(SHEETS.progress, 'key', G.key.map(function (k, i) { var c = codeOf(G.name[i], G.group[i]); return c ? personKey({ name: c, group: G.group[i] }) : k; }));
   writeCol_(SHEETS.progress, 'name', G.name.map(function (n, i) { var c = codeOf(n, G.group[i]); return c ? codeCell(c) : keep(n); }));
   dedupeProgress_(sheet_(SHEETS.progress)); // один студент мог сохраняться и по ФИО, и по коду
+  cleanJournals_(); // старые записи в журнале инструктажа — без ФИО
+  props_().setProperty('JOURNAL_FIXED', '1');
   var have = codesMap_(true), now = new Date(); // у перенесённых кодов уже есть данные — отмечены как использованные, удалить их нельзя
   appendRows_(SHEETS.codes, plan.order.filter(function (k) { return !have.hasOwnProperty(persons[k].code); })
     .map(function (k) { return { code: codeCell(persons[k].code), group: persons[k].group, createdAt: now, usedAt: now }; }));
@@ -1480,6 +1592,7 @@ function doPost(e) {
   }
   try {
     repairColumns_();
+    maintain_();
     return json_(handle_(req));
   } catch (err) {
     var out = { ok: false, error: err.code || 'server', message: err.code ? err.message : 'Ошибка сервера: ' + err.message };
@@ -1626,6 +1739,6 @@ if (typeof module !== 'undefined' && module.exports) {
     packReport: packReport, packAnswers: packAnswers, accessStatusOf: accessStatusOf, sortRequests: sortRequests,
     buildStudentMatrix: buildStudentMatrix, digestText: digestText, requestMailText: requestMailText, toMs: toMs,
     cleanAct: cleanAct, mergeActivity: mergeActivity, personKey: personKey, looseText: looseText, splitData: splitData, joinData: joinData,
-    normalizeCode: normalizeCode, luhnDigit: luhnDigit, makeCode: makeCode, formatCode: formatCode, scrubName: scrubName, scrubNames: scrubNames,
+    normalizeCode: normalizeCode, luhnDigit: luhnDigit, makeCode: makeCode, formatCode: formatCode, scrubName: scrubName, scrubNames: scrubNames, pledgeOf: pledgeOf, journalAnswer: journalAnswer, cleanReportJournal: cleanReportJournal,
   };
 }

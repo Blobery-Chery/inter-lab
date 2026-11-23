@@ -144,6 +144,7 @@ export const UI = {
   how3d: L('Ход работы по методичке; ошибки имеют последствия', 'Әдістеме бойынша жұмыс барысы; қателердің салдары бар', 'The procedure from the manual; mistakes have consequences'),
   how4: L('Протокол и оценка', 'Хаттама және баға', 'Lab report and grade'),
   how4d: L('Собирается из журнала и уходит преподавателю', 'Журналдан құрастырылып, оқытушыға жіберіледі', 'Compiled from your notebook and sent to the instructor'),
+  signPreview: L('В протокол попадёт:', 'Хаттамаға түседі:', 'Goes into the report:'),
   studentCode: L('Код студента', 'Студент коды', 'Student code'),
   codeEnter: L('Войти по коду', 'Кодпен кіру', 'Sign in with the code'),
   codeChecking: L('Проверяем код…', 'Код тексерілуде…', 'Checking the code…'),

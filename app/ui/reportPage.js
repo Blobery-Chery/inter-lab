@@ -1,8 +1,8 @@
-/** Страница протокола: шапка (ФИО, группа), разделы по методичке, задание, замечания, оценка, отправка, печать. */
+/** Страница протокола: шапка (код студента, группа), разделы по методичке, задание, замечания, оценка, отправка, печать. */
 import { h, esc } from '../dom.js';
 import { tr, t, getLang, num } from '../i18n.js';
 import * as store from '../store.js';
-import { buildReport, reportBodyHTML, remarksHTML, journalHTML, reportText, reportPayload, checkAssignment, gradeWord } from '../report.js';
+import { buildReport, reportBodyHTML, remarksHTML, journalHTML, reportText, reportPayload, checkAssignment, gradeWord, answerText } from '../report.js';
 import { btn, option, withSign } from './controls.js';
 import { isCode, formatCode } from '../code.js';
 import { CONFIG } from '../../config.js';
@@ -70,8 +70,12 @@ export async function reportPage(root, env, entry, lab) {
       const ta = h('textarea', { 'aria-label': tr(task.task), placeholder: t('freeAnswer') });
       ta.value = a.answer || '';
       if (sent) ta.disabled = true;
-      ta.oninput = () => { progress.assignment[task.id] = { answer: ta.value, ok: null }; save(); };
-      box.append(h('label', { class: 'field' }, h('span', null, t('freeAnswer')), ta));
+      // Запись с подписью: под полем — как она попадёт в протокол (код и группа — автоматически).
+      const preview = task.sign ? h('p', { class: 'muted signprev' }) : null;
+      const show = () => { if (preview) preview.textContent = t('signPreview') + ' ' + answerText(task, ta.value, student); };
+      ta.oninput = () => { progress.assignment[task.id] = { answer: ta.value, ok: null }; save(); show(); };
+      show();
+      box.append(h('label', { class: 'field' }, h('span', null, t('freeAnswer')), ta), preview);
     }
     asg.append(box);
   });
