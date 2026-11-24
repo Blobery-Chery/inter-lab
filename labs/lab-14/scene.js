@@ -1,6 +1,6 @@
 /** Сцены стенда работы № 14 (SVG 360×250). Цвета — CSS-переменные или явные rgba(…) для окраски растворов красителя. */
 import { L, num } from '../../app/i18n.js';
-import { scene, text, beaker, thermometer, rod, bath, hotplate, bubbles, steam, fumes, hood, tube, bottle, dropper } from '../../app/scene/svg.js';
+import { scene, text, beaker, thermometer, rod, bath, hotplate, bubbles, steam, fumes, hood, tube, bottle, dropper, pump, callout } from '../../app/scene/svg.js';
 import { moColor } from './model.js';
 
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
@@ -61,7 +61,7 @@ export function hoodScene(S, local) {
 /** Пробирка над водяной баней (опыт 3). */
 export function tubeBath(t, o = {}) {
   let s = bath({ kind: 'water', x: 104, y: 150, w: 152, hh: 80, color: o.hot ? 'rgba(160,198,222,.7)' : null });
-  s += tube({ id: 'r3', cx: 180, top: 40, len: 150, r: 11, frac: clamp((t.v || 0) / 5, 0, 1), color: t.color, solid: t.solid, gas: t.gas, label: L('пробирка', 'пробирка', 'test tube') });
+  s += tube({ id: 'r3', cx: 180, top: 40, len: 150, r: 11, frac: clamp((t.v || 0) / 5, 0, 1), color: t.color, solid: t.solid, gas: t.gas }) + callout(191, 112, 214, 86, L('пробирка', 'пробирка', 'test tube'));
   if (o.hot) s += steam(140, 146, true) + steam(222, 146, true);
   s += bath({ kind: 'water', x: 104, y: 150, w: 152, hh: 80, front: true, label: L('водяная баня', 'су моншасы', 'water bath') });
   s += text(340, 30, `${num(o.T ?? 22, 0)} °C`, 'lbl mono', 'end');
@@ -82,7 +82,7 @@ export function pourScene(S, local) {
 
 /** Подложка установки для вакуумного фильтрования (шаг сборки). */
 export function filterBase() {
-  return `<rect class="met" x="290" y="150" width="46" height="72" rx="6"/>${text(313, 244, L('насос', 'сорғы', 'pump'))}<rect class="met" x="40" y="224" width="200" height="8" rx="2"/>`;
+  return pump(false);
 }
 
 export { moColor };

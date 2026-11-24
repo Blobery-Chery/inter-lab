@@ -333,7 +333,7 @@ canvas.tg{width:100%;height:110px;display:block;border:1px solid var(--line);bor
 .callout path{stroke:var(--faint);stroke-width:.9}.callout circle{fill:var(--faint)}
 .lblc{font:400 9.4px var(--f-mono);fill:var(--muted);letter-spacing:-.01em}
 .sv-bench{fill:var(--bench)}.gl{fill:var(--glass-fill);stroke:var(--glass);stroke-width:1.9;stroke-linejoin:round}.gls{fill:none;stroke:var(--glass);stroke-width:1.8}
-.liq{fill:var(--liquid)}.ice{fill:var(--ice);stroke:var(--ice-edge);stroke-width:1}.met{fill:var(--metal)}.metd{fill:var(--metal-dark)}
+.liq{fill:var(--liquid)}.ice{fill:var(--ice);stroke:var(--ice-edge);stroke-width:1}.met{fill:var(--dev);stroke:var(--devf);stroke-width:1}.metd{fill:var(--metal-dark)}
 .sol{fill:var(--solid);stroke:var(--muted);stroke-width:.6}.porc{fill:var(--solid);stroke:var(--muted);stroke-width:1}.ppt{fill:var(--solid-y)}
 /* подписи на стенде — PT Sans: он уже прежнего шрифта, подписи не наезжают на рисунок */
 .lbl{font:400 10.5px var(--f-body);fill:var(--muted)}.lblb{font:700 10.5px var(--f-body);fill:var(--ink);paint-order:stroke;stroke:var(--scene);stroke-width:3px;stroke-linejoin:round}.mono{font-family:var(--f-mono)}

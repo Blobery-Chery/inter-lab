@@ -1,6 +1,6 @@
 /** Сцены стенда работы 6–7 (SVG 360×250), перенесены из прототипа автора. Цвета — CSS-переменные. */
 import { L, num } from '../../app/i18n.js';
-import { scene, text, conical, thermometer, rod, dropper, bath, fumes, ice, bottle, hood, ring, beaker, hotplate, bubbles, tube, steam, callout } from '../../app/scene/svg.js';
+import { scene, text, conical, thermometer, rod, dropper, bath, fumes, ice, bottle, hood, ring, beaker, hotplate, bubbles, tube, steam, callout, pump } from '../../app/scene/svg.js';
 import { EQUIPMENT } from '../../app/equipment.js';
 import { cylinderSVG } from '../../app/instruments/glassware.js';
 
@@ -36,7 +36,7 @@ export function flaskScene(S, o = {}) {
 export function acidScene(S, local) {
   const cyl = cylinderSVG({ cap: 10, v: local.v || 0, x: 70, name: L('цилиндр 10 мл', 'цилиндр 10 мл', '10 mL cylinder'), bottle: 'H₂SO₄' });
   const fl = conical({ id: 'fl', cx: 250, by: 222, s: 0.62, vol: S.vAcid ? S.vAcid + 1 : 0, cap: 40, solid: S.dissolved ? 0.02 : Math.min(1, (S.mBA || 2) / 2.5) });
-  return scene(cyl + fl + (local.done && local.done.stir ? rod(258, 100, 247, 214, true) : '') + text(250, 240, L('колба 50 мл', 'колба 50 мл', '50 mL flask')));
+  return scene(cyl + fl + (local.done && local.done.stir ? rod(258, 100, 247, 214, true) : '') + callout(238, 170, 268, 112, L('колба 50 мл', 'колба 50 мл', '50 mL flask')));
 }
 
 /** Нитрующая смесь: склянки H₂SO₄ и HNO₃, пробирка в ледяной бане. */
@@ -44,10 +44,10 @@ export function mixScene(S, local) {
   const m = S.mix;
   const fill = Math.min(1, (m.s + m.n) / 4);
   return scene(`${bottle(8, 'H₂SO₄', L('конц.', 'конц.', 'conc.'))}${bottle(64, 'HNO₃', L('конц.', 'конц.', 'conc.'), 'nox')}
-<rect class="gl" x="168" y="128" width="128" height="102" rx="6"/><rect class="liq" x="170" y="146" width="124" height="82" rx="5" opacity=".5"/>${ice([[176, 158, 15, 10], [268, 164, 15, -10], [180, 204, 14, -6], [270, 206, 14, 8]])}
-${tube({ id: 'mx', cx: 232, top: 26, len: 174, r: 9, frac: fill, color: m.n > 0 ? 'var(--liq-y)' : null })}${fumes(236, 20, m.T > 25 ? Math.min(0.8, (m.T - 25) / 15) : 0)}
-${text(232, 16, L('пробирка', 'пробирка', 'test tube'))}${text(232, 244, L('ледяная баня', 'мұз моншасы', 'ice bath'))}
-${text(320, 60, L(`смесь ${num(m.T, 0)} °C`, `қоспа ${num(m.T, 0)} °C`, `mixture ${num(m.T, 0)} °C`), 'lbl mono', 'end')}`);
+${bath({ kind: 'ice', x: 164, y: 132, w: 136, hh: 98 })}
+${tube({ id: 'mx', cx: 232, top: 26, len: 174, r: 9, frac: fill, color: m.n > 0 ? 'var(--liq-y)' : null })}${fumes(236, 20, m.T > 25 ? Math.min(0.8, (m.T - 25) / 15) : 0)}${bath({ kind: 'ice', x: 164, y: 132, w: 136, hh: 98, front: true })}
+${callout(240, 46, 252, 28, L('пробирка', 'пробирка', 'test tube'))}${callout(292, 146, 262, 118, L('ледяная баня', 'мұз моншасы', 'ice bath'))}
+${text(352, 76, L(`смесь ${num(m.T, 0)} °C`, `қоспа ${num(m.T, 0)} °C`, `mixture ${num(m.T, 0)} °C`), 'lbl mono', 'end')}`);
 }
 
 /** Стакан со льдом, наклонённая колба (выливание). */
@@ -76,7 +76,8 @@ export function hotScene(S, local) {
   if (local.phase === 0 && local.T > 88 && und > 0.25 && R.V > 0) inner += [150, 166, 182, 200, 212].map((x, i) => `<ellipse cx="${x}" cy="${185 - (i % 2) * 3}" rx="5" ry="3" fill="var(--liq-y)" stroke="var(--warn)" stroke-width=".7"/>`).join('');
   if (local.phase >= 1) inner += Array.from({ length: 28 }, (_, i) => { const x = 142 + ((i * 29) % 74), y = 168 + ((i * 17) % 20), a = (i * 47) % 180; return `<rect x="${x}" y="${y}" width="${local.shock ? 4 : 8}" height="1.7" class="ppt" stroke="var(--muted)" stroke-width=".3" transform="rotate(${a} ${x + 4} ${y + 0.8})"/>`; }).join('');
   if (local.phase === 0 && local.T >= 99.5 && R.V > 0) inner += bubbles(146, 186, 70, 7);
-  return scene(hotplate({ on: local.c && local.c.heat }) + beaker({ id: 'rc', x: 136, y: 60, w: 88, hh: 131, frac, cap: 150, marks: [50, 100], inner, label: L('стакан 150 мл на плитке', 'плитадағы 150 мл стақан', '150 mL beaker on a hot plate') }) + steam(180, 52, local.phase === 0 && local.T > 90 && R.V > 0) + text(300, 100, `${num(local.T || 22, 0)} °C`, 'lbl mono', 'end'));
+  return scene(hotplate({ on: local.c && local.c.heat }) + beaker({ id: 'rc', x: 136, y: 60, w: 88, hh: 131, frac, cap: 150, marks: [50, 100], inner }) + steam(180, 52, local.phase === 0 && local.T > 90 && R.V > 0)
+    + callout(138, 110, 8, 70, [L('стакан 150 мл', '150 мл стақан', '150 mL beaker'), L('на плитке', 'плитада', 'on a hot plate')]) + text(330, 100, `${num(local.T || 22, 0)} °C`, 'lbl mono', 'end'));
 }
 
 /** Вытяжной шкаф (первый шаг). */
@@ -93,7 +94,7 @@ ${ring(270, 124, 30, { 0: 'COOH', 2: 'NO₂' })}${text(270, 188, L('м-нитр�
 
 /** Сборка установки для вакуумного фильтрования: подложка. */
 export function filterBase() {
-  return `<rect class="met" x="290" y="150" width="46" height="72" rx="6"/>${text(313, 244, L('насос', 'сорғы', 'pump'))}<rect class="met" x="40" y="224" width="200" height="8" rx="2"/>`;
+  return pump(false);
 }
 
 /** Капилляр для т. пл. (набивка). */

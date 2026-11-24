@@ -1,7 +1,8 @@
 /** Сцены стенда работы № 12 (SVG 360×250). Цвета — CSS-переменные и явные rgba для растворов. */
 import { L, num } from '../../app/i18n.js';
-import { scene, text, conical, thermometer, bath, bubbles, steam, beaker, hood, bottle, rbFlask, hotplate } from '../../app/scene/svg.js';
+import { scene, text, conical, thermometer, bath, bubbles, steam, beaker, hood, bottle, rbFlask, hotplate, callout } from '../../app/scene/svg.js';
 import { esc } from '../../app/dom.js';
+import { balanceBody, balanceCallout } from '../../app/instruments/balance.js';
 
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
 
@@ -10,10 +11,15 @@ export const hoodScene = (S, lc) => scene(hood({ air: !!(lc && lc.sel && lc.sel.
 
 /** Стол с поляриметром (подготовка к опыту 1). */
 export function polBench() {
-  return scene(`<rect class="met" x="20" y="150" width="300" height="36" rx="8"/><circle cx="40" cy="168" r="14" fill="var(--metal-dark)"/><rect class="metd" x="70" y="154" width="14" height="28" rx="3"/>
-<rect class="gl" x="112" y="158" width="150" height="20" rx="5"/><circle cx="300" cy="168" r="18" class="metd"/><circle cx="300" cy="100" r="34" fill="var(--metal-dark)"/><circle cx="300" cy="100" r="30" fill="var(--scene)"/>
-${text(180, 140, L('поляриметр', 'поляриметр', 'polarimeter'))}${beaker({ id: 'w1', x: 40, y: 60, w: 50, hh: 64, frac: 0.6, label: L('H₂O дист.', 'H₂O дист.', 'dist. H₂O') })}
-${beaker({ id: 's1', x: 120, y: 60, w: 50, hh: 64, frac: 0.6, label: L('стандарт', 'стандарт', 'standard') })}${beaker({ id: 's2', x: 200, y: 60, w: 50, hh: 64, frac: 0.6, label: L('неизв.', 'белгісіз', 'unknown') })}`);
+  // поляриметр справа (корпус как в приборе опыта), три стакана слева на столе
+  const pol = `<ellipse class="shadow" cx="248" cy="232" rx="102" ry="3"/><rect class="dev" x="152" y="198" width="190" height="32" rx="6"/><rect class="devf" x="152" y="214" width="190" height="16" rx="5"/>
+<rect class="knob" x="170" y="176" width="9" height="24"/><rect class="knob" x="314" y="176" width="9" height="24"/>
+<rect class="dev" x="140" y="138" width="28" height="48" rx="5"/><circle cx="154" cy="162" r="6" fill="var(--hot)" opacity=".5"/><rect class="dev" x="160" y="148" width="176" height="32" rx="7"/><rect class="devf" x="160" y="168" width="176" height="12" rx="5"/>
+<rect class="gl" x="196" y="154" width="96" height="18" rx="5"/><rect class="knob" x="192" y="152" width="5" height="22" rx="2"/><rect class="knob" x="291" y="152" width="5" height="22" rx="2"/>
+<rect class="dev" x="330" y="150" width="14" height="28" rx="4"/><circle cx="337" cy="136" r="16" class="knob"/><circle cx="337" cy="136" r="12" fill="var(--metal-dark)"/>`;
+  return scene(`${pol}${callout(244, 150, 238, 116, L('поляриметр', 'поляриметр', 'polarimeter'), 'middle')}
+${beaker({ id: 'w1', x: 8, y: 182, w: 40, hh: 48, frac: 0.6 })}${beaker({ id: 's1', x: 56, y: 182, w: 40, hh: 48, frac: 0.6 })}${beaker({ id: 's2', x: 104, y: 182, w: 40, hh: 48, frac: 0.6 })}
+${callout(28, 192, 8, 124, L('H₂O дист.', 'H₂O дист.', 'dist. H₂O'))}${callout(76, 192, 76, 148, L('стандарт', 'стандарт', 'standard'), 'middle')}${callout(124, 192, 136, 170, L('неизв.', 'белгісіз', 'unknown'), 'end')}`);
 }
 
 /**
@@ -76,23 +82,22 @@ export function evapScene(S, lc) {
 
 /** Весы с колбочкой; value — показание дисплея (г). */
 export function flaskBalance(value, withLiquid) {
-  return scene(`<rect class="met" x="70" y="196" width="220" height="36" rx="6"/><rect class="scr" x="128" y="203" width="138" height="24" rx="3"/><text class="scrt" x="260" y="221" text-anchor="end">${esc(num(value, 4))} g</text>
-<rect class="gl" x="84" y="56" width="192" height="140" rx="4"/><ellipse class="metd" cx="180" cy="186" rx="46" ry="5"/>
-${rbFlask({ id: 'bf', cx: 180, cy: 156, r: 24, frac: withLiquid ? 0.12 : 0, color: 'rgba(236,224,170,.7)' })}
-${text(270, 50, L('аналитические весы, d = 0,1 мг', 'аналитикалық таразы, d = 0,1 мг', 'analytical balance, d = 0.1 mg'), 'lbl', 'end')}`);
+  return scene(`${balanceBody(num(value, 4) + ' g')}
+${rbFlask({ id: 'bf', cx: 180, cy: 152, r: 24, frac: withLiquid ? 0.12 : 0, color: 'rgba(236,224,170,.7)' })}<ellipse class="metd" cx="180" cy="177" rx="14" ry="3"/>
+<rect x="84" y="58" width="192" height="132" fill="none" stroke="var(--glass)" stroke-width="2"/>${balanceCallout()}`);
 }
 
 /** Мерная колба с раствором амина в метаноле. */
 export function volFlask(full) {
   return scene(`<path class="gl" d="M170 40 L170 120 Q120 140 120 180 Q120 226 180 226 Q240 226 240 180 Q240 140 190 120 L190 40 Z"/>
 <rect class="liq" x="124" y="${full ? 150 : 200}" width="112" height="${full ? 72 : 22}" rx="10" style="fill:rgba(236,224,170,.45)"/>${full ? '<rect class="liq" x="171" y="72" width="18" height="80" style="fill:rgba(236,224,170,.45)"/>' : ''}
-<line x1="166" y1="72" x2="194" y2="72" stroke="var(--bad)" stroke-width="1.5"/>${text(250, 76, L('метка', 'белгі', 'mark'), 'lbl', 'start')}${text(180, 244, L('мерная колба 10 мл', 'өлшегіш колба 10 мл', '10 mL volumetric flask'))}`);
+<line x1="166" y1="72" x2="194" y2="72" stroke="var(--bad)" stroke-width="1.5"/>${text(250, 76, L('метка', 'белгі', 'mark'), 'lbl', 'start')}${callout(124, 200, 20, 150, [L('мерная колба', 'өлшегіш колба', 'volumetric'), L('10 мл', '10 мл', 'flask, 10 mL')])}`);
 }
 
 /** Колбочка с амином и подписью массы и объёма (опыт 3). */
 export function vialScene(m, v) {
   return scene(`${rbFlask({ id: 'vl', cx: 120, cy: 170, r: 40, frac: 0.18, color: 'rgba(236,224,170,.7)' })}<rect class="metd" x="111" y="88" width="18" height="12" rx="3"/>
-${text(120, 244, L('колба с амином', 'амині бар колба', 'flask with the amine'))}
+${callout(86, 192, 14, 120, [L('колба', 'амині бар', 'flask with'), L('с амином', 'колба', 'the amine')])}
 <rect class="gl" x="232" y="60" width="22" height="150" rx="6"/><rect class="liq" x="234" y="180" width="18" height="28" rx="4" style="fill:rgba(236,224,170,.6)"/>${text(243, 50, L('трубка 1 дм ≈ 1,0 мл', '1 дм түтік ≈ 1,0 мл', '1 dm tube ≈ 1.0 mL'))}
 ${text(120, 40, L(`m = ${num(m, 3, 'ru')} г`, `m = ${num(m, 3, 'kk')} г`, `m = ${num(m, 3, 'en')} g`), 'lblb')}${text(120, 60, L(`V ≈ ${num(v, 2, 'ru')} мл`, `V ≈ ${num(v, 2, 'kk')} мл`, `V ≈ ${num(v, 2, 'en')} mL`), 'lblb')}`);
 }

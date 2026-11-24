@@ -14,7 +14,7 @@
 import { h } from '../dom.js';
 import { tr, L } from '../i18n.js';
 import { btn, row, group, grid, whatif } from '../ui/controls.js';
-import { scene, vacuumFilter, sepFunnel, beaker, text } from '../scene/svg.js';
+import { scene, vacuumFilter, sepFunnel, beaker, text, stand } from '../scene/svg.js';
 import { stripHTML, pHread, pHcolor } from '../instruments/indicator.js';
 import { T } from './_common.js';
 
@@ -176,7 +176,7 @@ export default {
     const F = ctx.local;
     if (step.mode === 'funnel') {
       const layers = F.filled ? (F.settled || F.drained ? step.layers.map((l, i) => ({ frac: i === 0 && F.drained ? 0 : l.frac, color: l.color })) : [{ frac: step.layers.reduce((a, l) => a + l.frac, 0), color: 'var(--liquid)' }]) : [];
-      return scene(sepFunnel({ cx: 180, top: 30, layers }) + beaker({ id: 'rcv', x: 150, y: 196, w: 60, hh: 34, frac: F.drained ? 0.6 : 0, color: step.layers[0].color }));
+      return scene(stand(90, 94, 58) + sepFunnel({ cx: 180, top: 30, layers }) + `<ellipse cx="180" cy="96" rx="31" ry="5" fill="none" stroke="var(--metal-dark)" stroke-width="3"/>` + beaker({ id: 'rcv', x: 150, y: 196, w: 60, hh: 34, frac: F.drained ? 0.6 : 0, color: step.layers[0].color }));
     }
     const cake = F.moved ? 1 : 0;
     return scene(vacuumFilter({ paper: F.paper, vac: F.vac, cake, filtrate: Math.min(1, (F.moved ? 0.45 : 0) + F.washes * 0.06 + (F.suck ? 0.25 : 0)), cakeColor: step.cakeColor ? step.cakeColor(ctx.state) : null, seal: step.seal ? step.seal(ctx.state) : true }) + (step.washings ? `<rect x="30" y="146" width="16" height="60" rx="2" fill="${F.lastPH != null ? pHcolor(F.lastPH) : 'var(--panel)'}" stroke="var(--line)"/>` : '') + (step.washings ? text(38, 220, L('инд. бумага', 'инд. қағаз', 'pH paper')) : ''));

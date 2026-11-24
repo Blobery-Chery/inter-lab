@@ -8,7 +8,7 @@
 import { h } from '../../../app/dom.js';
 import { L, n, num } from '../../../app/i18n.js';
 import { btn, row, group } from '../../../app/ui/controls.js';
-import { scene, text, conical } from '../../../app/scene/svg.js';
+import { scene, text, conical, callout } from '../../../app/scene/svg.js';
 import { ORG } from '../scene.js';
 
 export default {
@@ -70,9 +70,10 @@ export default {
   scene(step, ctx) {
     const lc = ctx.local, full = step.mode === 'full';
     const fl = lc.on ? conical({ id: 'bal8', cx: 180, by: 150, s: 0.55, vol: full ? 14 : 0, cap: 50, color: ORG }) + '<rect class="metd" x="173" y="60" width="14" height="8" rx="2"/>' : '';
-    return scene(`<rect class="met" x="80" y="150" width="200" height="72" rx="8"/><rect class="metd" x="110" y="144" width="140" height="8" rx="3"/>
+    return scene(`<ellipse class="shadow" cx="180" cy="232" rx="106" ry="3.2"/><rect class="dev" x="80" y="150" width="200" height="80" rx="8"/><rect class="devf" x="80" y="190" width="200" height="40" rx="7"/>
+<rect class="knob" x="104" y="140" width="152" height="10" rx="4"/><rect x="108" y="138" width="144" height="4" rx="2" fill="var(--metal-hi)"/><circle class="knob" cx="254" cy="210" r="7"/>
 <rect class="scr" x="128" y="172" width="104" height="30" rx="4"/><text class="scrt" x="224" y="193" text-anchor="end">${num(lc.disp || 0, 2)} g</text>${lc.on && (Date.now() - (lc.sinceReal || 0) > 2000 || ctx.now() - lc.since >= 3) ? '<circle cx="138" cy="180" r="3" fill="var(--screen-ink)"/>' : ''}
-${fl}${text(180, 244, L('технические весы', 'техникалық таразы', 'top-pan balance'))}`);
+${fl}${callout(270, 156, 352, 110, [L('технические весы,', 'техникалық таразы,', 'top-pan balance,'), 'd = 0,01 г'], 'end')}`);
   },
   hints(step) {
     return [

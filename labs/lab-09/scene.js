@@ -1,6 +1,6 @@
 /** Сцены стенда работы № 9 (SVG 360 × 250). Цвета — CSS-переменные или явные rgba для окраски растворов. */
 import { L, num } from '../../app/i18n.js';
-import { scene, text, conical, thermometer, rod, dropper, bath, fumes, bubbles, hood, ring, hotplate, rbFlask, beaker, sepFunnel, stand, steam } from '../../app/scene/svg.js';
+import { scene, text, conical, thermometer, rod, dropper, bath, fumes, bubbles, hood, ring, hotplate, rbFlask, beaker, sepFunnel, stand, steam, callout } from '../../app/scene/svg.js';
 
 export const COL = {
   diaz: 'rgba(236,222,150,.55)',        // почти бесцветный / бледно-жёлтый раствор диазония
@@ -35,19 +35,23 @@ export function flaskScene(S, o = {}) {
   let s = '';
   if (showBath) s += bath({ kind: b.salt ? 'ice-salt' : 'ice' });
   const inner = (o.gas ? bubbles(150, 214, 60, 5) : '') + (o.icePieces ? `<rect class="ice" x="150" y="${(222 - Math.min(1, (o.vol || 0) / 100) * 150 - 6).toFixed(1)}" width="10" height="10" rx="2"/><rect class="ice" x="190" y="${(222 - Math.min(1, (o.vol || 0) / 100) * 150 - 4).toFixed(1)}" width="9" height="9" rx="2"/>` : '');
-  s += conical({ id: 'fl', vol: o.vol ?? 0, cap: 100, color: o.color, solid: o.solid ?? 0, solidColor: o.solidColor, inner, label: L('колба 100 мл', 'колба 100 мл', '100 mL flask') });
+  s += conical({ id: 'fl', vol: o.vol ?? 0, cap: 100, color: o.color, solid: o.solid ?? 0, solidColor: o.solidColor, inner, swirl: o.stir });
   if (o.th) s += thermometer({ x: 183, top: 4, hh: 206, T: S.T ?? 22, min: -20, max: 40, mark: 5 }) + text(209, 4 + 206 - 6 - ((5 + 20) / 60) * 192 + 3, '5°', 'lbl', 'start', ' style="fill:var(--bad)"');
   if (o.rod) s += rod(172, 10, 158, 216, o.stir);
   if (o.pip) s += dropper(166, 9, o.dropKey || 0, 120, 'var(--liquid)');
   s += fumes(176, 46, o.fumes || 0);
-  if (showBath) s += bath({ kind: b.salt ? 'ice-salt' : 'ice', front: true, label: bathLabel(b) });
+  if (showBath) s += bath({ kind: b.salt ? 'ice-salt' : 'ice', front: true });
   if (o.strip) s += starchStrip(o.strip);
+  // подписи — выносками слева, как в работе 6–7
+  if (o.pip) s += callout(158, 14, 8, 22, L('капельная пипетка', 'тамшуыр', 'dropping pipette'));
+  s += callout(150, 154, 8, 96, L('коническая колба 100 мл', 'конустық колба 100 мл', '100 mL conical flask'));
+  if (showBath) s += callout(70, 160, 8, 124, bathLabel(b));
   return scene(s);
 }
 
 /** Склянка анилина и пипетка — для отмеривания (дополнение к сцене цилиндра/пипетки). */
 export function flaskSide(S) {
-  return conical({ id: 'fs', cx: 280, by: 222, s: 0.55, vol: S.vMix || 0, cap: 100, color: S.vAn ? COL.amineSalt : null }) + text(280, 240, L('колба 100 мл', 'колба 100 мл', '100 mL flask'));
+  return conical({ id: 'fs', cx: 280, by: 222, s: 0.55, vol: S.vMix || 0, cap: 100, color: S.vAn ? COL.amineSalt : null }) + callout(296, 150, 300, 118, L('колба 100 мл', 'колба 100 мл', '100 mL flask'));
 }
 
 /**
@@ -119,7 +123,7 @@ export function distillScene(S, lc = {}) {
   const recvMain = conical({ id: 'rm', cx: atOut ? 274 : 330, by: 228, s: 0.36, vol: mainV, cap: 8, color: COL.oilPale }) + (A.closed ? `<rect class="metd" x="${(atOut ? 274 : 330) - 7}" y="${(228 - 166 * 0.36).toFixed(1)}" width="14" height="8" rx="2"/>` : '');
   const fore = beaker({ id: 'rf', x: atOut ? 316 : 256, y: 196, w: 36, hh: 34, frac: Math.min(1, foreV / 6), color: 'rgba(200,180,120,.5)' });
   s += recvMain + fore;
-  s += text(atOut ? 274 : 330, 246, L('приёмник (взвеш.)', 'қабылдағыш (өлш.)', 'receiver (weighed)'), 'lbl');
+  s += callout(atOut ? 280 : 336, atOut ? 182 : 182, 356, 150, L('приёмник (взвеш.)', 'қабылдағыш (өлш.)', 'receiver (weighed)'), 'end');
   if (D.heat && D.dripping) s += `<circle data-key="dd${Math.floor((lc.dk || 0))}" class="drop" cx="${x2 + 2}" cy="${y2 + 6}" r="2.2" style="fill:${COL.oilPale};--dy:24px"/>`;
   s += fumes(cx + 6, 28, D.dryness ? 0.8 : 0);
   return scene(s);

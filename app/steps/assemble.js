@@ -81,7 +81,7 @@ export default {
       const p = step.parts.find((x) => x.id === local.place[sl.id]);
       // На сцене — короткая подпись детали (part.short), длинная обрезается: полная — в кнопках справа.
       const lb = p ? clip(tr(p.short || p.label)) : tr(sl.label);
-      s += `<g data-act="slot:${esc(sl.id)}" class="slot${p ? ' full' : ''}" tabindex="0" role="button" aria-label="${esc(tr(sl.label) + (p ? ': ' + tr(p.label) : ''))}"><rect x="${sl.x - 46}" y="${sl.y - 13}" width="92" height="26" rx="6"/>${text(sl.x, sl.y + 4, lb, p ? 'lblb' : 'lbl')}</g>`;
+      s += `<g data-act="slot:${esc(sl.id)}" class="slot${p ? ' full' : ''}" tabindex="0" role="button" aria-label="${esc(tr(sl.label) + (p ? ': ' + tr(p.label) : ''))}"><rect x="${sl.x - 46}" y="${sl.y - 13}" width="92" height="26" rx="6"/>${text(sl.x, sl.y + 4, lb, p ? 'lblb' : 'lbl', 'middle', String(lb).length * (p ? 6 : 5.5) > 84 ? ' textLength="84" lengthAdjust="spacingAndGlyphs"' : '')}</g>`;
     }
     return scene(s);
   },

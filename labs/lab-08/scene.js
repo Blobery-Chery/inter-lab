@@ -1,26 +1,20 @@
 /** Сцены стенда работы № 8 (SVG 360×250). Цвета — CSS-переменные или rgba. */
 import { L, num } from '../../app/i18n.js';
-import { scene, text, rbFlask, condenser, bubbles, steam, hood, conical, stand, beaker, tube, bath, thermometer } from '../../app/scene/svg.js';
+import { scene, text, rbFlask, condenser, bubbles, steam, hood, conical, stand, beaker, tube, bath, thermometer, callout, split2, mantle } from '../../app/scene/svg.js';
+export { mantle };
 
 export const ORG = 'rgba(214,200,120,.42)';     // органический слой (сырой эфир)
 export const AQ = 'var(--liquid)';               // водный слой
 
-/** Колбонагреватель (полусферическая чаша). power 0…3 — накал. */
-export function mantle(cx = 180, cy = 196, r = 46, power = 0) {
-  return `<path class="met" d="M${cx - r - 6} ${cy - 8} Q${cx - r - 6} ${cy + r - 4} ${cx} ${cy + r - 2} Q${cx + r + 6} ${cy + r - 4} ${cx + r + 6} ${cy - 8} Z"/>
-<path d="M${cx - r} ${cy - 8} Q${cx - r} ${cy + r - 12} ${cx} ${cy + r - 10} Q${cx + r} ${cy + r - 12} ${cx + r} ${cy - 8}" fill="none" stroke="var(--hot)" stroke-width="3" opacity="${[0, 0.35, 0.65, 1][power] || 0}"/>
-<rect class="metd" x="${cx + r - 8}" y="${cy + 22}" width="14" height="10" rx="2"/><circle cx="${cx - r + 4}" cy="${cy + 28}" r="3" fill="var(--hot)" opacity="${power ? 1 : 0.15}"/>`;
-}
-
 /** Газовая горелка (ловушка при сборке). */
 function burner(cx = 180, y = 232) {
-  return `<rect class="met" x="${cx - 8}" y="${y - 52}" width="16" height="44"/><rect class="metd" x="${cx - 22}" y="${y - 10}" width="44" height="10" rx="2"/>`;
+  return `<ellipse class="shadow" cx="${cx}" cy="${y}" rx="26" ry="2.6"/><rect x="${cx - 7}" y="${y - 52}" width="14" height="44" rx="2" fill="url(#vg-metal)"/><rect class="knob" x="${cx - 10}" y="${y - 54}" width="20" height="5" rx="2"/><rect class="dev" x="${cx - 22}" y="${y - 10}" width="44" height="10" rx="3"/>`;
 }
 
 /** Склянка с реактивом рядом не нужна — правая колба для шагов «отмерить». */
 export function flaskRight(S) {
   const v = (S.vAlc || 0) + (S.vAcid || 0) + (S.cat || 0);
-  return rbFlask({ id: 'rbm', cx: 268, cy: 186, r: 34, frac: Math.min(0.9, v / 50 * 1.6), chips: S.chips }) + text(268, 244, L('круглодонная колба 50 мл', 'дөңгелек түпті колба 50 мл', '50 mL round-bottom flask'));
+  return rbFlask({ id: 'rbm', cx: 268, cy: 186, r: 34, frac: Math.min(0.9, v / 50 * 1.6), chips: S.chips }) + callout(292, 160, 356, 96, [L('круглодонная', 'дөңгелек түпті', 'round-bottom'), L('колба 50 мл', 'колба 50 мл', 'flask, 50 mL')], 'end');
 }
 
 /** Внесение катализатора и кипелок. */
@@ -29,14 +23,14 @@ export function chargeScene(S, lc) {
   const dark = S.char ? 'rgba(190,140,60,.5)' : null;
   let s = rbFlask({ id: 'rbc', cx: 180, cy: 180, r: 44, frac: Math.min(0.9, v / 50 * 1.5), color: dark, chips: S.chips });
   if (lc.pip) s += `<rect class="gl" x="176" y="20" width="8" height="96"/><rect class="liq" x="177" y="${100 - lc.pip * 60}" width="6" height="${lc.pip * 60}"/><ellipse cx="180" cy="16" rx="8" ry="10" class="metd"/>`;
-  s += text(180, 244, S.kind === 'i' ? L('колба: изобутанол + CH₃COOH', 'колба: изобутанол + CH₃COOH', 'flask: isobutanol + CH₃COOH') : L('колба: н-бутанол + CH₃COOH', 'колба: н-бутанол + CH₃COOH', 'flask: n-butanol + CH₃COOH'));
+  s += callout(214, 160, 228, 80, S.kind === 'i' ? [L('колба:', 'колба:', 'flask:'), 'изобутанол + CH₃COOH'] : [L('колба:', 'колба:', 'flask:'), L('н-бутанол + CH₃COOH', 'н-бутанол + CH₃COOH', 'n-butanol + CH₃COOH')]);
   return scene(s);
 }
 
 /** Установка для кипячения с обратным холодильником (по местам сборки). */
 export function refluxApparatus(o = {}) {
   const pl = o.place || {};
-  let s = stand(70, 60);
+  let s = stand(70, 60, 88, true); // лапка держит холодильник
   if (pl.heat === 'mantle' || o.heat === 'mantle') s += mantle(180, 196, 46, o.power || 0);
   else if (pl.heat === 'burner') s += burner(180) + (o.power ? `<path d="M174 178 Q180 160 186 178 Z" fill="var(--hot)"/>` : '');
   const flask = pl.flask || o.flask;
@@ -79,15 +73,15 @@ export function funnelScene(F) {
     if (org > 0) { const hh = org * k; lay += `<rect x="${cx - 60}" y="${(y - hh).toFixed(1)}" width="120" height="${hh.toFixed(1)}" style="fill:${ORG}"/>`; if (aq > 0) lay += `<line x1="${cx - 60}" x2="${cx + 60}" y1="${y.toFixed(1)}" y2="${y.toFixed(1)}" stroke="var(--muted)" stroke-dasharray="3 2"/>`; }
   }
   const gas = F.gas > 0.05 ? bubbles(cx - 26, top + 132, 52, Math.min(8, 2 + Math.round(F.gas * 1.2))) : '';
-  let s = `<rect class="met" x="34" y="20" width="5" height="212"/><rect class="met" x="14" y="224" width="70" height="8" rx="2"/><path d="M39 112 L${cx - 34} 112" stroke="var(--metal-dark)" stroke-width="4"/><ellipse cx="${cx}" cy="112" rx="38" ry="5" fill="none" stroke="var(--metal-dark)" stroke-width="3"/>
+  let s = `<ellipse class="shadow" cx="48" cy="233" rx="40" ry="3"/><rect class="dev" x="14" y="222" width="70" height="10" rx="3"/><rect x="34" y="20" width="5" height="204" rx="2" fill="url(#vg-metal)"/><rect class="knob" x="30" y="106" width="13" height="13" rx="3"/><rect x="39" y="109.5" width="${cx - 73}" height="5" rx="2" fill="url(#vg-metal)"/><ellipse cx="${cx}" cy="112" rx="38" ry="5" fill="none" stroke="var(--metal-dark)" stroke-width="3"/>
 <defs><clipPath id="sf8-c"><path d="${P}"/></clipPath></defs><g clip-path="url(#sf8-c)">${lay}${gas}</g><path class="gl" d="${P}"/>
 <rect class="metd" x="${cx - 13}" y="${top + 150}" width="26" height="7" rx="2"/><rect x="${cx - 3}" y="${top + 146}" width="6" height="15" rx="1" fill="${F.tap ? 'var(--good)' : 'var(--metal-dark)'}" transform="rotate(${F.tap ? 0 : 90} ${cx} ${top + 153})"/>
 <rect class="gl" x="${cx - 2}" y="${top + 157}" width="4" height="22"/>`;
   if (F.stopper) s += `<rect class="metd" x="${cx - 10}" y="${top - 9}" width="20" height="10" rx="3"/>`;
   if (F.tap && F.flow) s += `<line x1="${cx}" y1="${top + 179}" x2="${cx}" y2="206" stroke="var(--liquid)" stroke-width="3"/>`;
   s += beaker({ id: 'wst', x: cx - 32, y: 196, w: 64, hh: 34, frac: Math.min(0.9, (F.waste || 0) / 90), label: null });
-  s += text(cx, 246, L('стакан для водного слоя', 'сулы қабатқа арналған стақан', 'beaker for the aqueous layer'));
-  if (F.prod) s += conical({ id: 'cfp', cx: 300, by: 226, s: 0.42, vol: F.prod, cap: 50, color: ORG }) + text(300, 246, L('колба с эфиром', 'эфирі бар колба', 'flask with ester'));
+  s += callout(cx + 30, 210, 210, 214, [L('стакан для', 'сулы қабатқа', 'beaker for the'), L('водного слоя', 'арналған стақан', 'aqueous layer')]);
+  if (F.prod) s += conical({ id: 'cfp', cx: 300, by: 226, s: 0.42, vol: F.prod, cap: 50, color: ORG }) + callout(306, 170, 356, 160, L('колба с эфиром', 'эфирі бар колба', 'flask with ester'), 'end');
   const lbl = F.mixed ? [L('эмульсия —', 'эмульсия —', 'emulsion —'), L('дайте отстояться', 'тұндырыңыз', 'let it settle')] : org > 0 && aq > 0 ? [L('верх — эфир', 'үсті — эфир', 'top — ester'), L('низ — водный слой', 'асты — сулы қабат', 'bottom — aqueous')] : null;
   if (lbl) s += text(354, top + 96, lbl[0], 'lbl', 'end') + text(354, top + 110, lbl[1], 'lbl', 'end');
   if (F.gas > 0.05) s += text(354, top + 128, L('выделяется CO₂', 'CO₂ бөлінуде', 'CO₂ evolving'), 'lbl', 'end', ' style="fill:var(--warn)"');
@@ -102,8 +96,8 @@ export function dryScene(S, lc) {
     return `<circle cx="${x}" cy="${y}" r="${r}" class="sol"/>`;
   }).join('') : '';
   const col = cloudy ? 'rgba(205,210,190,.75)' : 'rgba(220,214,160,.32)';
-  return scene(conical({ id: 'cfd', cx: 180, by: 222, vol: lc.vol || 12, cap: 50, color: col, inner: salt }) + text(180, 40, L('коническая колба 50 мл', 'конустық колба 50 мл', '50 mL conical flask'))
-    + text(180, 244, cloudy ? L('жидкость мутная, осушитель слипается', 'сұйық лайлы, кептіргіш жабысады', 'cloudy liquid, the drying agent clumps') : L('жидкость прозрачная, осушитель сыпучий', 'сұйық мөлдір, кептіргіш үгілгіш', 'clear liquid, the drying agent flows freely')));
+  return scene(conical({ id: 'cfd', cx: 180, by: 222, vol: lc.vol || 12, cap: 50, color: col, inner: salt }) + callout(150, 154, 8, 96, L('коническая колба 50 мл', 'конустық колба 50 мл', '50 mL conical flask'))
+    + callout(222, 204, 352, 150, cloudy ? [L('жидкость мутная,', 'сұйық лайлы,', 'cloudy liquid,'), L('осушитель слипается', 'кептіргіш жабысады', 'the drying agent clumps')] : [L('жидкость прозрачная,', 'сұйық мөлдір,', 'clear liquid,'), L('осушитель сыпучий', 'кептіргіш үгілгіш', 'the drying agent flows freely')], 'end'));
 }
 
 /** Установка для простой перегонки. o: { place, power, frac, boiling, Tshow, drip, rec, recFrac, pos } */
@@ -132,7 +126,7 @@ export function distApparatus(o = {}) {
   if (pl.rec || o.rec) {
     s += conical({ id: 'cfr', cx: 296, by: 226, s: 0.34, vol: o.recFrac || 0, cap: 50, color: o.recCloudy ? 'rgba(205,210,190,.8)' : 'rgba(220,214,160,.35)' });
     if (o.drip) s += `<circle data-key="dd${o.dripKey || 0}" class="drop" cx="${fx + 168}" cy="180" r="2" style="fill:var(--liquid);--dy:16px"/>`;
-    if (o.recLabel) s += text(296, 246, o.recLabel);
+    if (o.recLabel) s += callout(293, 208, 272, 204, split2(o.recLabel), 'end');
   }
   return s;
 }

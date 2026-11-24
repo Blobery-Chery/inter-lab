@@ -5,7 +5,7 @@
  */
 import { L, tr, num } from '../../app/i18n.js';
 import { esc, clamp } from '../../app/dom.js';
-import { scene, text, rbFlask, condenser, bubbles, steam, hood, stand, ice } from '../../app/scene/svg.js';
+import { scene, text, rbFlask, condenser, bubbles, steam, hood, stand, ice, mantle, hotplate } from '../../app/scene/svg.js';
 import { ethaneE, butaneE, norm360, angDiff, irT, NMR_MHZ } from './model.js';
 
 const f1 = (x) => Math.round(x * 10) / 10;
@@ -263,8 +263,8 @@ export function refluxScene(S, lc = {}) {
   const T = S.T ?? 22, boiling = T >= (S.Tb || 104) - 0.4;
   const cx = 180, cy = 176;
   let s = stand(66, 76) + `<rect class="metd" x="66" y="${cy - 52}" width="${cx - 66 - 8}" height="5" rx="2"/>`;
-  if (A.heat === 'mantle') s += `<path class="met" d="M${cx - 50} ${cy - 6} Q${cx} ${cy + 76} ${cx + 50} ${cy - 6} L${cx + 50} 230 L${cx - 50} 230 Z"/><path d="M${cx - 42} ${cy} Q${cx} ${cy + 62} ${cx + 42} ${cy}" fill="none" stroke="var(--hot)" stroke-width="2" opacity="${heatOn ? 0.9 : 0.15}"/>`;
-  else if (A.heat === 'plate') s += `<rect class="met" x="${cx - 60}" y="${cy + 34}" width="120" height="22" rx="4"/><rect x="${cx - 48}" y="${cy + 30}" width="96" height="5" rx="2" fill="var(--hot)" opacity="${heatOn ? 0.6 : 0.1}"/>`;
+  if (A.heat === 'mantle') s += mantle(cx, cy + 10, 44, heatOn ? 2 : 0);
+  else if (A.heat === 'plate') s += hotplate({ x: cx - 60, y: cy + 38, w: 120, h: 22, on: heatOn });
   else s += `<rect class="gl" x="${cx - 62}" y="${cy - 14}" width="124" height="68" rx="8"/><rect class="liq" x="${cx - 60}" y="${cy - 4}" width="120" height="56" rx="6" opacity=".45"/>${heatOn ? bubbles(cx - 54, cy + 48, 108, 6, T > 90) : ''}<rect class="met" x="${cx - 70}" y="${cy + 50}" width="140" height="10" rx="3"/><circle cx="${cx + 60}" cy="${cy + 55}" r="3" fill="var(--hot)" opacity="${heatOn ? 1 : 0.15}"/>`;
   const frac = clamp(((S.vW || 0) + (S.vHCl || 0) + (S.mMal ? 1.3 : 0)) / 50 * 1.4, 0, 0.75);
   s += rbFlask({ id: 'rx', cx, cy, r: 34, frac, color: null, boiling: boiling && heatOn, chips: !!A.chips });

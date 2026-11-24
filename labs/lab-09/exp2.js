@@ -365,7 +365,7 @@ const e8 = {
     { id: 'cond', label: L('Холодильник', 'Мұздатқыш', 'Condenser'), accepts: 'air', options: ['air', 'liebig'], x: 236, y: 112 },
     { id: 'recv', label: L('Приёмник', 'Қабылдағыш', 'Receiver'), accepts: 'recv', options: ['recv', 'recvClosed'], x: 290, y: 200 },
   ],
-  base: () => `<rect class="met" x="40" y="224" width="110" height="8" rx="2"/><rect class="met" x="22" y="20" width="5" height="206"/><line x1="110" y1="112" x2="262" y2="172" stroke="var(--glass)" stroke-width="3" stroke-dasharray="5 4"/>${text(200, 240, L('стол вытяжного шкафа', 'тартпа шкаф үстелі', 'fume hood bench'))}`,
+  base: () => `<ellipse class="shadow" cx="62" cy="233" rx="44" ry="3"/><rect class="dev" x="16" y="222" width="96" height="10" rx="3"/><rect x="22" y="20" width="5" height="204" rx="2" fill="url(#vg-metal)"/><line x1="110" y1="112" x2="262" y2="172" stroke="var(--glass)" stroke-width="3" stroke-dasharray="5 4"/>${text(200, 240, L('стол вытяжного шкафа', 'тартпа шкаф үстелі', 'fume hood bench'))}`,
   onDone(S, place) {
     S.asm = {
       heat: place.heat === 'mantle' ? 'mantle' : place.heat === 'wbath' ? 'wbath' : 'none',

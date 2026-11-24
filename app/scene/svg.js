@@ -33,6 +33,18 @@ export function callout(px, py, lx, ly, s, anchor = 'start') {
   return `<g class="callout"><path d="M${f1(ex)} ${f1(ey)} L${f1(px)} ${f1(py)}" fill="none"/><circle cx="${f1(px)}" cy="${f1(py)}" r="1.6"/>${lines.map((x, i) => `<text class="lblc" x="${f1(lx)}" y="${f1(ly + i * 12)}" text-anchor="${anchor}">${esc(tr(x))}</text>`).join('')}</g>`;
 }
 
+/** Делит подпись {ru,kk,en} на две строки по пробелу ближе к середине (для выносок). */
+export function split2(s) {
+  const one = (t) => {
+    t = String(t); const mid = t.length / 2; let k = -1;
+    for (let i = 0; i < t.length; i++) if (t[i] === ' ' && (k < 0 || Math.abs(i - mid) < Math.abs(k - mid))) k = i;
+    return k < 0 ? [t, ''] : [t.slice(0, k), t.slice(k + 1)];
+  };
+  if (typeof s !== 'object' || !s) return one(s);
+  const r = Object.fromEntries(Object.entries(s).map(([k, v]) => [k, one(v)]));
+  return [0, 1].map((i) => Object.fromEntries(Object.keys(r).map((k) => [k, r[k][i]])));
+}
+
 /** Блик на стекле (вертикальная светлая полоска). */
 function shine(x1, y1, x2, y2, w = 2.4) {
   return `<path class="hl" d="M${f1(x1)} ${f1(y1)} L${f1(x2)} ${f1(y2)}" style="stroke-width:${w}"/>`;
@@ -124,12 +136,13 @@ export function tube(o = {}) {
   if (o.gas) inner += bubbles(cx - r + 2, bot + r - 6, 2 * r - 4, 4, true);
   if (o.mirror) inner += `<rect x="${cx - r - 1}" y="${f1(ly)}" width="4" height="${f1(bot + r - ly)}" fill="var(--metal)" opacity=".9"/><rect x="${cx + r - 3}" y="${f1(ly)}" width="4" height="${f1(bot + r - ly)}" fill="var(--metal)" opacity=".9"/>`;
   return `<defs><clipPath id="${id}-c"><path d="M${cx - r} ${top + 4} L${cx - r} ${bot} A${r} ${r} 0 0 0 ${cx + r} ${bot} L${cx + r} ${top + 4} Z"/></clipPath></defs>
-<g clip-path="url(#${id}-c)">${inner}</g><path class="gls" d="M${cx - r} ${top} L${cx - r} ${bot} A${r} ${r} 0 0 0 ${cx + r} ${bot} L${cx + r} ${top}"/>${shine(cx - r * 0.45, top + 8, cx - r * 0.45, bot - 4, 1.8)}${o.label ? text(cx, bot + r + 22, o.label, 'lblb') : ''}`;
+<g clip-path="url(#${id}-c)">${inner}</g><path class="gls" d="M${cx - r} ${top} L${cx - r} ${bot} A${r} ${r} 0 0 0 ${cx + r} ${bot} L${cx + r} ${top}"/>${shine(cx - r * 0.45, top + 8, cx - r * 0.45, bot - 4, 1.8)}${o.label ? text(cx, bot + r + 14, o.label, 'lblb') : ''}`;
 }
 
 /** Штатив для пробирок. */
 export function tubeRack(x1 = 60, x2 = 300) {
-  return `<rect class="met" x="${x1}" y="150" width="${x2 - x1}" height="10" rx="2"/><rect class="met" x="${x1}" y="222" width="${x2 - x1}" height="8" rx="2"/><rect class="met" x="${x1 + 2}" y="150" width="6" height="80"/><rect class="met" x="${x2 - 8}" y="150" width="6" height="80"/>`;
+  return `<ellipse class="shadow" cx="${(x1 + x2) / 2}" cy="231" rx="${(x2 - x1) / 2 + 4}" ry="2.8"/><rect class="dev" x="${x1 + 3}" y="156" width="6" height="70"/><rect class="dev" x="${x2 - 9}" y="156" width="6" height="70"/>
+<rect class="dev" x="${x1}" y="221" width="${x2 - x1}" height="9" rx="3"/><rect class="dev" x="${x1}" y="150" width="${x2 - x1}" height="10" rx="3"/><rect class="devf" x="${x1}" y="156" width="${x2 - x1}" height="4" rx="2"/>`;
 }
 
 /**
@@ -181,20 +194,37 @@ export function bath(o = {}) {
     if (isIce) s += ice(iceFront);
     if (o.kind === 'ice-salt') s += [16, 40, 66, w - 70, w - 46, w - 20, 26, w - 34, 90, w - 96, 110, w - 120].map((dx, i) => `<rect class="salt" x="${x + dx}" y="${wy + 1 + (i % 3) * 3}" width="2.6" height="2.6" transform="rotate(${(i * 37) % 90} ${x + dx + 1.3} ${wy + 2 + (i % 3) * 3})"/>`).join('');
     s += `<path class="gls" d="M${x} ${y + ry} L${x} ${bot - 10} Q${x} ${bot} ${x + 12} ${bot} L${x + w - 12} ${bot} Q${x + w} ${bot} ${x + w} ${bot - 10} L${x + w} ${y + ry}"/><path class="gls" d="M${x} ${y + ry} A${w / 2} ${ry} 0 0 0 ${x + w} ${y + ry}"/>${shine(x + 8, y + 18, x + 8, bot - 12, 3)}${shine(x + w - 9, y + 22, x + w - 9, bot - 18, 1.6)}`;
-    return s + (o.label ? text(x + 6, y - 5, o.label, 'lbl', 'start') : '');
+    // подпись — выноской слева сверху, чтобы не ложилась на предметы в бане
+    return s + (o.label ? callout(x + 8, y + 22, Math.max(6, x - 40), y - 26, o.label) : '');
   }
   return `<ellipse cx="${cx}" cy="${bot - 1}" rx="${w / 2 + 6}" ry="5" class="shadow"/><path class="glf" d="M${x} ${y + ry} L${x} ${bot - 10} Q${x} ${bot} ${x + 12} ${bot} L${x + w - 12} ${bot} Q${x + w} ${bot} ${x + w} ${bot - 10} L${x + w} ${y + ry} Z"/><path class="gls" d="M${x} ${y + ry} A${w / 2} ${ry} 0 0 1 ${x + w} ${y + ry}"/>${wet ? `<rect x="${x + 2}" y="${wy}" width="${w - 4}" height="${bot - wy - 2}" rx="8" fill="url(#vg-water)"${water}/><ellipse cx="${cx}" cy="${wy}" rx="${w / 2 - 2}" ry="${ry - 2}" class="water-top"${water}/>` : ''}${isIce ? ice(iceBack) : ''}`;
 }
 
 /** Электроплитка; on — накал. */
 export function hotplate(o = {}) {
-  const x = o.x ?? 100, y = o.y ?? 198, w = o.w ?? 160;
-  return `<ellipse cx="${x + w / 2}" cy="${y + 34}" rx="${w / 2 + 4}" ry="3.5" class="shadow"/><rect class="dev" x="${x}" y="${y}" width="${w}" height="34" rx="6"/><rect class="devf" x="${x}" y="${y + 18}" width="${w}" height="16" rx="5"/><rect x="${x + 10}" y="${y - 6}" width="${w - 20}" height="8" rx="3" class="metd"/><rect x="${x + 10}" y="${y - 6}" width="${w - 20}" height="8" rx="3" fill="var(--hot)" opacity="${o.on ? 0.6 : 0}"/><circle cx="${x + w - 20}" cy="${y + 17}" r="7.5" class="knob"/><line x1="${x + w - 20}" y1="${y + 17}" x2="${x + w - 20}" y2="${y + 11}" stroke="var(--panel)" stroke-width="1.6" stroke-linecap="round"/><circle cx="${x + 18}" cy="${y + 17}" r="3.5" fill="var(--hot)" opacity="${o.on ? 1 : 0.18}"/>`;
+  const x = o.x ?? 100, y = o.y ?? 198, w = o.w ?? 160, h = o.h ?? 34;
+  return `<ellipse cx="${x + w / 2}" cy="${y + h}" rx="${w / 2 + 4}" ry="3.5" class="shadow"/><rect class="dev" x="${x}" y="${y}" width="${w}" height="${h}" rx="6"/><rect class="devf" x="${x}" y="${y + h - 16}" width="${w}" height="16" rx="5"/><rect x="${x + 10}" y="${y - 6}" width="${w - 20}" height="8" rx="3" class="metd"/><rect x="${x + 10}" y="${y - 6}" width="${w - 20}" height="8" rx="3" fill="var(--hot)" opacity="${o.on ? 0.6 : 0}"/><circle cx="${x + w - 20}" cy="${y + h / 2}" r="${Math.min(7.5, h / 2 - 2)}" class="knob"/><line x1="${x + w - 20}" y1="${y + h / 2}" x2="${x + w - 20}" y2="${y + h / 2 - 6}" stroke="var(--panel)" stroke-width="1.6" stroke-linecap="round"/><circle cx="${x + 18}" cy="${y + h / 2}" r="3.5" fill="var(--hot)" opacity="${o.on ? 1 : 0.18}"/>`;
 }
 
-/** Склянка с реактивом. */
+/** Колбонагреватель (полусферическая чаша). power 0…3 — накал. */
+export function mantle(cx = 180, cy = 196, r = 46, power = 0) {
+  return `<ellipse class="shadow" cx="${cx}" cy="${cy + r - 1}" rx="${r + 8}" ry="3"/><path class="dev" d="M${cx - r - 6} ${cy - 8} Q${cx - r - 6} ${cy + r - 4} ${cx} ${cy + r - 2} Q${cx + r + 6} ${cy + r - 4} ${cx + r + 6} ${cy - 8} Z"/><path class="devf" d="M${cx - r - 2} ${cy + 14} Q${cx} ${cy + r + 2} ${cx + r + 2} ${cy + 14} Q${cx + r + 4} ${cy + r - 6} ${cx} ${cy + r - 3} Q${cx - r - 4} ${cy + r - 6} ${cx - r - 2} ${cy + 14} Z"/>
+<path d="M${cx - r} ${cy - 8} Q${cx - r} ${cy + r - 12} ${cx} ${cy + r - 10} Q${cx + r} ${cy + r - 12} ${cx + r} ${cy - 8}" fill="none" stroke="var(--hot)" stroke-width="3" opacity="${[0, 0.35, 0.65, 1][power] || 0}"/>
+<circle class="knob" cx="${cx + r - 2}" cy="${cy + 26}" r="6"/><circle cx="${cx - r + 6}" cy="${cy + 26}" r="3" fill="var(--hot)" opacity="${power ? 1 : 0.15}"/>`;
+}
+
+/** Склянка с реактивом: стекло, крышка, содержимое, этикетка (длинное название уменьшается, чтобы влезть). cls 'nox' — тёмная склянка. */
 export function bottle(x, name, sub, cls) {
-  return `<rect class="${cls || 'pnl'}" x="${x}" y="122" width="46" height="98" rx="6"${cls ? ' opacity=".25"' : ''}/>${cls ? `<rect x="${x}" y="122" width="46" height="98" rx="6" fill="none" stroke="var(--muted)"/>` : ''}<rect class="met" x="${x + 12}" y="106" width="22" height="18" rx="2"/><text class="lblb" x="${x + 23}" y="164" text-anchor="middle">${esc(tr(name))}</text>${sub ? `<text class="lbl" x="${x + 23}" y="178" text-anchor="middle">${esc(tr(sub))}</text>` : ''}`;
+  const nm = String(tr(name)), sb = sub ? String(tr(sub)) : '';
+  // шрифт уменьшается под ширину этикетки (34 px); если и так не влезает — сжимается textLength
+  const fs = (t, max) => Math.max(7.5, Math.min(max, 34 / Math.max(1, t.length * 0.62))).toFixed(1);
+  const fit = (t, size) => (t.length * 0.62 * size > 35 ? ' textLength="34" lengthAdjust="spacingAndGlyphs"' : '');
+  const tint = cls ? ' style="fill:var(--nox);opacity:.35"' : '';
+  return `<ellipse class="shadow" cx="${x + 23}" cy="231" rx="27" ry="2.6"/><rect class="glf" x="${x}" y="122" width="46" height="108" rx="8"${cls ? ' style="fill:var(--nox);fill-opacity:.18"' : ''}/>
+<rect x="${x + 2}" y="176" width="42" height="52" rx="6" class="liq"${tint}/><rect class="gls" x="${x}" y="122" width="46" height="108" rx="8"/>
+<rect class="glf" x="${x + 14}" y="110" width="18" height="13"/><rect class="gls" x="${x + 14}" y="110" width="18" height="13"/><rect class="knob" x="${x + 11}" y="100" width="24" height="12" rx="3"/>
+<rect class="pnl" x="${x + 4}" y="146" width="38" height="${sb ? 38 : 28}" rx="2"/>
+<text class="lblb" x="${x + 23}" y="${sb ? 163 : 164}" text-anchor="middle" style="font-size:${fs(nm, 10.5)}px"${fit(nm, +fs(nm, 10.5))}>${esc(nm)}</text>${sb ? `<text class="lbl" x="${x + 23}" y="${177}" text-anchor="middle" style="font-size:${fs(sb, 9.5)}px"${fit(sb, +fs(sb, 9.5))}>${esc(sb)}</text>` : ''}${shine(x + 40, 130, x + 40, 222, 2)}`;
 }
 
 /** Воронка Бюхнера на колбе Бунзена с вакуумным шлангом и насосом. */
@@ -202,18 +232,23 @@ export function vacuumFilter(o = {}) {
   const fv = clamp(o.filtrate || 0, 0, 1), cake = clamp(o.cake || 0, 0, 1);
   return `<defs><clipPath id="bf-c"><path d="M152 126 L152 150 L112 222 L230 222 L190 150 L190 126 Z"/></clipPath></defs>
 <g clip-path="url(#bf-c)"><rect class="liq" x="110" y="${f1(222 - fv * 70)}" width="122" height="${f1(fv * 70)}"/></g>
-<path class="gl" d="M152 124 L152 150 L112 220 Q110 224 116 224 L226 224 Q232 224 230 220 L190 150 L190 124"/>
+<ellipse class="shadow" cx="171" cy="231" rx="66" ry="3"/><path class="gl" d="M152 124 L152 150 L112 220 Q110 224 116 224 L226 224 Q232 224 230 220 L190 150 L190 124"/>${shine(158, 152, 126, 212, 2.6)}
 <path class="gls" d="M190 136 L232 128"/>${o.hose !== false ? `<path d="M232 128 C262 122 270 150 292 160" fill="none" stroke="var(--metal-dark)" stroke-width="5" stroke-linecap="round"/>` : ''}
-<rect class="met" x="290" y="150" width="46" height="72" rx="6"/><circle cx="313" cy="168" r="5" fill="var(--good)" opacity="${o.vac ? 1 : 0.2}"/>${text(313, 244, { ru: 'насос', kk: 'сорғы', en: 'pump' })}
+${pump(o.vac)}
 ${o.seal === false ? '' : '<rect class="metd" x="146" y="112" width="50" height="14" rx="3"/>'}<rect class="porc" x="166" y="92" width="10" height="34"/><path class="porc" d="M124 56 L218 56 L214 94 L128 94 Z"/>
 ${o.liquid ? `<rect class="liq" x="130" y="74" width="82" height="14"/>` : ''}${cake > 0 ? `<rect class="ppt" x="132" y="${f1(88 - 9 * cake)}" width="78" height="${f1(9 * cake)}" stroke="var(--muted)" stroke-width=".5"${o.cakeColor ? ` style="fill:${o.cakeColor}"` : ''}/>` : ''}
 ${o.paper ? `<line x1="130" y1="89" x2="212" y2="89" stroke="var(--muted)" stroke-width="2.5"/>` : ''}
-${text(171, 48, { ru: 'воронка Бюхнера', kk: 'Бюхнер шұңғымасы', en: 'Büchner funnel' })}${text(171, 244, { ru: 'колба Бунзена', kk: 'Бунзен колбасы', en: 'filter flask' })}`;
+${callout(214, 62, 248, 40, { ru: 'воронка Бюхнера', kk: 'Бюхнер шұңғымасы', en: 'Büchner funnel' })}${callout(127, 196, 104, 118, { ru: 'колба Бунзена', kk: 'Бунзен колбасы', en: 'filter flask' }, 'end')}`;
+}
+
+/** Вакуумный насос справа на столе; on — включён. */
+export function pump(on = false) {
+  return `<ellipse class="shadow" cx="313" cy="232" rx="28" ry="2.6"/><rect class="dev" x="290" y="150" width="46" height="80" rx="6"/><rect class="devf" x="290" y="196" width="46" height="34" rx="5"/><circle class="knob" cx="313" cy="212" r="6"/><circle cx="313" cy="168" r="5" fill="var(--good)" opacity="${on ? 1 : 0.2}"/>${callout(322, 150, 340, 132, { ru: 'насос', kk: 'сорғы', en: 'pump' }, 'end')}`;
 }
 
 /** Вытяжной шкаф; air — тяга включена. */
 export function hood(o = {}) {
-  return `<rect class="met" x="44" y="10" width="272" height="222" rx="8"/><rect x="58" y="34" width="244" height="190" rx="4" fill="var(--scene)"/>
+  return `<rect class="dev" x="44" y="10" width="272" height="222" rx="8"/><rect class="devf" x="44" y="10" width="272" height="20" rx="8"/><rect x="58" y="34" width="244" height="190" rx="4" fill="var(--scene)"/>
 ${o.air ? `<g>${[100, 180, 260].map((x, i) => `<path class="airp" style="animation-delay:${i * 0.4}s" d="M${x} 160 l0 -40 m-6 8 l6 -8 l6 8" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/>`).join('')}</g>` : ''}
 <rect class="gl" x="58" y="34" width="244" height="${o.sashLow === false ? 40 : 92}" rx="3"/><rect class="metd" x="58" y="${o.sashLow === false ? 72 : 124}" width="244" height="6"/>
 <rect class="pnl" x="88" y="178" width="30" height="46" rx="4"/><rect class="nox" x="128" y="178" width="30" height="46" rx="4" opacity=".3"/><path class="gl" d="M200 170 L200 190 L184 222 L232 222 L216 190 L216 170 Z"/>
@@ -237,14 +272,14 @@ export function rbFlask(o = {}) {
   const cx = o.cx ?? 180, cy = o.cy ?? 180, r = o.r ?? 34, id = o.id || 'rb';
   const ly = cy + r - clamp(o.frac || 0, 0, 1) * 2 * r;
   return `<defs><clipPath id="${id}-c"><circle cx="${cx}" cy="${cy}" r="${r - 1}"/></clipPath></defs><g clip-path="url(#${id}-c)"><rect class="liq" x="${cx - r}" y="${f1(ly)}" width="${2 * r}" height="${f1(cy + r - ly)}"${o.color ? ` style="fill:${o.color}"` : ''}/>${o.boiling ? bubbles(cx - r * 0.6, cy + r * 0.7, r * 1.2, 6) : ''}${o.chips ? `<circle cx="${cx - 6}" cy="${cy + r - 5}" r="2" class="metd"/><circle cx="${cx + 5}" cy="${cy + r - 4}" r="2" class="metd"/>` : ''}</g>
-<circle class="gls" cx="${cx}" cy="${cy}" r="${r}"/><rect class="gl" x="${cx - 8}" y="${cy - r - 34}" width="16" height="36"/>`;
+<circle class="gls" cx="${cx}" cy="${cy}" r="${r}"/><rect class="gl" x="${cx - 8}" y="${cy - r - 34}" width="16" height="36"/><path class="hl" d="M${f1(cx - r * 0.72)} ${f1(cy - r * 0.1)} A${f1(r * 0.75)} ${f1(r * 0.75)} 0 0 1 ${f1(cx - r * 0.25)} ${f1(cy - r * 0.66)}" style="stroke-width:2.6"/>${shine(cx - 4, cy - r - 30, cx - 4, cy - r - 2, 1.6)}`;
 }
 
 /** Обратный холодильник (вертикальный) над точкой (cx, by). waterIn — 'bottom' | 'top' | null. */
 export function condenser(o = {}) {
   const cx = o.cx ?? 180, by = o.by ?? 112, hh = o.hh ?? 96;
   const t = by - hh;
-  return `<rect class="gl" x="${cx - 7}" y="${t}" width="14" height="${hh}"/><rect x="${cx - 14}" y="${t + 10}" width="28" height="${hh - 20}" rx="6" fill="${o.water ? 'var(--liquid)' : 'none'}" stroke="var(--glass)" stroke-width="1.6"/>
+  return `<rect class="gl" x="${cx - 7}" y="${t}" width="14" height="${hh}"/><rect x="${cx - 14}" y="${t + 10}" width="28" height="${hh - 20}" rx="6" fill="${o.water ? 'var(--liquid)' : 'var(--glass-fill)'}" stroke="var(--glass)" stroke-width="1.6"/>${shine(cx - 10, t + 16, cx - 10, by - 16, 1.8)}
 <line x1="${cx + 14}" y1="${o.waterIn === 'top' ? t + 16 : by - 16}" x2="${cx + 30}" y2="${o.waterIn === 'top' ? t + 16 : by - 16}" stroke="var(--glass)" stroke-width="3"/><line x1="${cx - 14}" y1="${o.waterIn === 'top' ? by - 16 : t + 16}" x2="${cx - 30}" y2="${o.waterIn === 'top' ? by - 16 : t + 16}" stroke="var(--glass)" stroke-width="3"/>`;
 }
 
@@ -258,13 +293,13 @@ export function sepFunnel(o = {}) {
     layers += `<rect x="${cx - 50}" y="${f1(y - hh)}" width="100" height="${f1(hh)}" style="fill:${l.color || 'var(--liquid)'}"/>`;
     y -= hh;
   }
-  return `<defs><clipPath id="${id}-c"><path d="${P}"/></clipPath></defs><g clip-path="url(#${id}-c)">${layers}</g><path class="gl" d="${P}"/><rect class="metd" x="${cx - 12}" y="${top + 150}" width="24" height="7" rx="2"/><rect class="gl" x="${cx - 2}" y="${top + 157}" width="4" height="26"/><rect class="metd" x="${cx - 10}" y="${top - 8}" width="20" height="9" rx="3"/>`;
+  return `<defs><clipPath id="${id}-c"><path d="${P}"/></clipPath></defs><g clip-path="url(#${id}-c)">${layers}</g><path class="gl" d="${P}"/>${shine(cx - 18, top + 50, cx - 14, top + 110, 2.4)}<rect class="metd" x="${cx - 12}" y="${top + 150}" width="24" height="7" rx="2"/><rect class="gl" x="${cx - 2}" y="${top + 157}" width="4" height="26"/><rect class="metd" x="${cx - 10}" y="${top - 8}" width="20" height="9" rx="3"/>`;
 }
 
 /** Лабораторный штатив с лапкой. */
-export function stand(x = 60, clampY = 90, reach = 70) {
+export function stand(x = 60, clampY = 90, reach = 70, jaws = false) {
   const dir = reach < 0 ? -1 : 1, ex = x + 2.5 + reach;
   return `<ellipse cx="${x + 10}" cy="233" rx="46" ry="3" class="shadow"/><rect class="dev" x="${x - 30}" y="222" width="80" height="10" rx="3"/><rect x="${x}" y="18" width="5" height="206" rx="2" fill="url(#vg-metal)"/>
-<rect class="met" x="${f1(Math.min(x + 2.5, ex))}" y="${clampY}" width="${f1(Math.abs(reach))}" height="5" rx="2" fill="url(#vg-metal)"/><rect class="knob" x="${x - 4}" y="${clampY - 5}" width="13" height="15" rx="3"/>
-<rect class="knob" x="${f1(ex - (dir > 0 ? 4 : 10))}" y="${clampY - 7}" width="14" height="19" rx="4"/><rect class="pad" x="${f1(ex - (dir > 0 ? 2 : 8))}" y="${clampY - 5}" width="3" height="15" rx="1"/><rect class="pad" x="${f1(ex + (dir > 0 ? 7 : 1))}" y="${clampY - 5}" width="3" height="15" rx="1"/>`;
+<rect x="${f1(Math.min(x + 2.5, ex))}" y="${clampY}" width="${f1(Math.abs(reach))}" height="5" rx="2" fill="url(#vg-metal)"/><rect class="knob" x="${x - 4}" y="${clampY - 5}" width="13" height="15" rx="3"/>${jaws ? `
+<rect class="knob" x="${f1(ex - (dir > 0 ? 4 : 10))}" y="${clampY - 7}" width="14" height="19" rx="4"/><rect class="pad" x="${f1(ex - (dir > 0 ? 2 : 8))}" y="${clampY - 5}" width="3" height="15" rx="1"/><rect class="pad" x="${f1(ex + (dir > 0 ? 7 : 1))}" y="${clampY - 5}" width="3" height="15" rx="1"/>` : ''}`;
 }

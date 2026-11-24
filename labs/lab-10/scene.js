@@ -1,6 +1,6 @@
 /** Сцены стенда работы № 10 (SVG 360×250). Цвета посуды — CSS-переменные, окраска растворов — rgba. */
-import { L, num } from '../../app/i18n.js';
-import { scene, text, tube, tubeRack, thermometer, bath, hotplate, hood, steam, bottle, rod } from '../../app/scene/svg.js';
+import { L, num, tr } from '../../app/i18n.js';
+import { scene, text, tube, tubeRack, thermometer, bath, hotplate, hood, steam, bottle, rod, callout } from '../../app/scene/svg.js';
 
 const TUBE_TOP = 44, TUBE_LEN = 138;
 
@@ -15,7 +15,9 @@ function oneTube(id, cx, t, cap, label) {
 export function tubesScene(defs, local, o = {}) {
   const n = defs.length, cap = o.cap || 5;
   const xs = n === 1 ? [180] : defs.map((_, i) => 180 + (i - (n - 1) / 2) * Math.min(80, 260 / (n - 1)));
-  let s = '';
+  // штатив рисуется первым и с запасом по ширине подписей крайних пробирок — стойки не перечёркивают текст
+  const half = (d) => Math.max(34, String(tr(d.short || d.label || '')).length * 3.1 + 10);
+  let s = tubeRack(Math.max(4, Math.min(...xs) - half(defs[0])), Math.min(356, Math.max(...xs) + half(defs[n - 1])));
   defs.forEach((d, i) => {
     const t = (local.tubes || {})[d.id] || {};
     s += oneTube('t10' + i, xs[i], t, cap, d.short || d.label);
@@ -24,7 +26,7 @@ export function tubesScene(defs, local, o = {}) {
     if (local.sel === d.id && n > 1) s += `<path d="M${xs[i] - 6} ${TUBE_TOP - 16} L${xs[i] + 6} ${TUBE_TOP - 16} L${xs[i]} ${TUBE_TOP - 8} Z" fill="var(--accent)"/>`;
   });
   if (o.title) s += text(180, 16, o.title, 'lbl');
-  return scene(s + tubeRack(Math.min(...xs) - 34, Math.max(...xs) + 34));
+  return scene(s);
 }
 
 /**
@@ -41,8 +43,8 @@ export function bathScene(o) {
   s += tube({ id: 'bt', cx, top, len: TUBE_LEN, r: 10, frac: Math.min(1, (t.v || 0) / cap), color: t.color, ppt: t.ppt, pptColor: t.pptColor, gas: t.gas });
   if (!inBath) s += tubeRack(36, 104);
   s += thermometer({ x: 280, top: 22, hh: 160, T: o.Tb ?? 20, min: 0, max: 100, step: 10, major: 20, mark: o.mark });
-  s += text(230, 244, L(`баня ${num(o.Tb ?? 20, 0)} °C · пробирка ${num(o.T ?? 20, 0)} °C`, `монша ${num(o.Tb ?? 20, 0)} °C · пробирка ${num(o.T ?? 20, 0)} °C`, `bath ${num(o.Tb ?? 20, 0)} °C · tube ${num(o.T ?? 20, 0)} °C`), 'lbl mono');
-  if (!inBath) s += text(70, 244, L('штатив', 'штатив', 'rack'), 'lbl');
+  s += text(12, 24, L(`баня ${num(o.Tb ?? 20, 0)} °C · пробирка ${num(o.T ?? 20, 0)} °C`, `монша ${num(o.Tb ?? 20, 0)} °C · пробирка ${num(o.T ?? 20, 0)} °C`, `bath ${num(o.Tb ?? 20, 0)} °C · tube ${num(o.T ?? 20, 0)} °C`), 'lbl mono', 'start');
+  if (!inBath) s += callout(44, 152, 14, 132, L('штатив', 'штатив', 'rack'));
   return scene(s);
 }
 

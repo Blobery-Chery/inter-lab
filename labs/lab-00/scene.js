@@ -98,7 +98,7 @@ export function labRoom(o = {}) {
       + `<path d="M213 150 L215 141 Q221 137 227 141 L229 150 Z" fill="#d8b36a"/><rect x="214" y="143" width="14" height="3" fill="#7fb069"/>`;
     // нагрев без присмотра (п. 2.1, 7.2)
     s += `<path class="metd" d="M236 150 L238 134 Q252 128 266 134 L268 150 Z"/><circle cx="262" cy="146" r="1.8" fill="var(--hot)"/>` + rbFlask({ id: 'l0rb', cx: 252, cy: 128, r: 12, frac: 0.45, boiling: true })
-      + condenser({ cx: 252, by: 92, hh: 36, water: true }) + `<rect class="met" x="276" y="50" width="4" height="100"/><rect class="metd" x="256" y="80" width="22" height="3"/>`;
+      + condenser({ cx: 252, by: 92, hh: 36, water: true }) + `<rect x="276" y="50" width="4" height="100" rx="1.5" fill="url(#vg-metal)"/><rect class="metd" x="256" y="80" width="22" height="3"/>`;
   } else {
     s += beaker({ id: 'l0b3', x: 120, y: 128, w: 24, hh: 22, frac: 0.3 }) + `<rect class="pnl" x="196" y="136" width="30" height="14" rx="2"/>`;
   }

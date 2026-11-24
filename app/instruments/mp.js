@@ -32,10 +32,11 @@ export function mpSVG(m, s = { on: 140.5, end: 141.2 }, layer = 2.5, opts = {}) 
   const u = clamp((m.Tb - 20) / 160, 0, 1);
   const loose = opts.loose ? clamp(opts.loose, 0, 6) * 13 : 0;
   return `<defs><clipPath id="mp-c"><circle cx="262" cy="116" r="84"/></clipPath></defs>
-<rect class="met" x="22" y="96" width="140" height="128" rx="10"/><rect class="scr" x="40" y="182" width="104" height="28" rx="4"/><text class="scrt" x="138" y="202" text-anchor="end">${esc(num(m.Tb, 1))} °C</text><circle cx="32" cy="196" r="4" fill="var(--hot)" opacity="${m.on ? 1 : 0.15}"/>
+<ellipse class="shadow" cx="92" cy="232" rx="78" ry="3"/><rect class="dev" x="22" y="96" width="140" height="134" rx="10"/><rect class="devf" x="22" y="172" width="140" height="58" rx="9"/><circle class="knob" cx="150" cy="122" r="7"/><line x1="150" y1="122" x2="150" y2="116" stroke="var(--panel)" stroke-width="1.6" stroke-linecap="round"/><rect class="scr" x="40" y="182" width="104" height="28" rx="4"/><text class="scrt" x="138" y="202" text-anchor="end">${esc(num(m.Tb, 1))} °C</text><circle cx="32" cy="196" r="4" fill="var(--hot)" opacity="${m.on ? 1 : 0.15}"/>
 <rect x="60" y="14" width="8" height="92" rx="4" fill="var(--panel)" stroke="var(--glass)"/><rect class="redc" x="62.5" y="${(102 - u * 80).toFixed(1)}" width="3" height="${(u * 80 + 4).toFixed(1)}"/>
-<line x1="100" y1="40" x2="100" y2="112" stroke="var(--glass)" stroke-width="2.4" opacity="${m.inside ? 1 : 0}"/><rect x="88" y="112" width="26" height="40" rx="3" class="metd"/>${text(101, 166, L('окно', 'терезе', 'window'))}
-<circle cx="262" cy="116" r="86" fill="var(--scene)" stroke="var(--glass)" stroke-width="3"/>
+<line x1="100" y1="40" x2="100" y2="112" stroke="var(--glass)" stroke-width="2.4" opacity="${m.inside ? 1 : 0}"/><rect x="86" y="110" width="30" height="44" rx="4" class="knob"/><rect x="91" y="116" width="20" height="30" rx="2" fill="var(--hot)" opacity="${m.on ? 0.35 : 0.08}"/>${text(101, 166, L('окно', 'терезе', 'window'))}
+<line x1="116" y1="130" x2="178" y2="116" stroke="var(--faint)" stroke-width=".9" stroke-dasharray="3 3"/>
+<circle cx="262" cy="116" r="90" fill="var(--knob)" opacity=".85"/><circle cx="262" cy="116" r="86" fill="var(--scene)" stroke="var(--glass)" stroke-width="3"/>
 <g clip-path="url(#mp-c)"><rect x="248" y="10" width="28" height="198" rx="2" class="gl"/>${loose ? `<rect x="251" y="30" width="22" height="${loose.toFixed(1)}" class="ppt" opacity=".7"/>` : ''}<rect x="251" y="${(200 - lH - sH).toFixed(1)}" width="22" height="${sH.toFixed(1)}" class="ppt" opacity="${fr > 0 ? 0.85 : 1}"/><rect x="251" y="${(200 - lH).toFixed(1)}" width="22" height="${lH.toFixed(1)}" style="fill:var(--melt)"/></g>
-${text(262, 222, L('капилляр под лупой', 'лупа астындағы капилляр', 'capillary under the magnifier'))}`;
+<path class="hl" d="M206 70 A70 70 0 0 1 240 40" style="stroke-width:3"/>${text(262, 222, L('капилляр под лупой', 'лупа астындағы капилляр', 'capillary under the magnifier'))}`;
 }

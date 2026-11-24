@@ -97,7 +97,17 @@ async function walkLab(browser, id) {
 
   async function experiment(e) {
     await page.goto(BASE + `#/lab/${num(id)}/exp/${e.id}`);
-    try { await page.waitForFunction(() => window.__vlab && window.__vlab.exp, null, { timeout: 8000 }); } catch (err) { out.issues.push(`exp ${e.id}: page did not open (${await page.evaluate(() => location.hash)})`); return; }
+    try { await page.waitForFunction(() => window.__vlab && window.__vlab.exp, null, { timeout: 8000 }); } catch (err) {
+      out.issues.push(`exp ${e.id}: page did not open (${await page.evaluate(() => location.hash)})`);
+      if (opt.force == null) return;
+      // --force: отметить предыдущие опыты выполненными и открыть этот (чтобы пройти все стенды)
+      const before = lab.exps.slice(0, lab.exps.findIndex((x) => x.id === e.id)).map((x) => x.id);
+      await page.evaluate(async ({ lid, ids }) => { const s = await import('/app/store.js'); const p = s.loadLab(lid);
+        for (const k of ids) { p.runs[k] = p.runs[k] || { v: 2, step: 0, t: 0, journal: [], remarks: [], hints: [], state: {}, local: {} }; p.runs[k].status = 'done'; }
+        s.saveLab(lid, p); }, { lid: id, ids: before });
+      await page.goto(BASE + `#/lab/${num(id)}/exp/${e.id}`);
+      try { await page.waitForFunction(() => window.__vlab && window.__vlab.exp, null, { timeout: 8000 }); } catch (err2) { return; }
+    }
     let stepStart = Date.now(), lastStep = -1, iters = 0;
     while (iters++ < 6000) {
       let r;
