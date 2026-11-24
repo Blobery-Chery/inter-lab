@@ -75,7 +75,8 @@ export async function reportPage(root, env, entry, lab) {
       const show = () => { if (preview) preview.textContent = t('signPreview') + ' ' + answerText(task, ta.value, student); };
       ta.oninput = () => { progress.assignment[task.id] = { answer: ta.value, ok: null }; save(); show(); };
       show();
-      box.append(h('label', { class: 'field' }, h('span', null, t('freeAnswer')), ta), preview);
+      box.append(h('label', { class: 'field' }, h('span', null, t('freeAnswer')), ta));
+      if (preview) box.append(preview); // append(null) вывел бы текст «null»
     }
     asg.append(box);
   });
