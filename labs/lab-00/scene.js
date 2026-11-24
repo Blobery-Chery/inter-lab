@@ -4,7 +4,7 @@
  */
 import { L, tr, n } from '../../app/i18n.js';
 import { esc, clamp } from '../../app/dom.js';
-import { scene, text, beaker, rbFlask, condenser, stand, steam, bubbles, vacuumFilter, sepFunnel, tube, thermometer, conical } from '../../app/scene/svg.js';
+import { scene, text, beaker, rbFlask, condenser, stand, steam, bubbles, vacuumFilter, sepFunnel, tube, thermometer, conical, mantle } from '../../app/scene/svg.js';
 import { pHcolor } from '../../app/instruments/indicator.js';
 import { EQUIPMENT, equipmentIcon } from '../../app/equipment.js';
 
@@ -218,9 +218,9 @@ export function dilutionScene(S) {
 /* ------------------------------------------------------------------ нагрев в колбонагревателе */
 /** H: { T, power, chips, water, on, bump, vapour, spark } */
 export function refluxScene(H = {}) {
-  let s = STYLE + stand(70, 112) + `<rect class="metd" x="70" y="58" width="96" height="4" rx="2"/>`;
-  s += `<path class="metd" d="M140 222 L144 182 Q180 168 216 182 L220 222 Z"/><circle cx="206" cy="212" r="3.5" fill="${H.on ? 'var(--hot)' : 'var(--metal)'}"/>`;
-  s += `<path d="M140 222 Q120 228 100 226 L60 230" fill="none" stroke="var(--ink)" stroke-width="2"/>`;
+  let s = STYLE + stand(70, 112) + `<rect x="72" y="58" width="96" height="5" rx="2" fill="url(#vg-metal)"/><rect class="knob" x="66" y="53" width="13" height="15" rx="3"/>`;
+  s += mantle(180, 190, 40, H.on ? 2 : 0);
+  s += `<path d="M136 214 Q118 228 100 226 L60 230" fill="none" stroke="var(--ink)" stroke-width="2"/>`;
   if (H.spark) s += `<g class="l00-spark"><path d="M96 220 l6 -6 l-2 6 l6 -4" fill="none" stroke="#f59e0b" stroke-width="2"/></g>`;
   s += rbFlask({ id: 'l0rf', cx: 180, cy: 176, r: 30, frac: 0.42, boiling: H.T >= 77.5 && !H.bump, chips: H.chips });
   s += condenser({ cx: 180, by: 140, hh: 104, water: H.water, waterIn: H.waterIn || 'bottom' });
@@ -260,9 +260,9 @@ export function eyewashScene(S) {
 /* ------------------------------------------------------------------ установки (основы для assemble) */
 /** Сборка кипячения с обратным холодильником: что поставлено — то и нарисовано (неверные детали — как есть). */
 export function refluxAssembly(pl = {}) {
-  let s = STYLE + stand(70, 112) + `<rect class="metd" x="70" y="60" width="90" height="4" rx="2"/>`;
+  let s = STYLE + stand(70, 112) + `<rect x="72" y="60" width="90" height="5" rx="2" fill="url(#vg-metal)"/><rect class="knob" x="66" y="55" width="13" height="15" rx="3"/>`;
   // нагрев
-  if (pl.heat === 'mantle') s += `<path class="metd" d="M140 222 L144 182 Q180 168 216 182 L220 222 Z"/><circle cx="206" cy="212" r="3.5" fill="var(--metal)"/>`;
+  if (pl.heat === 'mantle') s += mantle(180, 190, 40, 0);
   else if (pl.heat === 'lamp') s += `<path class="pnl" d="M162 232 L165 222 L195 222 L198 232 Z"/><rect class="metd" x="177" y="216" width="6" height="6"/>` + flames(180, 216, 16, 22);
   else s += `<path class="metd" d="M146 230 L150 196 Q180 186 210 196 L214 230 Z" opacity=".25"/>`;
   // колба
@@ -290,7 +290,7 @@ export function refluxAssembly(pl = {}) {
 /** Сборка простой перегонки: что поставлено — то и нарисовано. */
 export function distillAssembly(pl = {}) {
   let s = STYLE + stand(46, 112);
-  if (pl.heat === 'mantle') s += `<path class="metd" d="M64 222 L68 190 Q96 178 124 190 L128 222 Z"/>`;
+  if (pl.heat === 'mantle') s += mantle(96, 194, 34, 0);
   else if (pl.heat === 'lamp') s += `<path class="pnl" d="M80 232 L83 222 L109 222 L112 232 Z"/><rect class="metd" x="93" y="216" width="6" height="6"/>` + flames(96, 216, 14, 20);
   if (pl.flask === 'dflask') s += rbFlask({ id: 'l0adf', cx: 96, cy: 172, r: 26, frac: 0.4, chips: true }) + `<rect class="gl" x="89" y="96" width="14" height="52"/><path class="gl" d="M103 112 L134 124 L134 132 L103 120 Z"/>`;
   else s += `<circle class="gls" cx="96" cy="170" r="26" stroke-dasharray="4 4"/>`;
@@ -328,7 +328,7 @@ export function vacuumScene(S) {
 
 /* ------------------------------------------------------------------ делительная воронка */
 export function funnelScene(S = {}) {
-  return scene(STYLE + stand(90, 54) + `<circle cx="180" cy="62" r="34" fill="none" stroke="var(--metal-dark)" stroke-width="3"/>` + sepFunnel({ cx: 180, top: 36, layers: [{ frac: 0.35, color: 'var(--liquid)' }, { frac: 0.3, color: 'var(--liq-y)' }] }) + beaker({ id: 'l0sf', x: 150, y: 196, w: 60, hh: 34, frac: 0.1 }));
+  return scene(STYLE + stand(90, 90, 62) + sepFunnel({ cx: 180, top: 36, layers: [{ frac: 0.35, color: 'var(--liquid)' }, { frac: 0.3, color: 'var(--liq-y)' }] }) + `<ellipse cx="180" cy="92" rx="30" ry="5" fill="none" stroke="var(--metal-dark)" stroke-width="3"/>` + beaker({ id: 'l0sf', x: 150, y: 196, w: 60, hh: 34, frac: 0.1 }));
 }
 
 /* ------------------------------------------------------------------ каталог */
@@ -352,7 +352,7 @@ export { beaker, tube, conical, thermometer, rbFlask, condenser, stand, steam, b
 /* ------------------------------------------------------------------ простая перегонка (по сборке) */
 /** D: { th:'side'|'high'|'liq', T (показание), waterTop, closed, drip } */
 export function distillScene(D = {}) {
-  let s = STYLE + stand(46, 112) + `<path class="metd" d="M64 222 L68 190 Q96 178 124 190 L128 222 Z"/>`;
+  let s = STYLE + stand(46, 112) + mantle(96, 194, 34, 2);
   s += rbFlask({ id: 'l0ds', cx: 96, cy: 172, r: 26, frac: 0.4, boiling: true, chips: true });
   s += `<rect class="gl" x="89" y="96" width="14" height="52"/><path class="gl" d="M103 112 L134 124 L134 132 L103 120 Z"/>`;
   s += `<g transform="rotate(16 134 128)"><rect class="gl" x="134" y="122" width="150" height="12"/><rect x="146" y="114" width="126" height="28" rx="6" fill="var(--liquid)" stroke="var(--glass)" stroke-width="1.6"/></g>`;

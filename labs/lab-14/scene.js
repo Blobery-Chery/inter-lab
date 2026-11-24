@@ -1,6 +1,6 @@
 /** Сцены стенда работы № 14 (SVG 360×250). Цвета — CSS-переменные или явные rgba(…) для окраски растворов красителя. */
 import { L, num } from '../../app/i18n.js';
-import { scene, text, beaker, thermometer, rod, bath, hotplate, bubbles, steam, fumes, hood, tube, bottle, dropper, pump, callout } from '../../app/scene/svg.js';
+import { scene, text, beaker, thermometer, rod, bath, hotplate, bubbles, steam, fumes, hood, tube, bottle, dropper, pump, callout, tubeRack } from '../../app/scene/svg.js';
 import { moColor } from './model.js';
 
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
@@ -50,7 +50,7 @@ export function beakerScene(o = {}) {
 /** Пробирка с N,N-диметиланилином и уксусной кислотой (в вытяжном шкафу) — справа от цилиндра/пипетки. */
 export function dmaTubeExtra(S, local) {
   const v = (S.vDMA || 0) + ((local.done && local.done.acoh) ? 1 : 0);
-  return tube({ id: 'dma', cx: 268, top: 60, len: 140, r: 10, frac: clamp(v / 5, 0, 1), color: S.vDMA ? 'rgba(232,214,160,.55)' : null, label: L('пробирка', 'пробирка', 'test tube') });
+  return tubeRack(238, 298) + tube({ id: 'dma', cx: 268, top: 60, len: 140, r: 10, frac: clamp(v / 5, 0, 1), color: S.vDMA ? 'rgba(232,214,160,.55)' : null }) + callout(278, 96, 300, 76, L('пробирка', 'пробирка', 'test tube'));
 }
 
 /** Вытяжной шкаф (подготовка рабочего места). */

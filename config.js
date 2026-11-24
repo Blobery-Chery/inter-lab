@@ -19,5 +19,5 @@ export const CONFIG = {
     en: 'A. Kaldybayeva',
   },
   API_TIMEOUT_MS: 30000,
-  APP_VERSION: '1.2.0',
+  APP_VERSION: '1.2.1',
 };
