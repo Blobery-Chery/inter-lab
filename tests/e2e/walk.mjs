@@ -31,7 +31,7 @@ async function walkLab(browser, id) {
   page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
   const out = { lab: id, mode: MODE, w: W, lang: LANG, forced: [], issues: [], remarks: 0, restarts: 0, steps: 0 };
   await page.goto(BASE + '#/');
-  await page.waitForSelector('.labcard');
+  await page.waitForSelector('.labrow');
   await page.evaluate(async ({ lang, needBriefing }) => {
     const api = (await import('/app/api.js')).default;
     api.setStudent({ name: 'Тестовый Студент', group: 'ХИМ-31' });
@@ -167,7 +167,7 @@ async function walkLab(browser, id) {
   // страница работы и главная
   await page.goto(BASE + `#/lab/${num(id)}`); await sleep(300); await textIssues('lab page');
   await page.goto(BASE + '#/'); await sleep(300); await textIssues('home');
-  out.status = await page.evaluate((lid) => [...document.querySelectorAll('.labcard')].map((c) => c.getAttribute('href') + ' ' + c.querySelector('.badge').textContent).find((x) => x.includes(lid.slice(4))), id);
+  out.status = await page.evaluate((lid) => [...document.querySelectorAll('.labrow')].map((c) => c.getAttribute('href') + ' ' + c.querySelector('.st').textContent).find((x) => x.includes(lid.slice(4))), id);
   out.errors = [...new Set(errors)].slice(0, 20);
   if (opt.save) await ctxB.storageState({ path: `${opt.save}/${id}-${MODE}.json` }); // localStorage готовой работы — для tests/e2e/demo.mjs
   await ctxB.close();

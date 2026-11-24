@@ -231,10 +231,11 @@ textarea{min-height:120px;resize:vertical;line-height:1.5}
 .journal summary{list-style:none;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 12px;cursor:pointer;min-height:36px}
 .journal summary::-webkit-details-marker{display:none}
 .journal summary .jt{font:700 clamp(21px,2.4vw,26px)/1.2 var(--f-display)}
-.tb summary{font:700 clamp(19px,2.2vw,23px)/1.25 var(--f-display);cursor:pointer;min-height:36px;display:flex;align-items:center;gap:10px;list-style:none}
-.tb summary::-webkit-details-marker{display:none}
-.tb summary::before{content:"▶";font-size:.7em}
-.tb[open] summary::before{content:"▼"}
+.tb summary,details.card:not(.journal)>summary{font:700 clamp(19px,2.2vw,23px)/1.25 var(--f-display);cursor:pointer;min-height:36px;display:flex;align-items:center;gap:10px;list-style:none}
+details.card:not(.journal)>summary b{font-weight:700}
+.tb summary::-webkit-details-marker,details.card>summary::-webkit-details-marker{display:none}
+.tb summary::before,details.card:not(.journal)>summary::before{content:"▶";font-size:.7em}
+.tb[open] summary::before,details.card:not(.journal)[open]>summary::before{content:"▼"}
 .jcount{font:400 14.5px var(--f-body);color:var(--muted);white-space:nowrap}
 .log{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:10px;max-height:56vh;overflow:auto}
 .lg{display:grid;grid-template-columns:62px minmax(0,1fr);gap:10px;font-size:15.5px;line-height:1.45}
@@ -246,8 +247,8 @@ textarea{min-height:120px;resize:vertical;line-height:1.5}
 .tb ul{margin:10px 0 0;padding-left:20px;font-size:15.5px}.tb li{margin:5px 0}
 
 /* шаги */
-.q{display:grid;gap:10px;width:100%;margin-bottom:14px}
-.q>p{margin:0;font-weight:700}
+.q{display:grid;gap:10px;width:100%;margin-bottom:22px}
+.q>p{margin:0;font-weight:700;font-size:17px;line-height:1.4}
 .qq{margin:8px 0;font-weight:700}
 .opt{width:100%;text-align:left}
 .opt.right{border-color:var(--good);background:var(--good-soft)}

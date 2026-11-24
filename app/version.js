@@ -1,4 +1,4 @@
 // Версия кода, который сейчас работает в браузере (кэшируется вместе с кодом).
 // config.js загружается из сети первым, поэтому его APP_VERSION может опережать код, пока сайт не обновился.
 // При релизе меняйте вместе: VERSION здесь, APP_VERSION в config.js и CACHE в sw.js (тест tests/sw.test.js).
-export const VERSION = '1.1.3';
+export const VERSION = '1.2.0';
