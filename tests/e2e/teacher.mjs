@@ -56,7 +56,7 @@ const browser = await chromium.launch();
   await wire(sc);
   const stu = await sc.newPage(); watch(stu, 'student');
   await stu.goto(BASE + '#/');
-  await stu.waitForSelector('.labcard');
+  await stu.waitForSelector('.labrow');
   await stu.evaluate(async () => {
     const api = (await import('/app/api.js')).default;
     api.setStudent({ name: 'Тестовый Студент', group: 'ХИМ-31' });

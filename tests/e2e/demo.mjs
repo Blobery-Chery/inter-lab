@@ -40,10 +40,10 @@ for (const W of [1280, 375]) {
   const c = await ctxFor(W);
   const p = await c.newPage(); watch(p, `${W}`);
   // 0:00 главная, смена языка
-  await p.goto(BASE + '#/'); await p.waitForSelector('.labcard');
+  await p.goto(BASE + '#/'); await p.waitForSelector('.labrow');
   ok(['kk', 'ru'].includes(await p.evaluate(() => document.documentElement.lang)), `${W}: язык страницы задан (у нового студента — казахский, в подготовленном профиле — выбранный)`);
   for (const l of ['Рус', 'Eng', 'Қаз', 'Рус']) { await p.locator('header .seg button', { hasText: l }).click(); await sleep(250); }
-  const cards = await p.evaluate(() => [...document.querySelectorAll('.labcard')].slice(0, 2).map((c) => c.querySelector('.badge').textContent));
+  const cards = await p.evaluate(() => [...document.querySelectorAll('.labrow')].slice(0, 2).map((c) => c.querySelector('.st').textContent));
   ok(/Инструктаж пройден|Выполнено/.test(cards[0]) && /Выполнено/.test(cards[1]), `${W}: статусы карточек (${cards.join(' | ')})`);
   await noJunk(p, `${W} главная`);
   if (SHOTS) await p.screenshot({ path: `${SHOTS}/demo-${W}-home.png`, fullPage: W > 600 });

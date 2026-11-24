@@ -7,7 +7,7 @@
  */
 import { tr, L, num } from '../i18n.js';
 import { esc } from '../dom.js';
-import { text } from '../scene/svg.js';
+import { text, callout } from '../scene/svg.js';
 
 export const CONTAINERS = {
   boat: { name: L('лодочка для взвешивания', 'өлшеуге арналған қайықша', 'weighing boat'), mass: [0.82, 0.87] },
@@ -37,6 +37,15 @@ export function tare(b) {
   b.taredEmpty = b.cont && b.load === 0;
 }
 
+/** Подпись склянки — строками не длиннее 11 знаков, чтобы не заходила на весы. */
+function wrapName(name) {
+  const out = [];
+  for (const w of String(name).split(/\s+/)) {
+    if (out.length && (out[out.length - 1] + ' ' + w).length <= 11) out[out.length - 1] += ' ' + w; else out.push(w);
+  }
+  return out.slice(0, 3);
+}
+
 /** SVG весов. value — показание дисплея, opts: { reagent: подпись склянки, product: цвет продукта } */
 export function balanceSVG(b, value, opts = {}) {
   const base = b.container === 'boat' || b.container === 'paper' ? 168 : 172;
@@ -47,10 +56,22 @@ export function balanceSVG(b, value, opts = {}) {
     pile = `<path class="sol" d="M${(180 - w).toFixed(1)} ${base} Q180 ${(base - 2 * hh).toFixed(1)} ${(180 + w).toFixed(1)} ${base} Z"${opts.product ? ` style="fill:${opts.product}"` : ''}/>`;
   }
   const disp = num(value, 4) + ' g';
-  return `<rect class="pnl" x="12" y="150" width="44" height="72" rx="5"/><rect class="met" x="20" y="138" width="28" height="13" rx="2"/>${text(34, 184, opts.reagent || L('реактив', 'реактив', 'reagent'), 'lbl', 'middle', ' style="font-size:7.5px"')}
-<rect class="met" x="70" y="196" width="220" height="36" rx="6"/><rect class="scr" x="128" y="203" width="138" height="24" rx="3"/><text class="scrt" x="260" y="221" text-anchor="end">${esc(disp)}</text><circle cx="137" cy="215" r="2.6" fill="var(--screen-ink)" opacity="${b.open ? 0.2 : 1}"/>
-<rect class="gl" x="84" y="56" width="192" height="140" rx="4"/><rect class="metd" x="176" y="186" width="8" height="10"/><ellipse class="metd" cx="180" cy="186" rx="46" ry="5"/>
-${b.cont && (b.container === 'boat' || b.container === 'paper') ? '<path class="pnl" d="M148 168 L212 168 L205 181 L155 181 Z"/>' : ''}${b.cont && b.container === 'watch' ? '<ellipse class="gl" cx="180" cy="177" rx="42" ry="6"/>' : ''}${pile}
-<rect x="84" y="56" width="96" height="140" fill="none" stroke="var(--glass)" stroke-width="2.4" stroke-dasharray="${b.open ? '4 3' : 'none'}"/>${text(90, 70, b.open ? L('дверца открыта', 'есікше ашық', 'door open') : L('дверца закрыта', 'есікше жабық', 'door closed'), 'lbl', 'start')}
-${text(270, 50, L('аналитические весы, d = 0,1 мг', 'аналитикалық таразы, d = 0,1 мг', 'analytical balance, d = 0.1 mg'), 'lbl', 'end')}`;
+  // склянка с реактивом слева
+  const jar = `<ellipse class="shadow" cx="34" cy="232" rx="26" ry="2.6"/><rect class="glf" x="12" y="150" width="44" height="80" rx="7"/><rect x="14" y="196" width="40" height="32" rx="5" class="sol" style="stroke:none"/>
+<rect class="gls" x="12" y="150" width="44" height="80" rx="7"/><rect class="knob" x="19" y="134" width="30" height="17" rx="3"/><rect class="pnl" x="15" y="166" width="38" height="24" rx="2"/><path d="M20 174 L48 174 M20 180 L42 180" stroke="var(--line-2)" stroke-width="1.6"/>
+<path class="hl" d="M50 158 L50 220" style="stroke-width:2"/>${callout(34, 140, 6, 104, wrapName(tr(opts.reagent || L('реактив', 'реактив', 'reagent'))))}`;
+  // весы: корпус, дисплей, кнопки, ветрозащитный шкаф с дверцей, чашка
+  const body = `<ellipse class="shadow" cx="180" cy="233" rx="120" ry="3.4"/><rect class="dev" x="66" y="190" width="228" height="42" rx="7"/><rect class="devf" x="66" y="206" width="228" height="26" rx="6"/>
+<rect class="scr" x="128" y="209" width="138" height="20" rx="3"/><text class="scrt" x="260" y="224" text-anchor="end" style="font-size:13.5px">${esc(disp)}</text><circle cx="137" cy="219" r="2.4" fill="var(--screen-ink)" opacity="${b.open ? 0.2 : 1}"/>
+<circle class="knob" cx="86" cy="219" r="6"/><circle class="knob" cx="106" cy="219" r="6"/><circle cx="86" cy="219" r="2" fill="var(--panel)" opacity=".7"/>
+<rect class="dev" x="80" y="50" width="200" height="8" rx="3"/><circle cx="270" cy="54" r="2.6" fill="var(--panel)" stroke="var(--knob)" stroke-width=".8"/>
+<rect class="glf" x="84" y="58" width="192" height="132"/><rect class="metd" x="82" y="56" width="4" height="136" rx="1"/><rect class="metd" x="274" y="56" width="4" height="136" rx="1"/>
+<rect class="metd" x="176" y="180" width="8" height="12"/><ellipse class="metd" cx="180" cy="181" rx="46" ry="5"/><ellipse cx="180" cy="179.5" rx="42" ry="3.2" fill="var(--metal-hi)" opacity=".6"/>`;
+  const cont = `${b.cont && (b.container === 'boat' || b.container === 'paper') ? '<path class="pnl" d="M148 168 L212 168 L205 178 L155 178 Z"/>' : ''}${b.cont && b.container === 'watch' ? '<ellipse class="gl" cx="180" cy="174" rx="42" ry="6"/>' : ''}${pile}`;
+  const door = b.open
+    ? `<rect x="84" y="58" width="96" height="132" fill="none" stroke="var(--glass)" stroke-width="2" stroke-dasharray="4 3"/>`
+    : `<rect x="84" y="58" width="96" height="132" class="glf"/><rect x="84" y="58" width="96" height="132" fill="none" stroke="var(--glass)" stroke-width="2"/><rect class="knob" x="174" y="112" width="3" height="26" rx="1.5"/>`;
+  return `${jar}${body}${cont}${door}<rect class="gls" x="84" y="58" width="192" height="132"/><path class="hl" d="M96 66 L96 182" style="stroke-width:3"/><path class="hl" d="M262 70 L262 178" style="stroke-width:1.6"/>
+${text(90, 72, b.open ? L('дверца открыта', 'есікше ашық', 'door open') : L('дверца закрыта', 'есікше жабық', 'door closed'), 'lbl', 'start')}
+${callout(266, 50, 352, 26, L('аналитические весы, d = 0,1 мг', 'аналитикалық таразы, d = 0,1 мг', 'analytical balance, d = 0.1 mg'), 'end')}`;
 }

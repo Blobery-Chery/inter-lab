@@ -25,13 +25,21 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function walkLab(browser, id) {
   const ctxB = await browser.newContext({ viewport: { width: W, height: W < 600 ? 800 : 900 }, colorScheme: opt.theme === 'dark' ? 'dark' : 'light', deviceScaleFactor: 1 });
+  // --fake-server: вместо сервера преподавателя — заглушка, которая сразу допускает (не трогает настоящую таблицу)
+  if (opt['fake-server'] != null) await ctxB.route(/script\.google\.com/, (r) => {
+    const q = JSON.parse(r.request().postData() || '{}');
+    const body = q.action === 'getStatus' ? { ok: true, status: { status: 'approved', score: 5, comment: '', decidedAt: Date.now() } }
+      : q.action === 'getAccess' ? { ok: true, status: 'open' } : q.action === 'getSettings' ? { ok: true, labs: {} }
+      : q.action === 'loadProgress' ? { ok: true, items: [] } : { ok: true, id: 'fake-' + Date.now() };
+    r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
+  });
   const page = await ctxB.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
   page.on('console', (m) => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
   const out = { lab: id, mode: MODE, w: W, lang: LANG, forced: [], issues: [], remarks: 0, restarts: 0, steps: 0 };
   await page.goto(BASE + '#/');
-  await page.waitForSelector('.labcard');
+  await page.waitForSelector('.labrow');
   await page.evaluate(async ({ lang, needBriefing }) => {
     const api = (await import('/app/api.js')).default;
     api.setStudent({ name: 'Тестовый Студент', group: 'ХИМ-31' });
@@ -98,6 +106,8 @@ async function walkLab(browser, id) {
       if (r.k === 'restart') out.restarts++;
       if (r.k === 'next') {
         out.steps++;
+        // --stepshots: снимок стенда в момент перед переходом к следующему шагу (проверка рисунков)
+        if (SHOTS && opt.stepshots != null) { const sb = page.locator('.standcol'); if (await sb.count()) await sb.screenshot({ path: `${SHOTS}/${id}-e${e.id}-s${String(r.i + 1).padStart(2, '0')}.png` }).catch(() => {}); }
         if (opt.check !== '0') await textIssues(`exp ${e.id} step ${r.i + 1} (${r.type})`);
       }
       const cur = await page.evaluate(() => window.__vlab && window.__vlab.runner.stepIndex);
@@ -167,7 +177,7 @@ async function walkLab(browser, id) {
   // страница работы и главная
   await page.goto(BASE + `#/lab/${num(id)}`); await sleep(300); await textIssues('lab page');
   await page.goto(BASE + '#/'); await sleep(300); await textIssues('home');
-  out.status = await page.evaluate((lid) => [...document.querySelectorAll('.labcard')].map((c) => c.getAttribute('href') + ' ' + c.querySelector('.badge').textContent).find((x) => x.includes(lid.slice(4))), id);
+  out.status = await page.evaluate((lid) => [...document.querySelectorAll('.labrow')].map((c) => c.getAttribute('href') + ' ' + c.querySelector('.st').textContent).find((x) => x.includes(lid.slice(4))), id);
   out.errors = [...new Set(errors)].slice(0, 20);
   if (opt.save) await ctxB.storageState({ path: `${opt.save}/${id}-${MODE}.json` }); // localStorage готовой работы — для tests/e2e/demo.mjs
   await ctxB.close();

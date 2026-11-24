@@ -11,6 +11,7 @@ import { btn } from './controls.js';
 import { criticalDialog, eventDialog, confirmDialog, toast, isOpen } from './modal.js';
 import { HINT_POINTS } from '../grading.js';
 import { benchScene } from '../scene/bench.js';
+import { segsEl, stepSegs } from './pages.js';
 
 export async function experimentPage(root, env, lab, exp) {
   const { api, mode } = env;
@@ -26,7 +27,7 @@ export async function experimentPage(root, env, lab, exp) {
 
   /* ---------- каркас ---------- */
   const clock = h('div', { class: 'clock', 'aria-live': 'off', title: t('labTime') });
-  const stages = h('nav', { class: 'stages', 'aria-label': t('experiments') });
+  const stages = h('nav', { class: 'exptabs', 'aria-label': t('experiments') });
   const sceneBox = h('div', { class: 'scenebox', 'aria-label': t('stand') });
   const meta = h('div', { class: 'stepmeta' });
   const title = h('h2');
@@ -39,21 +40,24 @@ export async function experimentPage(root, env, lab, exp) {
   const hintB = btn(t('hint'), () => takeHint(), 'ghost');
   const nextB = btn(t('next') + ' →', () => goNext(), 'pri');
   const bar = h('div', { class: 'actionbar' }, need, hintsEnabled ? hintB : null, nextB);
-  const panel = h('section', { class: 'card panel', 'aria-labelledby': 'step-title' }, meta, title, instr, controls, fb, readouts, hintBox, bar);
+  const panel = h('section', { class: 'card panel', 'aria-labelledby': 'step-title' }, meta, title, instr, controls, fb, hintBox, bar);
   title.id = 'step-title';
   const logList = h('ol', { class: 'log' });
   const jCount = h('span', { class: 'jcount' });
-  const journal = h('details', { class: 'card journal', open: true }, h('summary', null, t('journal'), ' ', jCount), logList);
+  const journal = h('details', { class: 'card journal', open: true }, h('summary', null, h('span', { class: 'jt' }, t('journal')), jCount), logList);
   const tb = h('details', { class: 'card tb' }, h('summary', null, t('safetyMemo')), h('ul', null, ...(lab.safety || []).map((s) => h('li', { html: tr(s) }))));
   const restartB = btn(t('restartExp'), async () => {
     if (await confirmDialog(t('redoConfirm'), t('restartExp'))) { destroy(); run = newRun(lab, exp, progress, api.getStudent().deviceId); if (progress.results) delete progress.results[exp.id]; progress.report = null; save(); env.rerender(); }
   }, 'sm danger');
-  const head = h('div', { class: 'top' },
-    h('div', null, h('div', { class: 'eyebrow' }, labName(lab) + ' · ' + tr(lab.title)), h('h1', null, expName(lab, exp.id) + '. ' + tr(exp.title))),
+  const head = h('div', { class: 'pagehead' },
+    h('div', null,
+      h('a', { class: 'backlink', href: `#/lab/${lab.number}` }, '← ' + labName(lab)),
+      h('div', { class: 'eyebrow' }, labName(lab) + ' · ' + tr(lab.title)),
+      h('h1', null, expName(lab, exp.id) + '. ' + tr(exp.title))),
     h('div', { class: 'topr' }, clock, restartB));
   root.append(head, stages);
   if (!hintsEnabled) root.append(h('div', { class: 'banner warn' }, mode === 'exam' ? t('examMode') : t('hintsOff')));
-  root.append(h('div', { class: 'exp' }, h('div', { class: 'standcol' }, sceneBox), h('div', { class: 'side' }, panel, journal, tb)));
+  root.append(h('div', { class: 'exp' }, h('div', { class: 'standcol' }, sceneBox, readouts), h('div', { class: 'side' }, panel, journal, tb)));
   document.body.classList.add('has-bar');
   // Действия внутри шага (насыпать на весы, налить, переключить) меняют ctx.local/state без ctx.solve —
   // сохраняем после каждого нажатия и при уходе со страницы, чтобы перезагрузка не сбрасывала шаг.
@@ -109,18 +113,19 @@ export async function experimentPage(root, env, lab, exp) {
     stages.innerHTML = '';
     const ri = lab.experiments.findIndex((e) => e.id === exp.id);
     lab.experiments.forEach((e, i) => {
+      const r = e.id === exp.id ? run : progress.runs[e.id];
       const done = progress.results && progress.results[e.id] && (!progress.runs[e.id] || progress.runs[e.id].status === 'done');
       const cls = e.id === exp.id ? 'now' : done ? 'done' : '';
-      const a = h('a', { class: 'stg ' + cls, href: `#/lab/${lab.number}/exp/${e.id}`, 'aria-current': e.id === exp.id ? 'step' : null }, (done && e.id !== exp.id ? '✓ ' : '') + expName(lab, e.id));
+      const a = h('a', { class: 'xt ' + cls, href: `#/lab/${lab.number}/exp/${e.id}`, 'aria-current': e.id === exp.id ? 'step' : null },
+        h('span', { class: 'xl' }, `${i + 1} · ${tr(e.title)}`), segsEl(stepSegs(e, r), 'segs fill'));
       if (i > ri && !done && !(progress.results || {})[lab.experiments[i - 1]?.id]) { a.removeAttribute('href'); a.setAttribute('aria-disabled', 'true'); }
       stages.append(a);
     });
-    if (lab.admissionAfterExperiments) stages.append(h('a', { class: 'stg', href: `#/lab/${lab.number}/admission` }, t('finalTest')));
-    stages.append(h('a', { class: 'stg', href: `#/lab/${lab.number}/report` }, t('report')));
-    stages.prepend(h('a', { class: 'stg', href: `#/lab/${lab.number}` }, '← ' + t('toLab')));
+    if (lab.admissionAfterExperiments) stages.append(h('a', { class: 'xt mini', href: `#/lab/${lab.number}/admission` }, h('span', { class: 'xl' }, t('finalTest'))));
+    stages.append(h('a', { class: 'xt mini', href: `#/lab/${lab.number}/report` }, h('span', { class: 'xl' }, t('report') + ' →')));
   }
   function drawScene() {
-    if (!ctx) return;
+    if (!ctx || ctx.stand) return; // шаг сам показывает интерактивный стенд (полка)
     const step = runner.step, type = runner.type;
     let svg = '';
     try { svg = step.scene ? step.scene(run.state, ctx.local, ctx) : type && type.scene ? type.scene(step, ctx) : ''; } catch (e) { console.error(e); }
@@ -156,7 +161,7 @@ export async function experimentPage(root, env, lab, exp) {
     if (hintsEnabled) {
       hintB.disabled = lvl >= 3;
       const cost = nextHintCost(lvl);
-      hintB.textContent = (lvl ? t('hintMore') : t('hint')) + (lvl < 3 ? (cost ? ` (−${pts(cost)})` : '') : '');
+      hintB.textContent = (lvl ? t('hintMore') : t('hint')) + (lvl < 3 ? (cost ? ` · −${pts(cost)}` : '') : '');
       hintB.title = lvl >= 3 ? t('hintNoMore') : cost ? t('hintCost', { p: pts(cost) }) : t('hintFree');
     }
   }
@@ -169,7 +174,8 @@ export async function experimentPage(root, env, lab, exp) {
   function drawLog() {
     logList.innerHTML = '';
     const items = run.journal;
-    jCount.textContent = items.length ? '· ' + items.length : '';
+    const pen = Math.round(run.remarks.reduce((a, r) => a + (Number(r.points) || 0), 0) * 100) / 100;
+    jCount.textContent = run.remarks.length ? t('jRemarks', { n: run.remarks.length, p: pts(pen) }) : '';
     if (!items.length) { logList.append(h('li', { class: 'muted' }, t('journalEmpty'))); return; }
     for (let i = items.length - 1; i >= 0; i--) {
       const e = items[i];
@@ -185,18 +191,20 @@ export async function experimentPage(root, env, lab, exp) {
     const step = runner.step, type = runner.type;
     ctx = makeCtx();
     const n = exp.steps.length, k = runner.stepIndex + 1;
-    meta.textContent = expName(lab, exp.id) + ' · ' + t('step', { k, n }) + (step.stage ? ' · ' + tr(step.stage) : '');
+    meta.textContent = t('step', { k, n }) + (step.stage ? ' · ' + tr(step.stage) : '');
     title.textContent = tr(step.title);
     instr.innerHTML = tr(step.instr || '');
     controls.innerHTML = '';
+    if (sceneBox.classList.contains('stand')) { sceneBox.classList.remove('stand'); sceneBox.innerHTML = ''; }
     if (!type) { controls.append(h('p', { class: 'fb bad' }, 'Unknown step type: ' + step.type)); return; }
     if (!ctx.local._init) { if (type.init) type.init(step, ctx); ctx.local._init = 1; save(); }
     try {
       const node = type.render(step, ctx);
       if (typeof node === 'string') controls.innerHTML = node; else if (node) controls.append(node);
       if (type.bind) cleanup = type.bind(controls, step, ctx) || null;
+      if (ctx.stand) { sceneBox.classList.add('stand'); sceneBox.replaceChildren(ctx.stand); }
     } catch (e) { console.error(e); controls.append(h('p', { class: 'fb bad' }, String(e))); }
-    drawScene(); drawReadouts(); drawFb(); drawHints(); drawBar(); drawLog();
+    drawScene(); drawReadouts(); drawFb(); drawHints(); drawBar(); drawLog(); drawStages();
     clock.textContent = clockText(run.t);
     tellActivity();
     if (run.status === 'failed') showFail(run.remarks.find((r) => r.key === (run.failure || {}).key) || {});
@@ -255,7 +263,7 @@ export async function experimentPage(root, env, lab, exp) {
       h('a', { class: 'b', href: `#/lab/${lab.number}` }, t('toLab')),
       nx ? h('a', { class: 'b', href: `#/lab/${lab.number}/report` }, t('report')) : null));
     fb.hidden = true; hintBox.hidden = true; readouts.innerHTML = '';
-    sceneBox.innerHTML = '';
+    sceneBox.innerHTML = ''; sceneBox.classList.remove('stand');
     nextB.disabled = true; need.textContent = ''; bar.hidden = true;
     document.body.classList.remove('has-bar');
     drawLog();

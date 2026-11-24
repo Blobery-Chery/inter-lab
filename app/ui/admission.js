@@ -20,7 +20,7 @@ export async function admissionPage(root, env, entry, lab) {
   const progress = store.loadLab(entry.id);
   const save = () => store.saveLab(entry.id, progress);
   const back = `#/lab/${entry.number}`;
-  root.append(h('a', { class: 'b sm ghost', href: back }, '← ' + t('toLab')),
+  root.append(h('a', { class: 'backlink', href: back }, '← ' + t('toLab')),
     h('div', { class: 'section' }, h('div', { class: 'eyebrow' }, labName({ id: entry.id, display: entry.display }) + ' · ' + tr(lab.title)), h('h1', null, lab.admissionAfterExperiments ? t('finalTest') : t('admission'))));
   const main = h('div');
   root.append(main);

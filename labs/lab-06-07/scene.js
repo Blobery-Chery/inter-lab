@@ -1,23 +1,34 @@
 /** Сцены стенда работы 6–7 (SVG 360×250), перенесены из прототипа автора. Цвета — CSS-переменные. */
 import { L, num } from '../../app/i18n.js';
-import { scene, text, conical, thermometer, rod, dropper, bath, fumes, ice, bottle, hood, ring, beaker, hotplate, bubbles, tube, steam } from '../../app/scene/svg.js';
+import { scene, text, conical, thermometer, rod, dropper, bath, fumes, ice, bottle, hood, ring, beaker, hotplate, bubbles, tube, steam, callout } from '../../app/scene/svg.js';
+import { EQUIPMENT } from '../../app/equipment.js';
 import { cylinderSVG } from '../../app/instruments/glassware.js';
 
 const bathName = (b) => (b.salt ? L('баня: лёд + NaCl', 'монша: мұз + NaCl', 'bath: ice + NaCl') : L('баня: лёд', 'монша: мұз', 'bath: ice'));
 
-/** Колба на 50 мл: в бане (по желанию), с термометром −20…40 °C, палочкой, капельной пипеткой. */
+/** Штатив справа, лапка держит горло колбы. */
+const flaskStand = `<ellipse class="shadow" cx="326" cy="233" rx="34" ry="3"/><rect class="dev" x="298" y="222" width="56" height="10" rx="3"/><rect x="322" y="14" width="5" height="210" rx="2" fill="url(#vg-metal)"/>
+<rect x="200" y="90" width="124" height="5" rx="2" fill="url(#vg-metal)"/><rect class="knob" x="317" y="84" width="15" height="17" rx="3"/>
+<rect x="159" y="84" width="42" height="17" rx="5" fill="none" stroke="var(--knob)" stroke-width="3.2"/><rect class="pad" x="161.5" y="86.5" width="4" height="12" rx="1"/><rect class="pad" x="194.5" y="86.5" width="4" height="12" rx="1"/>`;
+
+/** Колба на 50 мл в штативе: в бане (по желанию), с термометром −20…40 °C, палочкой, капельной пипеткой. Подписи — выносками. */
 export function flaskScene(S, o = {}) {
   const b = S.bath || {};
   const showBath = o.bath && b.ice;
   const vol = o.vol ?? (S.vAcid ? S.vAcid + 1 : 0);
-  let s = '';
+  let s = flaskStand;
   if (showBath) s += bath({ kind: b.salt ? 'ice-salt' : 'ice' });
-  s += conical({ id: 'fl', vol, cap: 40, color: o.color, solid: o.solid ?? 0, label: L('колба 50 мл', 'колба 50 мл', '50 mL flask') });
+  s += conical({ id: 'fl', vol, cap: 40, color: o.color, solid: o.solid ?? 0, swirl: o.stir });
   if (o.th) s += thermometer({ x: 183, top: 4, hh: 206, T: S.T ?? 22, min: -20, max: 40, mark: 10 }) + text(209, 4 + 206 - 6 - ((10 + 20) / 60) * 192 + 3, '10°', 'lbl', 'start', ' style="fill:var(--bad)"');
   if (o.rod) s += rod(172, 10, 158, 216, o.stir);
   if (o.pip) s += dropper(166, 9, o.dropKey || 0, 120);
   s += fumes(176, 46, o.fumes || 0);
-  if (showBath) s += bath({ kind: b.salt ? 'ice-salt' : 'ice', front: true, label: bathName(b) });
+  if (showBath) s += bath({ kind: b.salt ? 'ice-salt' : 'ice', front: true });
+  // выноски слева, как подписи на рисунке в методичке
+  if (o.pip) s += callout(158, 14, 8, 16, [L('капельная пипетка:', 'тамшуыр:', 'dropping pipette:'), L('нитрующая смесь', 'нитрлеуші қоспа', 'nitrating mixture')]);
+  s += callout(150, 154, 8, 96, EQUIPMENT['conical-50'].name);
+  if (showBath) s += callout(70, 160, 8, 128, bathName(b));
+  if (o.th) s += callout(191, 34, 228, 30, L('термометр', 'термометр', 'thermometer'));
   return scene(s);
 }
 

@@ -174,7 +174,7 @@ function renderChrome() {
   banner.hidden = st.mode !== 'demo';
   banner.innerHTML = `<span><b>${esc(t('demoTag'))}</b> · ${esc(t('demoBanner'))}</span><button class="b sm" type="button" data-act="logout">${esc(t('exitDemo'))}</button>`;
   const year = new Date().getFullYear();
-  $('foot').innerHTML = `<span>© ${year}, ${esc(tr(CONFIG.AUTHOR))}. ${esc(t('rights'))}</span><span class="mono">${esc(t('appName'))} · v${esc(VERSION)}</span>`;
+  $('foot').innerHTML = `<span>© ${esc(tr(CONFIG.AUTHOR_SHORT || CONFIG.AUTHOR))}, ${year} · ${esc(t('rights'))}</span><span>${esc(t('appName'))} · v${esc(VERSION)}</span>`;
   applyTheme();
 }
 

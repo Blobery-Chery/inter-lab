@@ -74,10 +74,10 @@ export async function act(mode) {
       const ids = step.shelf.map((x) => (typeof x === 'string' ? x : x.id));
       if (bad) {
         const extra = ids.find((id) => !step.take.includes(id));
-        if (extra && !local.sel[extra] && !M.extra) { M.extra = 1; [...ctl.querySelectorAll('.tile')][local.order.indexOf(extra)].click(); }
+        if (extra && !local.sel[extra] && !M.extra) { M.extra = 1; [...document.querySelectorAll('.scenebox .tile')][local.order.indexOf(extra)].click(); }
         M.wrong = 1; click(step.checkLabel || 'Взять на рабочее место'); return did('pick-wrong');
       }
-      const tiles = [...ctl.querySelectorAll('.tile')];
+      const tiles = [...document.querySelectorAll('.scenebox .tile')];
       for (const id of local.order) {
         const want = step.take.includes(id);
         if (!!local.sel[id] !== want) { tiles[local.order.indexOf(id)].click(); return did('tile'); }

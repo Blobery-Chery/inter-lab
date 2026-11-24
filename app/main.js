@@ -76,12 +76,19 @@ const env = {
   api, mode, labs, activity, sync,
   get settings() { return settings; },
   get dark() { return isDark(); },
+  get footSlot() { return footSlot; },
   rerender: () => rerender(),
   hintsOff: (lab) => mode === 'exam' || (((settings.labs || {})[lab.id] || {}).hints === false),
 };
 
 /* ---------- шапка и подвал ---------- */
-const LOGO = '<svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="var(--accent)"/><path d="M26 12 L26 28 L14 50 Q12 54 17 54 L47 54 Q52 54 50 50 L38 28 L38 12 Z" fill="var(--accent-ink)" opacity=".95"/><path d="M19 44 L45 44 L49 51 Q50 53 47 53 L17 53 Q14 53 15 51 Z" fill="var(--accent)" opacity=".45"/><rect x="23" y="9" width="18" height="5" rx="2" fill="var(--accent-ink)"/></svg>';
+// Знак сайта — бензольное кольцо (шестиугольник с кругом), линией в цвет акцента.
+const LOGO = '<svg class="logo" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 3.5 L34.3 11.75 L34.3 28.25 L20 36.5 L5.7 28.25 L5.7 11.75 Z" fill="none" stroke="var(--accent)" stroke-width="2.6" stroke-linejoin="round"/><circle cx="20" cy="20" r="7.2" fill="none" stroke="var(--accent)" stroke-width="2.6"/></svg>';
+const THEME_ICON = {
+  auto: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 4 A8 8 0 0 1 12 20 Z" fill="currentColor"/></svg>',
+  light: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.8"/><g stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M5.3 18.7 7 17M17 7l1.7-1.7"/></g></svg>',
+  dark: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>',
+};
 
 function header() {
   const lang = h('div', { class: 'seg', role: 'group', 'aria-label': t('langLabel') });
@@ -92,10 +99,10 @@ function header() {
   }
   const th = store.get('theme', 'auto');
   const thLabel = { auto: t('themeAuto'), light: t('themeLight'), dark: t('themeDark') };
-  const theme = h('button', { class: 'b sm', type: 'button', title: t('theme'), 'aria-label': t('theme') + ': ' + thLabel[th] }, (th === 'dark' ? '☾ ' : th === 'light' ? '☀ ' : '◐ ') + thLabel[th]);
+  const theme = h('button', { class: 'b themebtn', type: 'button', title: t('theme') + ': ' + thLabel[th], 'aria-label': t('theme') + ': ' + thLabel[th], html: THEME_ICON[th] });
   theme.onclick = () => { store.set('theme', themes[(themes.indexOf(th) + 1) % 3]); applyTheme(); render(); };
   return h('header', { class: 'top noprint' },
-    h('a', { class: 'brand', href: '#/', html: LOGO }, h('span', null, h('b', null, t('appName')), h('small', null, t('discipline')))),
+    h('a', { class: 'brand', href: '#/', html: LOGO }, h('b', null, t('appName'))),
     h('div', { class: 'topr' }, lang, theme));
 }
 
@@ -108,8 +115,13 @@ function banners() {
   return out;
 }
 
+/** Подвал: автор, версия; справа — место для кнопок страницы (на главной — «Сбросить прогресс»). */
+let footSlot = null;
 function footer() {
-  return h('footer', { class: 'foot' }, h('span', null, `© ${new Date().getFullYear()} ${tr(CONFIG.AUTHOR)}. ${t('rights')}.`), h('span', { class: 'noprint' }, `${t('appName')} · v${VERSION}`));
+  footSlot = h('span', { class: 'noprint' });
+  return h('footer', { class: 'foot' },
+    h('span', null, `© ${tr(CONFIG.AUTHOR_SHORT || CONFIG.AUTHOR)}, ${new Date().getFullYear()} · ${t('rights')}`, h('span', { class: 'noprint' }, ` · v${VERSION}`)),
+    footSlot);
 }
 
 /* ---------- маршрутизация ---------- */
@@ -171,7 +183,6 @@ async function doRender() {
   const root = h('main', { id: 'main', tabindex: '-1' });
   app.innerHTML = '';
   app.append(h('a', { class: 'skip', href: '#main' }, '↓'), header(), ...banners(), root, footer());
-  root.style.removeProperty('--accent');
 
   let access = { status: 'open' };
   try { access = (await api.getAccess()) || access; } catch (e) { /* без связи — пускаем */ }
@@ -188,8 +199,6 @@ async function doRender() {
   const lab = entry && labs.get(entry.id);
   if (!entry || !lab) { root.append(h('h1', null, t('notFound')), h('a', { class: 'b', href: '#/' }, t('home'))); return; }
   document.title = `${labName({ ...entry, ...lab, display: entry.display })} · ${t('appName')}`;
-  const acc = lab.accent || entry.accent;
-  app.style.setProperty('--accent', isDark() ? acc.dark : acc.light);
   if (r.name === 'lab') { activity.set({ view: 'lab', lab: entry.id }); await labPage(root, env, entry, lab); return; }
   if (r.name === 'admission') {
     if (!(await guard(entry, lab, false, 'admission'))) { location.hash = `#/lab/${entry.number}`; return; }
@@ -232,7 +241,7 @@ document.addEventListener('keydown', (e) => {
 
 window.addEventListener('hashchange', () => {
   if (updateReady) { location.reload(); return; } // новая версия ждёт — применяем при переходе на другую страницу
-  app.style.removeProperty('--accent'); render().then(() => window.scrollTo(0, 0));
+  render().then(() => window.scrollTo(0, 0));
 });
 
 /**
