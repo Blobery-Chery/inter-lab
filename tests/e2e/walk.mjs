@@ -25,6 +25,14 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function walkLab(browser, id) {
   const ctxB = await browser.newContext({ viewport: { width: W, height: W < 600 ? 800 : 900 }, colorScheme: opt.theme === 'dark' ? 'dark' : 'light', deviceScaleFactor: 1 });
+  // --fake-server: вместо сервера преподавателя — заглушка, которая сразу допускает (не трогает настоящую таблицу)
+  if (opt['fake-server'] != null) await ctxB.route(/script\.google\.com/, (r) => {
+    const q = JSON.parse(r.request().postData() || '{}');
+    const body = q.action === 'getStatus' ? { ok: true, status: { status: 'approved', score: 5, comment: '', decidedAt: Date.now() } }
+      : q.action === 'getAccess' ? { ok: true, status: 'open' } : q.action === 'getSettings' ? { ok: true, labs: {} }
+      : q.action === 'loadProgress' ? { ok: true, items: [] } : { ok: true, id: 'fake-' + Date.now() };
+    r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(body) });
+  });
   const page = await ctxB.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
