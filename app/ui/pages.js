@@ -4,17 +4,41 @@ import { tr, t, L, pts, labName, expName } from '../i18n.js';
 import * as store from '../store.js';
 import { newRun } from '../engine.js';
 import { LABS } from '../../labs/manifest.js';
-import { EQUIPMENT, equipmentIcon } from '../equipment.js';
+import { EQUIPMENT, equipmentIcon, HAZARD } from '../equipment.js';
 import { labStatus, allDone } from './status.js';
 import { btn } from './controls.js';
 import { confirmDialog, toast } from './modal.js';
 import { gradeOf, isComplete } from '../report.js';
 import { isCode, formatCode } from '../code.js';
 
-const hazardTx = {
-  corrosive: L('едкое', 'күйдіргіш', 'corrosive'), oxidiser: L('окислитель', 'тотықтырғыш', 'oxidiser'), flammable: L('ЛВЖ', 'тез тұтанғыш', 'flammable'),
-  toxic: L('токсично', 'улы', 'toxic'), irritant: L('раздражающее', 'тітіркендіргіш', 'irritant'),
-};
+const hazardTx = HAZARD;
+
+/** м-Нитробензойная кислота линией — знак главной страницы (нитрогруппа — акцентом). */
+const MOLECULE = `<svg class="molecule" viewBox="0 0 170 180" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+<path d="M60 52 L91 70 L91 106 L60 124 L29 106 L29 70 Z"/><path d="M36 76 L36 100 M66 113 L85 102 M66 63 L85 74"/>
+<path d="M91 70 L120 53 L120 22 M126 53 L126 22 M120 53 L148 70"/>
+<text x="123" y="14" text-anchor="middle" fill="currentColor" stroke="none" font-family="var(--f-mono)" font-size="15">O</text>
+<text x="151" y="76" fill="currentColor" stroke="none" font-family="var(--f-mono)" font-size="15">OH</text>
+<path d="M148 80 L166 80" stroke-width="1.6"/>
+<g class="no2"><path d="M60 124 L60 150 M60 150 L46 163 M60 150 L74 163"/>
+<text x="60" y="179" text-anchor="middle" fill="currentColor" stroke="none" font-family="var(--f-mono)" font-size="14">NO₂</text></g></svg>`;
+
+/** Полоски прогресса: d — выполнено, n — идёт сейчас, '' — впереди. */
+export function segsEl(list, cls = 'segs') {
+  return h('span', { class: cls, 'aria-hidden': 'true' }, ...list.map((x) => h('i', { class: x || null })));
+}
+/** Полоски опытов работы (на главной). */
+export function expSegs(lab, progress) {
+  return ((lab && lab.experiments) || []).map((e) => {
+    const r = progress.runs[e.id];
+    return r && r.status === 'done' ? 'd' : r ? 'n' : '';
+  });
+}
+/** Полоски шагов одного опыта (вкладки опытов, карточки опытов). */
+export function stepSegs(exp, run) {
+  const n = (exp.steps || []).length;
+  return Array.from({ length: n }, (_, i) => (run && run.status === 'done') || (run && i < run.step) ? 'd' : run && i === run.step ? 'n' : '');
+}
 
 /** ФИО и группа сохранены — app/main.js заберёт копию прогресса с сервера (app/sync.js). */
 function profileChanged() {
@@ -25,7 +49,7 @@ function profileChanged() {
 export function profileForm(api, onSave, { label } = {}) {
   const s = api.getStudent();
   const has = isCode(s.name);
-  const inp = h('input', { type: 'text', id: 'scode', class: 'num', inputmode: 'numeric', autocomplete: 'off', placeholder: '0000-0000', maxlength: '12', value: has ? formatCode(s.name) : '' });
+  const inp = h('input', { type: 'text', id: 'scode', class: 'num code', inputmode: 'numeric', autocomplete: 'off', placeholder: '0000-0000', maxlength: '12', value: has ? formatCode(s.name) : '' });
   const msg = h('p', { class: 'muted', role: 'status', 'aria-live': 'polite' });
   const save = btn(label || t('codeEnter'), async () => {
     save.disabled = true;
@@ -40,62 +64,73 @@ export function profileForm(api, onSave, { label } = {}) {
     } finally { save.disabled = false; }
   }, 'pri');
   inp.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); save.click(); } };
-  return h('div', { class: 'form' },
-    has ? h('p', null, h('b', null, t('codeNow', { code: formatCode(s.name), g: s.group || '—' }))) : null,
-    h('label', { class: 'field', for: 'scode' }, h('span', null, t('studentCode')), inp),
-    h('p', { class: 'muted', style: 'font-size:13.5px;margin:0' }, t('codeHint')),
-    h('div', { class: 'row' }, save), msg);
+  return h('div', { class: 'codeform' },
+    h('label', { for: 'scode' }, t('studentCode')),
+    inp, save,
+    has ? h('p', { class: 'now' }, t('codeNow', { code: formatCode(s.name), g: s.group || '—' })) : null,
+    h('p', { class: 'hint' }, t('codeHint')),
+    msg);
 }
 
 export async function homePage(root, env) {
   const { api } = env;
-  root.append(h('section', { class: 'section' },
-    h('div', { class: 'eyebrow' }, t('course')),
-    h('h1', null, t('discipline')),
-    h('p', { class: 'muted' }, t('appName'))));
+  root.append(h('section', { class: 'hero' },
+    h('div', null,
+      h('div', { class: 'eyebrow' }, t('course')),
+      h('h1', null, t('discipline')),
+      h('p', { class: 'lead' }, t('heroLead'))),
+    h('div', { html: MOLECULE })));
   root.append(h('section', { class: 'section' }, h('h2', null, t('howTitle')), h('ol', { class: 'how' },
-    ...[1, 2, 3, 4].map((i) => h('li', null, h('b', null, t('how' + i)), h('span', null, t('how' + i + 'd')))))));
+    ...[1, 2, 3, 4].map((i) => h('li', null, h('b', null, `${i} · ${t('how' + i)}`), h('span', null, t('how' + i + 'd')))))));
   const s = api.getStudent();
-  const prof = h('section', { class: 'card section', id: 'profile' }, h('h2', null, t('profile')),
-    !isCode(s.name) ? h('p', { class: 'banner warn' }, t('profileNeeded')) : null,
-    env.sync && env.sync.enabled ? h('p', { class: 'muted', style: 'font-size:13.5px' }, t('profileSync')) : null,
-    profileForm(api, () => env.rerender()));
-  root.append(prof);
-  const grid = h('div', { class: 'cards' });
-  root.append(h('section', { class: 'section' }, h('h2', null, t('labsTitle')), grid));
-  // Карточки рисуются сразу по последнему известному статусу (без ожидания сервера),
+  root.append(h('section', { class: 'studentcard section', id: 'profile' },
+    h('div', null,
+      h('h2', null, t('profile')),
+      h('p', { class: 'muted' }, t('profileSync')),
+      !isCode(s.name) ? h('p', { class: 'note' }, t('profileNeeded')) : null),
+    profileForm(api, () => env.rerender())));
+  const list = h('ul', { class: 'labrows' });
+  root.append(h('section', { class: 'section' },
+    h('div', { class: 'sechead' }, h('h2', null, t('labsTitle')),
+      h('div', { class: 'legend', 'aria-hidden': 'true' },
+        h('span', null, h('i', { class: 'd' }), t('legendDone')), h('span', null, h('i', { class: 'n' }), t('legendNow')), h('span', null, h('i'), t('legendAhead')))),
+    list));
+  // Строки рисуются сразу по последнему известному статусу (без ожидания сервера),
   // затем статусы уточняются у сервера — все работы параллельно.
   const quick = api.cachedStatus ? { ...env, api: { ...api, getStatus: async (id) => api.cachedStatus(id) } } : null;
   const live = [];
+  const segsFor = (lab, st) => {
+    const progress = store.loadLab(lab ? lab.id : '');
+    const any = Object.keys(progress.runs || {}).length;
+    return lab && (any || !['draft', 'closed', 'briefing', 'noadm'].includes(st.key)) ? expSegs(lab, progress) : [];
+  };
   for (const entry of [...LABS].sort((a, b) => a.order - b.order)) {
     const lab = env.labs.get(entry.id);
     const st = await labStatus(entry, lab, quick || env);
-    const acc = (lab && lab.accent) || entry.accent;
-    const badge = h('span', { class: 'badge ' + st.cls }, st.text);
-    const card = h('a', { class: 'card labcard' + (st.key === 'draft' ? ' draft' : ''), href: `#/lab/${entry.number}`, style: `--lab-accent:${env.dark ? acc.dark : acc.light}` },
-      h('span', { class: 'num' }, labName({ id: entry.id, display: entry.display })),
+    const stEl = h('span', { class: 'st ' + st.cls }, st.text);
+    let segs = segsEl(segsFor(lab, st));
+    const row = h('a', { class: 'labrow' + (st.key === 'draft' ? ' draft' : ''), href: `#/lab/${entry.number}` },
+      h('span', { class: 'num' }, String(entry.number).replace('-', '–')),
       h('span', { class: 't' }, tr((lab && lab.title) || entry.title)),
-      badge);
-    grid.append(card);
+      segs, stEl);
+    list.append(h('li', null, row));
     if (quick && st.key !== 'draft') {
       live.push(labStatus(entry, lab, env).then((s2) => {
-        badge.className = 'badge ' + s2.cls; badge.textContent = s2.text;
-        card.classList.toggle('draft', s2.key === 'draft');
+        stEl.className = 'st ' + s2.cls; stEl.textContent = s2.text;
+        row.classList.toggle('draft', s2.key === 'draft');
+        const next = segsEl(segsFor(lab, s2)); segs.replaceWith(next); segs = next;
       }).catch(() => {}));
     }
   }
-  root.append(h('section', { class: 'section card' }, h('h2', null, t('settingsTitle')),
-    h('div', { class: 'row' }, btn(t('resetProgress'), async () => {
-      if (await confirmDialog(t('resetConfirm'), t('resetProgress'))) { store.resetProgress(); toast(esc(t('resetDone')), 'info'); env.rerender(); }
-    }, 'danger'))));
+  if (env.footSlot) env.footSlot.append(btn(t('resetProgress'), async () => {
+    if (await confirmDialog(t('resetConfirm'), t('resetProgress'))) { store.resetProgress(); toast(esc(t('resetDone')), 'info'); env.rerender(); }
+  }));
 }
 
 export async function labPage(root, env, entry, lab) {
   const { api } = env;
   const st = await labStatus(entry, lab, env);
-  const acc = lab.accent || entry.accent;
-  root.style.setProperty('--accent', env.dark ? acc.dark : acc.light);
-  root.append(h('a', { class: 'b sm ghost', href: '#/' }, '← ' + t('home')));
+  root.append(h('a', { class: 'backlink', href: '#/' }, '← ' + t('home')));
   root.append(h('section', { class: 'section' },
     h('div', { class: 'eyebrow' }, labName({ id: entry.id, display: entry.display })),
     h('h1', null, tr(lab.title)),
@@ -105,7 +140,7 @@ export async function labPage(root, env, entry, lab) {
   if (st.key === 'briefing') { root.append(h('p', { class: 'banner warn' }, t('briefingText')), h('a', { class: 'b pri', href: '#/lab/00' }, t('intro') + ' →')); return; }
   if (st.waived) root.append(h('p', { class: 'banner info' }, t('briefingDraftNote')));
   if (env.hintsOff(lab)) root.append(h('p', { class: 'banner warn' }, env.mode === 'exam' ? t('examMode') : t('hintsOff')));
-  root.append(h('section', { class: 'card section prose' },
+  root.append(h('section', { class: 'card soft section prose' },
     lab.topic ? h('p', null, h('b', null, t('topic') + ': '), tr(lab.topic)) : null,
     lab.aim ? h('p', null, h('b', null, t('aim') + ': '), tr(lab.aim)) : null,
     lab.relevance ? h('p', null, h('b', null, t('relevance') + ': '), tr(lab.relevance)) : null));
@@ -137,7 +172,9 @@ export async function labPage(root, env, entry, lab) {
   lab.experiments.forEach((e, i) => {
     const run = progress.runs[e.id];
     const prevDone = i === 0 || (progress.runs[lab.experiments[i - 1].id] && progress.runs[lab.experiments[i - 1].id].status === 'done') || lab.experiments[i - 1].optional;
-    const card = h('div', { class: 'card' }, h('div', { class: 'eyebrow' }, expName(lab, e.id) + (e.optional ? ' · ' + t('optional') : '')), h('h3', { style: 'margin-top:4px' }, tr(e.title)), e.principle ? h('p', { class: 'muted', style: 'font-size:13.5px' }, tr(e.principle)) : null);
+    const card = h('div', { class: 'card' }, h('div', { class: 'eyebrow' }, expName(lab, e.id) + (e.optional ? ' · ' + t('optional') : '')), h('h3', { style: 'margin-top:6px' }, tr(e.title)),
+      run ? segsEl(stepSegs(e, run), 'segs fill') : null,
+      e.principle ? h('p', { class: 'muted', style: 'font-size:15px' }, tr(e.principle)) : null);
     const row = h('div', { class: 'row' });
     if (!expOpen) row.append(h('span', { class: 'muted' }, t('needAdmission')));
     else if (!prevDone && !run) row.append(h('span', { class: 'muted' }, t('expLocked')));

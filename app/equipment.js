@@ -55,6 +55,12 @@ const ICONS = {
   dessicator: `<path ${G} d="M10 26 L54 26 L50 58 L14 58 Z"/><ellipse ${G} cx="32" cy="24" rx="24" ry="6"/>`,
 };
 
+/** Классы опасности реактивов — подписи для таблиц и карточек реактивов. */
+export const HAZARD = {
+  corrosive: L('едкое', 'күйдіргіш', 'corrosive'), oxidiser: L('окислитель', 'тотықтырғыш', 'oxidiser'), flammable: L('ЛВЖ', 'тез тұтанғыш', 'flammable'),
+  toxic: L('токсично', 'улы', 'toxic'), irritant: L('раздражающее', 'тітіркендіргіш', 'irritant'),
+};
+
 const E = (name, icon, labs, use) => ({ name, icon, labs, use });
 
 export const EQUIPMENT = {

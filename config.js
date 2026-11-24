@@ -12,6 +12,12 @@ export const CONFIG = {
     kk: 'Калдыбаева Ару Рашидовна',
     en: 'Aru Kaldybayeva',
   },
+  // в подвале сайта
+  AUTHOR_SHORT: {
+    ru: 'Калдыбаева А. Р.',
+    kk: 'Калдыбаева А. Р.',
+    en: 'A. Kaldybayeva',
+  },
   API_TIMEOUT_MS: 30000,
   APP_VERSION: '1.1.2',
 };

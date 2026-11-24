@@ -18,7 +18,7 @@ export async function reportPage(root, env, entry, lab) {
   const author = tr(CONFIG.AUTHOR);
   const R = progress.results || {};
 
-  root.append(h('a', { class: 'b sm ghost noprint', href: `#/lab/${entry.number}` }, '← ' + t('toLab')));
+  root.append(h('a', { class: 'backlink noprint', href: `#/lab/${entry.number}` }, '← ' + t('toLab')));
   // В протоколе — код студента и группа (ФИО на сайте не хранится); код меняется на главной.
   const code = isCode(student.name) ? formatCode(student.name) : '—';
   const doc = h('article', { class: 'card doc' });
