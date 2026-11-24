@@ -319,7 +319,20 @@ canvas.tg{width:100%;height:110px;display:block;border:1px solid var(--line);bor
 .signprev{font-size:15px;margin:6px 0 0}
 
 /* SVG стенда */
-.sv-bench{fill:var(--bench)}.gl{fill:var(--glass-fill);stroke:var(--glass);stroke-width:1.8}.gls{fill:none;stroke:var(--glass);stroke-width:1.8}
+.sv-benchtop{fill:var(--bench-top)}.sv-benchedge{stroke:var(--bench-edge);stroke-width:1}
+.hl{fill:none;stroke:var(--hl);stroke-linecap:round}.hlf{fill:var(--hl)}
+.men{fill:none;stroke:var(--hl);stroke-width:1.6;stroke-linecap:round}
+.glf{fill:var(--glass-fill)}
+.thg{fill:var(--panel);fill-opacity:.85;stroke:var(--glass);stroke-width:1.2}
+.rodg{stroke:var(--glass);stroke-width:3.4}
+.water-top{fill:var(--water-top);stroke:var(--hl);stroke-width:1}
+.water-front{fill:var(--water-bot);opacity:.42}
+.shadow{fill:var(--shadow)}
+.salt{fill:#fff;stroke:var(--ice-edge);stroke-width:.4}
+.dev{fill:var(--dev);stroke:var(--devf);stroke-width:1}.devf{fill:var(--devf)}.knob{fill:var(--knob)}.pad{fill:var(--pad)}
+.callout path{stroke:var(--faint);stroke-width:.9}.callout circle{fill:var(--faint)}
+.lblc{font:400 9.4px var(--f-mono);fill:var(--muted);letter-spacing:-.01em}
+.sv-bench{fill:var(--bench)}.gl{fill:var(--glass-fill);stroke:var(--glass);stroke-width:1.9;stroke-linejoin:round}.gls{fill:none;stroke:var(--glass);stroke-width:1.8}
 .liq{fill:var(--liquid)}.ice{fill:var(--ice);stroke:var(--ice-edge);stroke-width:1}.met{fill:var(--metal)}.metd{fill:var(--metal-dark)}
 .sol{fill:var(--solid);stroke:var(--muted);stroke-width:.6}.porc{fill:var(--solid);stroke:var(--muted);stroke-width:1}.ppt{fill:var(--solid-y)}
 /* подписи на стенде — PT Sans: он уже прежнего шрифта, подписи не наезжают на рисунок */
@@ -331,7 +344,9 @@ canvas.tg{width:100%;height:110px;display:block;border:1px solid var(--line);bor
 @keyframes rise{0%{transform:translateY(0);opacity:0}15%{opacity:1}100%{transform:translateY(-34px);opacity:0}}
 .drop{animation:fall .45s ease-in forwards}
 @keyframes fall{from{transform:translateY(0)}to{transform:translateY(var(--dy,120px));opacity:.15}}
-.stir{animation:stir .55s ease-in-out infinite alternate}
+.stir{animation:stir .55s ease-in-out infinite alternate;transform-box:view-box}
+.swirl ellipse{fill:none;stroke:var(--hl);stroke-width:1.3;stroke-dasharray:9 12;animation:swirl .9s linear infinite}
+@keyframes swirl{to{stroke-dashoffset:-42}}
 @keyframes stir{from{transform:rotate(-3.5deg)}to{transform:rotate(3.5deg)}}
 .airp{animation:air 1.6s linear infinite}
 @keyframes air{from{transform:translateY(12px);opacity:0}50%{opacity:1}to{transform:translateY(-22px);opacity:0}}

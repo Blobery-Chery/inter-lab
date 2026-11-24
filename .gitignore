@@ -4,3 +4,4 @@ vlab-students-*.csv
 vlab-requests-*.csv
 vlab-reports-*.csv
 *.names.csv
+.harness.html

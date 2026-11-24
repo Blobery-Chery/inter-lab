@@ -11,6 +11,8 @@
   --glass:#7a9b93; --glass-fill:rgba(196,222,214,.32); --liquid:rgba(176,208,212,.6); --liq-y:rgba(232,214,140,.62); --melt:rgba(246,232,170,.85);
   --ice:#f7fbfb; --ice-edge:#b9d0d0; --bench:#c3cbc8; --metal:#a3aeab; --metal-dark:#5b6764; --screen:#1d2b25; --screen-ink:#86f0b6;
   --solid:#fdfdf8; --solid-y:#f1e7bd; --hot:#e0662e; --nox:#b4632d;
+  --bench-top:#dde4e1; --bench-edge:#aeb8b4; --metal-hi:#e3e8e6; --water-top:rgba(196,222,226,.78); --water-bot:rgba(160,198,206,.78);
+  --rubber:#7d2a20; --rubber-hi:#c0503f; --hl:rgba(255,255,255,.85); --shadow:rgba(27,36,48,.13); --dev:#d3dad7; --devf:#b9c3bf; --knob:#4e5a57; --pad:#b4632d;
   --f-display:"PT Serif",Georgia,"Times New Roman",serif;
   --f-body:"PT Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --f-mono:"PT Mono",ui-monospace,Menlo,Consolas,monospace;
@@ -27,7 +29,9 @@
   --warn:#eba06a; --warn-soft:#35231a; --bad:#ff8b7c; --bad-soft:#3a1915; --good:#6cc9a8; --good-soft:#163128;
   --glass:#8db3a9; --glass-fill:rgba(120,170,155,.12); --liquid:rgba(120,165,170,.34); --liq-y:rgba(220,190,90,.4); --melt:rgba(230,210,140,.6);
   --ice:#2a3d3a; --ice-edge:#5f8a84; --bench:#26302d; --metal:#4f5c58; --metal-dark:#93a19c; --screen:#0b130f; --screen-ink:#77eca8;
-  --solid:#e9ece4; --solid-y:#e4dcae; --hot:#ff8650; --nox:#e39361; color-scheme:dark}}
+  --solid:#e9ece4; --solid-y:#e4dcae; --hot:#ff8650; --nox:#e39361;
+  --bench-top:#2a3531; --bench-edge:#3a4843; --metal-hi:#9fb0aa; --water-top:rgba(90,140,150,.35); --water-bot:rgba(70,115,125,.45);
+  --rubber:#8c3a2e; --rubber-hi:#c96a58; --hl:rgba(255,255,255,.16); --shadow:rgba(0,0,0,.4); --dev:#33403b; --devf:#2a3531; --knob:#8d9c97; --pad:#e39361; color-scheme:dark}}
 :root[data-theme="dark"]{
   --paper:#0e1412; --panel:#131b18; --soft:#1a2420; --soft-2:#17201c; --scene:#121a17; --tile-line:#1f2a26;
   --ink:#e6ecea; --muted:#a2b0aa; --faint:#71807a; --line:#26332e; --line-2:#34443e;
@@ -36,7 +40,9 @@
   --warn:#eba06a; --warn-soft:#35231a; --bad:#ff8b7c; --bad-soft:#3a1915; --good:#6cc9a8; --good-soft:#163128;
   --glass:#8db3a9; --glass-fill:rgba(120,170,155,.12); --liquid:rgba(120,165,170,.34); --liq-y:rgba(220,190,90,.4); --melt:rgba(230,210,140,.6);
   --ice:#2a3d3a; --ice-edge:#5f8a84; --bench:#26302d; --metal:#4f5c58; --metal-dark:#93a19c; --screen:#0b130f; --screen-ink:#77eca8;
-  --solid:#e9ece4; --solid-y:#e4dcae; --hot:#ff8650; --nox:#e39361; color-scheme:dark}
+  --solid:#e9ece4; --solid-y:#e4dcae; --hot:#ff8650; --nox:#e39361;
+  --bench-top:#2a3531; --bench-edge:#3a4843; --metal-hi:#9fb0aa; --water-top:rgba(90,140,150,.35); --water-bot:rgba(70,115,125,.45);
+  --rubber:#8c3a2e; --rubber-hi:#c96a58; --hl:rgba(255,255,255,.16); --shadow:rgba(0,0,0,.4); --dev:#33403b; --devf:#2a3531; --knob:#8d9c97; --pad:#e39361; color-scheme:dark}
 
 
 [hidden]{display:none!important}

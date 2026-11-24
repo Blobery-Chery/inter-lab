@@ -106,6 +106,8 @@ async function walkLab(browser, id) {
       if (r.k === 'restart') out.restarts++;
       if (r.k === 'next') {
         out.steps++;
+        // --stepshots: снимок стенда в момент перед переходом к следующему шагу (проверка рисунков)
+        if (SHOTS && opt.stepshots != null) { const sb = page.locator('.standcol'); if (await sb.count()) await sb.screenshot({ path: `${SHOTS}/${id}-e${e.id}-s${String(r.i + 1).padStart(2, '0')}.png` }).catch(() => {}); }
         if (opt.check !== '0') await textIssues(`exp ${e.id} step ${r.i + 1} (${r.type})`);
       }
       const cur = await page.evaluate(() => window.__vlab && window.__vlab.runner.stepIndex);
