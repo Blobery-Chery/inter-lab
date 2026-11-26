@@ -85,7 +85,8 @@ export async function reportPage(root, env, entry, lab) {
   if (auto.length) asg.append(h('p', { class: 'muted' }, t('autoCheck', { a: okN, b: auto.length })));
   doc.append(asg);
   doc.append(h('div', { html: remarksHTML(d) }));
-  doc.append(h('p', { class: 'muted', style: 'margin-top:14px;font-size:12.5px' }, `© ${new Date().getFullYear()} ${author}. ${t('rights')}.`));
+  doc.append(h('p', { class: 'muted', style: 'margin-top:14px;font-size:12.5px' }, `© ${new Date().getFullYear()} ${author}. ${t('rights')}.`,
+    CONFIG.COPYRIGHT_CERT ? h('br') : null, CONFIG.COPYRIGHT_CERT ? tr(CONFIG.COPYRIGHT_CERT) : null));
   root.append(doc);
 
   /* отправка */

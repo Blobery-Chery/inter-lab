@@ -38,6 +38,8 @@ export function fixNums(s, l = lang) {
     const before = str.slice(Math.max(0, off - 24), off), after = str.slice(off + m.length, off + m.length + 24);
     if (/(?:^|[\s(])(?:пп?\.|раздел[а-яёәғқңөұүһі]*|бөлім[а-яёәғқңөұүһі]*)\s*(?:[\d.,–\s]|и\s|және\s)*$/i.test(before)) return m;
     if (/^(?:[\d.,–\s]|и\s|және\s)*-?(?:тарма|бөлім)/i.test(after) || /^\s*правил/.test(after)) return m;
+    // даты и номера версий (26.11.2026, 1.2.2) — не десятичные дроби
+    if (/^\.\d/.test(after) || /\d\.$/.test(before)) return m;
     return a + ',' + b;
   });
 }

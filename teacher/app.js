@@ -174,7 +174,7 @@ function renderChrome() {
   banner.hidden = st.mode !== 'demo';
   banner.innerHTML = `<span><b>${esc(t('demoTag'))}</b> · ${esc(t('demoBanner'))}</span><button class="b sm" type="button" data-act="logout">${esc(t('exitDemo'))}</button>`;
   const year = new Date().getFullYear();
-  $('foot').innerHTML = `<span>© ${esc(tr(CONFIG.AUTHOR_SHORT || CONFIG.AUTHOR))}, ${year} · ${esc(t('rights'))}</span><span>${esc(t('appName'))} · v${esc(VERSION)}</span>`;
+  $('foot').innerHTML = `<span>© ${esc(tr(CONFIG.AUTHOR_SHORT || CONFIG.AUTHOR))}, ${year} · ${esc(t('rights'))}</span><span>${esc(t('appName'))} · v${esc(VERSION)}</span>${CONFIG.COPYRIGHT_CERT ? `<span class="cert">${esc(tr(CONFIG.COPYRIGHT_CERT))}</span>` : ''}`;
   applyTheme();
 }
 
@@ -381,7 +381,7 @@ function viewReport() {
     ${journal.length ? `<h3>${esc(t('journal'))}</h3><ol class="jr">${journal.map((j) => `<li class="${esc(j.kind)}"><time>${E(j.t)}</time><span>${j.kind === 'obs' ? `<b>${esc(t('obs'))}</b> ` : ''}${E(j.text)}</span></li>`).join('')}</ol>` : ''}
 
     ${full ? `<h3>${esc(t('fullText'))}</h3><pre class="full">${esc(full)}</pre>` : ''}
-    <p class="small muted">© ${new Date().getFullYear()}, ${esc(tr(CONFIG.AUTHOR))}. ${esc(t('rights'))}</p>
+    <p class="small muted">© ${new Date().getFullYear()}, ${esc(tr(CONFIG.AUTHOR))}. ${esc(t('rights'))}${CONFIG.COPYRIGHT_CERT ? `<br>${esc(tr(CONFIG.COPYRIGHT_CERT))}` : ''}</p>
   </article>`;
 }
 

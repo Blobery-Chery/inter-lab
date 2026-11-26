@@ -5,6 +5,7 @@
 // API_TIMEOUT_MS — сколько ждать ответа сервера: Apps Script после простоя «просыпается» 10–15 с и ещё отправляет письмо.
 //   Не дождались — ответ студента сохраняется на устройстве и досылается автоматически (каждые 20 с, пока сайт открыт).
 // AUTHOR — автор для подписи «© год, автор. Все права защищены» внизу каждой страницы, в протоколах и в панели.
+// COPYRIGHT_CERT — свидетельство о регистрации авторского права: строка под «©» в подвале сайта и панели, в протоколе.
 export const CONFIG = {
   BACKEND_URL: 'https://script.google.com/macros/s/AKfycbwfC5PgLEhFoEK0WuGvs9a9LlO2Hv2qDvAQqOToPXV88WAMUr6zhF9SHC5aJ6L0fpMH/exec',
   AUTHOR: {
@@ -18,6 +19,11 @@ export const CONFIG = {
     kk: 'Калдыбаева А. Р.',
     en: 'A. Kaldybayeva',
   },
+  COPYRIGHT_CERT: {
+    ru: 'Свидетельство о внесении сведений в государственный реестр прав на объекты, охраняемые авторским правом, №\u00a082068 от\u00a026.11.2026',
+    kk: 'Авторлық құқықпен қорғалатын объектілерге құқықтардың мемлекеттік тізіліміне мәліметтерді енгізу туралы куәлік №\u00a082068, 26.11.2026',
+    en: 'Certificate of entry in the State Register of Rights to Copyright-Protected Objects (Republic of Kazakhstan) No.\u00a082068, 26\u00a0November\u00a02026',
+  },
   API_TIMEOUT_MS: 30000,
-  APP_VERSION: '1.2.1',
+  APP_VERSION: '1.2.2',
 };

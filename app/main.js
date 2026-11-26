@@ -121,7 +121,8 @@ function footer() {
   footSlot = h('span', { class: 'noprint' });
   return h('footer', { class: 'foot' },
     h('span', null, `© ${tr(CONFIG.AUTHOR_SHORT || CONFIG.AUTHOR)}, ${new Date().getFullYear()} · ${t('rights')}`, h('span', { class: 'noprint' }, ` · v${VERSION}`)),
-    footSlot);
+    footSlot,
+    CONFIG.COPYRIGHT_CERT ? h('span', { class: 'cert' }, tr(CONFIG.COPYRIGHT_CERT)) : null);
 }
 
 /* ---------- маршрутизация ---------- */
